@@ -75,4 +75,14 @@ public class Pawn extends Piece{
 		return 1;
 	}
 
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 0;
+		}
+		else {
+			return 6;
+		}
+	}
+
 }

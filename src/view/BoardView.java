@@ -49,7 +49,7 @@ public class BoardView extends JPanel {
 					}
 
 					if (checksOut) {
-						System.out.println("move to " + selectedSquare);
+//						System.out.println("move to " + selectedSquare);
 						contr.executeMove(selectedPiece, selectedSquare);
 						BoardView.this.repaint();
 					}
@@ -58,11 +58,12 @@ public class BoardView extends JPanel {
 				}
 				else if (selectedPiece == null) {
 					selectedPiece = contr.getPieceAt(selectedSquare);
-
-					for(Move move : contr.getMoves(selectedPiece)) {
-						System.out.print(move + ",");
+					if(selectedPiece != null) {
+						for(Move move : contr.getMoves(selectedPiece)) {
+							System.out.print(move + ",");
+						}
+						System.out.println();
 					}
-                    System.out.println();
 				}
 
 			}

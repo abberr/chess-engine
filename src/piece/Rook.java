@@ -84,4 +84,14 @@ public class Rook extends Piece {
 	public int getValue() {
 		return 5;
 	}
+
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 1;
+		}
+		else {
+			return 7;
+		}
+	}
 }

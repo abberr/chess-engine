@@ -54,4 +54,14 @@ public class Queen extends Piece{
 		return 9;
 	}
 
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 4;
+		}
+		else {
+			return 10;
+		}
+	}
+
 }

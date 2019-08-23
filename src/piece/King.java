@@ -52,7 +52,17 @@ public class King extends Piece {
 	
 	@Override
 	public int getValue() {
-		return 10000;
+		return 200;
+	}
+
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 5;
+		}
+		else {
+			return 11;
+		}
 	}
 
 }

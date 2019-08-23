@@ -92,4 +92,14 @@ public class Bishop extends Piece{
 		return 3;
 	}
 
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 3;
+		}
+		else {
+			return 9;
+		}
+	}
+
 }

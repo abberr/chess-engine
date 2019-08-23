@@ -15,8 +15,13 @@ public abstract class Piece {
 	}
 	
 	public abstract Position[] getAvailableMoves(Position pos, Piece [][] board);
-	public abstract int getValue();	
+
+	public abstract int getValue();
+
+	public abstract int getIndex(); //Zobrist hash
+
 	public abstract Type getType();
+
 	public abstract BufferedImage getImage();
 	
 	protected void removeIllegalMoves(ArrayList<Position> moves, Piece [][] board) {

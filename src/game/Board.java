@@ -1,55 +1,67 @@
 package game;
 
 import piece.*;
-import util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Board {
 
 //    private static final int a=0, b=1, c=2, d=3, e=4, f=5, g=6, h=7;
 
     private Piece[][] board = new Piece[8][8];
+    private long [][] zobristTable = new long[64][12];
+
+    private long hash;
 
     public Board() {
+        Random rnd = new Random(1);
+        //Init zobrist
+        for (int i = 0; i < zobristTable.length; i++) {
+            for (int j = 0; j < zobristTable[0].length; j++) {
+                zobristTable[i][j] = rnd.nextLong();
+            }
+        }
+
+
         // Init pieces
-        board[0][1] = new Pawn(Player.BLACK);
-        board[1][1] = new Pawn(Player.BLACK);
-        board[2][1] = new Pawn(Player.BLACK);
-        board[3][1] = new Pawn(Player.BLACK);
-        board[4][1] = new Pawn(Player.BLACK);
-        board[5][1] = new Pawn(Player.BLACK);
-        board[6][1] = new Pawn(Player.BLACK);
-        board[7][1] = new Pawn(Player.BLACK);
-
-        board[0][0] = new Rook(Player.BLACK);
-        board[7][0] = new Rook(Player.BLACK);
-        board[1][0] = new Knight(Player.BLACK);
-        board[6][0] = new Knight(Player.BLACK);
-        board[2][0] = new Bishop(Player.BLACK);
-        board[5][0] = new Bishop(Player.BLACK);
-        board[3][0] = new Queen(Player.BLACK);
-        board[4][0] = new King(Player.BLACK);
-
-
-        board[0][6] = new Pawn(Player.WHITE);
-        board[1][6] = new Pawn(Player.WHITE);
-        board[2][6] = new Pawn(Player.WHITE);
-        board[3][6] = new Pawn(Player.WHITE);
-        board[4][6] = new Pawn(Player.WHITE);
-        board[5][6] = new Pawn(Player.WHITE);
-        board[6][6] = new Pawn(Player.WHITE);
-        board[7][6] = new Pawn(Player.WHITE);
-
-        board[0][7] = new Rook(Player.WHITE);
-        board[7][7] = new Rook(Player.WHITE);
-        board[1][7] = new Knight(Player.WHITE);
-        board[6][7] = new Knight(Player.WHITE);
-        board[2][7] = new Bishop(Player.WHITE);
-        board[5][7] = new Bishop(Player.WHITE);
-        board[3][7] = new Queen(Player.WHITE);
-        board[4][7] = new King(Player.WHITE);
+//        board[0][1] = new Pawn(Player.BLACK);
+//        board[1][1] = new Pawn(Player.BLACK);
+//        board[2][1] = new Pawn(Player.BLACK);
+//        board[3][1] = new Pawn(Player.BLACK);
+//        board[4][1] = new Pawn(Player.BLACK);
+//        board[5][1] = new Pawn(Player.BLACK);
+//        board[6][1] = new Pawn(Player.BLACK);
+//        board[7][1] = new Pawn(Player.BLACK);
+//
+//        board[0][0] = new Rook(Player.BLACK);
+//        board[7][0] = new Rook(Player.BLACK);
+//        board[1][0] = new Knight(Player.BLACK);
+//        board[6][0] = new Knight(Player.BLACK);
+//        board[2][0] = new Bishop(Player.BLACK);
+//        board[5][0] = new Bishop(Player.BLACK);
+//        board[3][0] = new Queen(Player.BLACK);
+//        board[4][0] = new King(Player.BLACK);
+//
+//
+//        board[0][6] = new Pawn(Player.WHITE);
+//        board[1][6] = new Pawn(Player.WHITE);
+//        board[2][6] = new Pawn(Player.WHITE);
+//        board[3][6] = new Pawn(Player.WHITE);
+//        board[4][6] = new Pawn(Player.WHITE);
+//        board[5][6] = new Pawn(Player.WHITE);
+//        board[6][6] = new Pawn(Player.WHITE);
+//        board[7][6] = new Pawn(Player.WHITE);
+//
+//        board[0][7] = new Rook(Player.WHITE);
+//        board[7][7] = new Rook(Player.WHITE);
+//        board[1][7] = new Knight(Player.WHITE);
+//        board[6][7] = new Knight(Player.WHITE);
+//        board[2][7] = new Bishop(Player.WHITE);
+//        board[5][7] = new Bishop(Player.WHITE);
+//        board[3][7] = new Queen(Player.WHITE);
+//        board[4][7] = new King(Player.WHITE);
 
 
 
@@ -67,20 +79,22 @@ public class Board {
 //        board[0][7] = new King(Player.WHITE);
 //        board[1][3] = new Pawn(Player.WHITE);
 //        board[1][6] = new Knight(Player.WHITE);
-    }
 
-    public void executeMove(Move move) {
-        // Check if checked
-//        if (Evaluator.isChecked(move.getPiece().player, this)) {
-//            System.out.println("CHECKED");
-//        }
-        Piece capturedPiece = board[move.moveTo.x][move.moveTo.y];
-        if (capturedPiece != null) {
-            move.setCapturedPiece(capturedPiece);
-        }
 
-        board[move.moveFrom.x][move.moveFrom.y] = null;
-        board[move.moveTo.x][move.moveTo.y] = move.getPiece();
+
+        board[2][2] = new King(Player.BLACK);
+        board[1][2] = new Rook(Player.BLACK);
+        board[3][4] = new Pawn(Player.BLACK);
+        board[4][4] = new Pawn(Player.BLACK);
+
+        board[0][7] = new King(Player.WHITE);
+        board[0][0] = new Knight(Player.WHITE);
+        board[5][7] = new Bishop(Player.WHITE);
+
+
+        hash = generateZobristHash();
+
+        System.out.println(hash);
     }
 
     public void executeMove(Piece piece, Position moveTo) {
@@ -88,9 +102,37 @@ public class Board {
         executeMove(move);
     }
 
+    public void executeMove(Move move) {
+        Piece capturedPiece = board[move.moveTo.x][move.moveTo.y];
+
+        if (capturedPiece != null) {
+            move.setCapturedPiece(capturedPiece);
+        }
+
+        board[move.moveFrom.x][move.moveFrom.y] = null;
+        board[move.moveTo.x][move.moveTo.y] = move.getPiece();
+
+        updateHash(move);
+    }
+
+
     public void executeInvertedMove(Move move) {
         board[move.moveFrom.x][move.moveFrom.y] = move.getPiece();
         board[move.moveTo.x][move.moveTo.y] = move.getCapturedPiece();
+
+        updateHash(move);
+    }
+
+    private void updateHash(Move move) {
+        int moveFromindex = move.moveFrom.x + (move.moveFrom.y*8);
+        int moveToindex = move.moveTo.x + (move.moveTo.y*8);
+
+        hash ^= zobristTable[moveFromindex][move.piece.getIndex()];
+        hash ^= zobristTable[moveToindex][move.piece.getIndex()];
+
+        if (move.capturedPiece != null) {
+            hash ^= zobristTable[moveToindex][move.capturedPiece.getIndex()];
+        }
     }
 
     private Position getPositionOfPiece(Piece piece) {
@@ -156,26 +198,49 @@ public class Board {
     }
 
     public float getValue() {
-        int value = 0;
+        float value = 0;
+
         //Add white values, negate black values
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (board[i][j] != null && board[i][j].player == Player.WHITE) {
                     value += board[i][j].getValue();
+                    value += 0.1 * getMoves(board[i][j], false).size();
                 }
                 else if (board[i][j] != null && board[i][j].player == Player.BLACK) {
                     value -= board[i][j].getValue();
+                    value -= 0.1 * getMoves(board[i][j], false).size();
                 }
             }
         }
 
-        if (getAvailableMoves(Player.WHITE, false).size() == 0) {
-            value = Integer.MIN_VALUE;
-        } else if (getAvailableMoves(Player.BLACK, false).size() == 0) {
-            value = Integer.MAX_VALUE;
-        }
+//        if (getAvailableMoves(Player.WHITE, false).size() == 0) {
+//            value = Integer.MIN_VALUE;
+//        } else if (getAvailableMoves(Player.BLACK, false).size() == 0) {
+//            value = Integer.MAX_VALUE;
+//        }
 
         return value;
     }
 
+
+    private long generateZobristHash() {
+        long hash = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Piece piece = board[i][j];
+                if (piece != null) {
+                    int k = board[i][j].getIndex();
+                    hash ^= zobristTable[i + (j*8)][k];
+                }
+            }
+        }
+
+        return hash;
+    }
+
+
+    public long getHash() {
+        return hash;
+    }
 }

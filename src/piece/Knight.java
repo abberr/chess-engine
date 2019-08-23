@@ -55,4 +55,14 @@ public class Knight extends Piece{
 		return 3;
 	}
 
+	@Override
+	public int getIndex() {
+		if (player == Player.WHITE) {
+			return 2;
+		}
+		else {
+			return 8;
+		}
+	}
+
 }

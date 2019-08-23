@@ -16,7 +16,7 @@ public class Controller {
 	public Controller() {
         board = new Board();
         System.out.println(board.getValue());
-        Evaluator.minMax(board, Player.BLACK, 3);
+        Evaluator.minMax(board, Player.BLACK, 4);
 
 	}
 
@@ -27,10 +27,13 @@ public class Controller {
 
 	public void executeMove(Piece piece, Position moveTo) {
         board.executeMove(piece, moveTo);
+
+        Move[] bestMoves;
         if (piece.player == Player.BLACK)
-            Evaluator.minMax(board, Player.WHITE, 3);
+			bestMoves = Evaluator.minMax(board, Player.WHITE, 4);
         else
-            Evaluator.minMax(board, Player.BLACK, 3);
+			bestMoves = Evaluator.minMax(board, Player.BLACK, 4);
+
 	}
 	
 	public List<Move> getAvailableMoves(Player player, Board board) {
