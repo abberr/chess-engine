@@ -7,61 +7,73 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.imageio.ImageIO;
+
 import game.Position;
 import util.Util;
 
-public class Queen extends Piece{
+public class Queen extends Piece {
 
-	
-	public Queen(Player player) {
-		super(player);
-	}
+    private int[][] pieceSquareTable = {
+            {-20, -10, -10, -5, -5, -10, -10, -20},
+            {-10, 0, 0, 0, 0, 0, 0, -10},
+            {-10, 0, 5, 5, 5, 5, 0, -10},
+            {-5, 0, 5, 5, 5, 5, 0, -5},
+            {0, 0, 5, 5, 5, 5, 0, -5},
+            {-10, 5, 5, 5, 5, 5, 0, -10},
+            {-10, 0, 5, 0, 0, 0, 0, -10},
+            {-20, -10, -10, -5, -5, -10, -10, -20}};
 
-	@Override
-	public Type getType() {
-		return Type.QUEEN;
-	}
+    public Queen(Player player) {
+        super(player);
+        if (player == Player.BLACK) {
+            pieceSquareTable = Util.reverseArray(pieceSquareTable);
+        }
+    }
 
-	@Override
-	public BufferedImage getImage() {
-		try {
-			if (player == Player.WHITE)
-				return ImageIO.read(new File("src/res/qw.png"));
-			else
-				return ImageIO.read(new File("src/res/qb.png"));
-		} catch (IOException e) {
-			System.out.println(e);
-			return null;
-		}
-	}
+    @Override
+    public Type getType() {
+        return Type.QUEEN;
+    }
 
-	@Override
-	public Position[] getAvailableMoves(Position pos, Piece [][] board) {
-		ArrayList<Position> moves = new ArrayList<>();
+    @Override
+    public BufferedImage getImage() {
+        try {
+            if (player == Player.WHITE)
+                return ImageIO.read(new File("src/res/qw.png"));
+            else
+                return ImageIO.read(new File("src/res/qb.png"));
+        } catch (IOException e) {
+            System.out.println(e);
+            return null;
+        }
+    }
 
-		//Create temporary rook and bishop and get their available moves
-		Piece[][] tempBoard = Util.copyBoard(board);
-		tempBoard[pos.x][pos.y] = new Rook(player);
-		moves.addAll(new ArrayList<Position>(Arrays.asList(tempBoard[pos.x][pos.y].getAvailableMoves(pos, board))));
-		tempBoard[pos.x][pos.y] = new Bishop(player);
-		moves.addAll(new ArrayList<Position>(Arrays.asList(tempBoard[pos.x][pos.y].getAvailableMoves(pos, board))));	
+    @Override
+    public Position[] getAvailableMoves(Position pos, Piece[][] board) {
+        ArrayList<Position> moves = new ArrayList<>();
 
-		return moves.toArray(new Position[0]);
-	}
-	
-	@Override
-	public int getValue() {
-		return 9;
-	}
+        //Create temporary rook and bishop and get their available moves
+        Piece[][] tempBoard = Util.copyBoard(board);
+        tempBoard[pos.x][pos.y] = new Rook(player);
+        moves.addAll(new ArrayList<Position>(Arrays.asList(tempBoard[pos.x][pos.y].getAvailableMoves(pos, board))));
+        tempBoard[pos.x][pos.y] = new Bishop(player);
+        moves.addAll(new ArrayList<Position>(Arrays.asList(tempBoard[pos.x][pos.y].getAvailableMoves(pos, board))));
 
-	@Override
-	public int getIndex() {
-		if (player == Player.WHITE) {
-			return 4;
-		}
-		else {
-			return 10;
-		}
-	}
+        return moves.toArray(new Position[0]);
+    }
+
+    @Override
+    public int getValue(Position pos) {
+        return 900 + pieceSquareTable[pos.y][pos.x];
+    }
+
+    @Override
+    public int getIndex() {
+        if (player == Player.WHITE) {
+            return 4;
+        } else {
+            return 10;
+        }
+    }
 
 }

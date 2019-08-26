@@ -84,17 +84,14 @@ public class Board {
 
         board[2][2] = new King(Player.BLACK);
         board[1][2] = new Rook(Player.BLACK);
-        board[3][4] = new Pawn(Player.BLACK);
+        board[3][5] = new Pawn(Player.BLACK);
         board[4][4] = new Pawn(Player.BLACK);
 
         board[0][7] = new King(Player.WHITE);
         board[0][0] = new Knight(Player.WHITE);
         board[5][7] = new Bishop(Player.WHITE);
 
-
         hash = generateZobristHash();
-
-        System.out.println(hash);
     }
 
     public void executeMove(Piece piece, Position moveTo) {
@@ -109,8 +106,25 @@ public class Board {
             move.setCapturedPiece(capturedPiece);
         }
 
+        if (move.getPiece().getType() == Type.PAWN) {
+            if (move.getPiece().player == Player.WHITE) {
+                if (move.moveTo.y == 0) {
+                    move.promotingMove = true;
+                }
+            }
+            else {
+                if (move.moveTo.y == 7) {
+                    move.promotingMove = true;
+                }
+            }
+        }
+
         board[move.moveFrom.x][move.moveFrom.y] = null;
         board[move.moveTo.x][move.moveTo.y] = move.getPiece();
+
+        if (move.promotingMove) {
+            board[move.moveTo.x][move.moveTo.y] = new Queen(move.piece.player);
+        }
 
         updateHash(move);
     }
@@ -197,23 +211,24 @@ public class Board {
         return moves;
     }
 
-    public float getValue() {
-        float value = 0;
+    public int getValue() {
+        int value = 0;
 
         //Add white values, negate black values
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (board[i][j] != null && board[i][j].player == Player.WHITE) {
-                    value += board[i][j].getValue();
-                    value += 0.1 * getMoves(board[i][j], false).size();
+                    value += board[i][j].getValue(new Position(i, j));
+//                    value += 10 * getMoves(board[i][j], false).size();
                 }
                 else if (board[i][j] != null && board[i][j].player == Player.BLACK) {
-                    value -= board[i][j].getValue();
-                    value -= 0.1 * getMoves(board[i][j], false).size();
+                    value -= board[i][j].getValue(new Position(i, j));
+//                    value -= 10 * getMoves(board[i][j], false).size();
                 }
             }
         }
 
+        //Checkmate
 //        if (getAvailableMoves(Player.WHITE, false).size() == 0) {
 //            value = Integer.MIN_VALUE;
 //        } else if (getAvailableMoves(Player.BLACK, false).size() == 0) {

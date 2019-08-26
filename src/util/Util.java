@@ -12,4 +12,16 @@ public class Util {
 		}
 		return copy;
 	}
+
+    public static int[][] reverseArray(int[][] myArray){
+        int my_rows = myArray.length;
+        int my_cols = myArray[0].length;
+        int array[][]=new int[my_rows][my_cols];
+        for(int i = my_rows-1; i >= 0; i--) {
+            for(int j = my_cols-1; j >= 0; j--) {
+                array[my_rows-1-i][my_cols-1-j] = myArray[i][j];
+            }
+        }
+        return array;
+    }
 }

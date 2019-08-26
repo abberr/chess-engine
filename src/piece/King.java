@@ -7,11 +7,25 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import game.Position;
+import util.Util;
 
 public class King extends Piece {
 
+	private int[][] pieceSquareTable = {
+			{-30,-40,-40,-50,-50,-40,-40,-30},
+			{-30,-40,-40,-50,-50,-40,-40,-30},
+			{-30,-40,-40,-50,-50,-40,-40,-30},
+			{-30,-40,-40,-50,-50,-40,-40,-30},
+			{-20,-30,-30,-40,-40,-30,-30,-20},
+			{-10,-20,-20,-20,-20,-20,-20,-10},
+			{20, 20,  0,  0,  0,  0, 20, 20},
+			{20, 30, 10,  0,  0, 10, 30, 20}};
+
 	public King(Player player) {
-		super(player);
+        super(player);
+        if (player == Player.BLACK) {
+            pieceSquareTable = Util.reverseArray(pieceSquareTable);
+        }
 	}
 
 	@Override
@@ -51,8 +65,8 @@ public class King extends Piece {
 	}
 	
 	@Override
-	public int getValue() {
-		return 200;
+	public int getValue(Position pos) {
+		return 20000 + pieceSquareTable[pos.y][pos.x];
 	}
 
 	@Override

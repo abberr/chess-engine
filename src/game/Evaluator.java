@@ -7,32 +7,40 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Evaluator {
+
+    private static int counter;
+    private static Move bestMove;
 	
 	public static Move[] minMax(Board board, Player player, int depth) {
 
 	    Move [] bestMoves = new Move[depth];
 
         long time = System.currentTimeMillis();
+        counter = 0;
 	    float minMax = minMax(Integer.MIN_VALUE, Integer.MAX_VALUE, depth, board, player, bestMoves);
-        System.out.println("Calculating time: " + (System.currentTimeMillis() - time) + "ms");
+        System.out.println(counter + " moves calculated. Time: " + (System.currentTimeMillis() - time) + "ms");
+        System.out.println("Best move: " + bestMove);
 
-        System.out.println();
-        for (Move m: bestMoves) {
-            System.out.print(m + ", ");
-        }
+//        System.out.println();
+//        for (Move m: bestMoves) {
+//            System.out.print(m + ", ");
+//        }
 //        System.out.println("maxnMove " + maxMove);
 //        System.out.println("minMove " + minMove);
-
 		System.out.println(minMax);
+
+
 		return bestMoves;
     }
 
-    private static float minMax(float alpha, float beta, int depth, Board board, Player player, Move [] bestMoves) {
+    private static int minMax(int alpha, int beta, int depth, Board board, Player player, Move [] bestMoves) {
+        counter++;
+
         //BaseCase
         if (depth <= 0) {
             return board.getValue() * player.getValue();
         }
-        float maxValue = Integer.MIN_VALUE;
+        int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
 
         //Sort moves by heuristic value
@@ -41,8 +49,9 @@ public class Evaluator {
 //        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
 
         for(Move move : moves) {
+            
             board.executeMove(move);
-            float value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent(), bestMoves);
+            int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent(), bestMoves);
             board.executeInvertedMove(move);
 
             if (value > maxValue) {
@@ -54,14 +63,29 @@ public class Evaluator {
                 alpha = maxValue;
             }
 
+            String spaces = "|";
+            for (int i = 0; i < 3-depth; i++) {
+                spaces += "--";
+            }
             if (alpha >= beta) {
-//                System.out.print("P");
+                System.out.println(spaces + move + " | " + value + " PRUNE");
+            } else {
+                System.out.println(spaces + move + " | " + value);
+            }
+
+
+
+
+
+            if (alpha >= beta) {
+//                System.out.print(" P");
                 break;
             }
         }
         bestMoves[bestMoves.length-depth] = maxEvalMove;
-        return maxValue;
 
+        bestMove = maxEvalMove;
+        return maxValue;
     }
 
 //

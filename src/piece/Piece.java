@@ -5,10 +5,13 @@ import java.util.ArrayList;
 
 import game.Move;
 import game.Position;
+import util.Util;
 
 public abstract class Piece {
 	
 	public Player player;
+
+	int [][] pieceSquareTable;
 	
 	public Piece(Player player) {
 		this.player = player;
@@ -16,7 +19,7 @@ public abstract class Piece {
 	
 	public abstract Position[] getAvailableMoves(Position pos, Piece [][] board);
 
-	public abstract int getValue();
+	public abstract int getValue(Position pos);
 
 	public abstract int getIndex(); //Zobrist hash
 

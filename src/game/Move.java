@@ -5,10 +5,9 @@ import piece.Piece;
 public class Move {
 	
 	Piece piece;
-
-
 	Piece capturedPiece;
 	public Position moveFrom, moveTo;
+	boolean promotingMove;
 	
 	public Move(Piece piece, Position moveFrom, Position moveTo) {
 		this.piece = piece;
