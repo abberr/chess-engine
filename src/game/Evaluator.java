@@ -83,13 +83,23 @@ public class Evaluator {
         return maxValue;
     }
 
-    public static int perft(Board board, int depth, Player player) {
+    public static void perft(Board board, int depth, Player player) {
+        long time = System.currentTimeMillis();
+        long calculations = perftRecursive(board, depth, player);
+
+        long evalTime = System.currentTimeMillis() - time;
+        float evalsPerSecond = ((float)calculations/evalTime) * 1000;
+
+        System.out.println(calculations + " moves calculated. Time: " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+    }
+
+    public static long perftRecursive(Board board, int depth, Player player) {
         if (depth == 0) return 1;
         int nodes = 0;
         List<Move> moves = board.getAvailableMoves(player, false);
         for (Move move : moves) {
             board.executeMove(move);
-            nodes += perft(board, depth -1, player.getOpponent());
+            nodes += perftRecursive(board, depth -1, player.getOpponent());
             board.executeInvertedMove(move);
         }
 
@@ -168,21 +178,8 @@ public class Evaluator {
 
 	
 	public static boolean isChecked(Player player, Board board) {
-	    Player opponentPlayer = Player.WHITE;
-		if (player == Player.WHITE) {
-            opponentPlayer = Player.BLACK;
-		}
-
 		Position kingPos = board.getPositionOfKing(player);
-
-		List<Move> moves = board.getAvailableMoves(opponentPlayer, true);
-		//Check if opposing player can take king
-		for (Move m  : moves) {
-			if (m.moveTo.equals(kingPos)) {
-				return true;
-			}
-		}
-		return false;
+		return board.isSquareUnderAttack(kingPos, player);
 	}
 
 	private static float boardValueAfterMove(Move move, Board board) {

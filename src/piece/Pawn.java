@@ -84,6 +84,8 @@ public class Pawn extends Piece {
             if (pos.x < 7 && board[pos.x + 1][pos.y + direction] != null && board[pos.x + 1][pos.y + direction].player != player) {
                 moves.add(new Position(pos.x + 1, pos.y + direction));
             }
+
+            //TODO en passant
         }
 
         return moves.toArray(new Position[0]);

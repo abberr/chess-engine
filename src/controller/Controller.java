@@ -16,9 +16,9 @@ public class Controller {
 	public Controller() {
         board = new Board();
         System.out.println(board.getValue());
-        Evaluator.minMax(board, Player.WHITE, 1);
+        Evaluator.minMax(board, Player.WHITE, 5);
 
-//		System.out.println(Evaluator.perft(board, 5, Player.WHITE));
+//		Evaluator.perft(board, 5, Player.WHITE);
 	}
 
 	public Board getBoard() {
@@ -43,7 +43,5 @@ public class Controller {
 	public List<Move> getMoves(Piece piece) {
 		return board.getMoves(piece, false);
 	}
-
-
 
 }

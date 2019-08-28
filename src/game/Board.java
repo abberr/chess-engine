@@ -204,6 +204,15 @@ public class Board {
         return board[pos.x][pos.y];
     }
 
+    public boolean isSquareUnderAttack(Position pos, Player player) {
+       for(Move move : getAvailableMoves(player.getOpponent(), true)) {
+           if (move.moveTo.equals(pos)) {
+               return true;
+           }
+       }
+       return false;
+    }
+
     public List<Move> getMoves(Piece piece, boolean includeIllegal) {
         ArrayList<Move> moves = new ArrayList<>();
         for (Position m : piece.getAvailableMoves(getPositionOfPiece(piece), board)) {
@@ -213,16 +222,19 @@ public class Board {
                 //Check if move checks
                 executeMove(move);
                 if (!Evaluator.isChecked(piece.player, this)) {
-                    moves.add(move);
+
+                    if (move.isKingSideCastle() && !isSquareUnderAttack(new Position(5, move.moveTo.y), piece.player)) {
+                        moves.add(move);
+                    } else if (move.isQueenSideCastle() && !isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player)
+                            && !isSquareUnderAttack(new Position(2, move.moveTo.y), piece.player)) {
+                        moves.add(move);
+                    }
+                    else {
+                        moves.add(move);
+                    }
                 }
 
                 //TODO: castling
-                if (move.isKingSideCastle()) {
-
-                }
-                else if (move.isQueenSideCastle()) {
-
-                }
 
                 executeInvertedMove(move);
             } else {
