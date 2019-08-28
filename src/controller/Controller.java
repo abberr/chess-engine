@@ -5,7 +5,7 @@ import game.Evaluator;
 import game.Move;
 import game.Position;
 import piece.Piece;
-import piece.Player;
+import game.Player;
 
 import java.util.List;
 
@@ -16,8 +16,9 @@ public class Controller {
 	public Controller() {
         board = new Board();
         System.out.println(board.getValue());
-        Evaluator.minMax(board, Player.BLACK, 3);
+        Evaluator.minMax(board, Player.WHITE, 1);
 
+//		System.out.println(Evaluator.perft(board, 5, Player.WHITE));
 	}
 
 	public Board getBoard() {
@@ -28,7 +29,7 @@ public class Controller {
 	public void executeMove(Piece piece, Position moveTo) {
         board.executeMove(piece, moveTo);
 
-		Move[] bestMoves = Evaluator.minMax(board, piece.player.getOpponent(), 3);
+//		Move[] bestMoves = Evaluator.minMax(board, piece.player.getOpponent(), 5);
 	}
 	
 	public List<Move> getAvailableMoves(Player player, Board board) {

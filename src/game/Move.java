@@ -8,6 +8,9 @@ public class Move {
 	Piece capturedPiece;
 	public Position moveFrom, moveTo;
 	boolean promotingMove;
+
+	boolean kingSideCastle;
+	boolean queenSideCastle;
 	
 	public Move(Piece piece, Position moveFrom, Position moveTo) {
 		this.piece = piece;
@@ -38,7 +41,23 @@ public class Move {
 	public void setMoveTo(Position moveTo) {
 		this.moveTo = moveTo;
 	}
-	
+
+	public boolean isKingSideCastle() {
+		return kingSideCastle;
+	}
+
+	public void setKingSideCastle(boolean kingSideCastle) {
+		this.kingSideCastle = kingSideCastle;
+	}
+
+	public boolean isQueenSideCastle() {
+		return queenSideCastle;
+	}
+
+	public void setQueenSideCastle(boolean queenSideCastle) {
+		this.queenSideCastle = queenSideCastle;
+	}
+
 	@Override
 	public String toString() {
 		return piece + " " + moveFrom +"->" + moveTo;

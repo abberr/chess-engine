@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import game.Player;
 import game.Position;
 import util.Util;
 
@@ -46,6 +47,11 @@ public class Pawn extends Piece {
             System.out.println(e);
             return null;
         }
+    }
+
+    @Override
+    public char getUnicodeSymbol() {
+        return this.player == Player.BLACK ? '♙' : '♟';
     }
 
     @Override

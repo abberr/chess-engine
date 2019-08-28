@@ -1,10 +1,6 @@
 package game;
 
-import piece.Player;
-
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Evaluator {
 
@@ -17,8 +13,12 @@ public class Evaluator {
 
         long time = System.currentTimeMillis();
         counter = 0;
-	    float minMax = minMax(Integer.MIN_VALUE, Integer.MAX_VALUE, depth, board, player, bestMoves);
-        System.out.println(counter + " moves calculated. Time: " + (System.currentTimeMillis() - time) + "ms");
+	    float minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, player, bestMoves);
+
+	    long evalTime = System.currentTimeMillis() - time;
+	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
+
+        System.out.println(counter + " moves calculated. Time: " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
         System.out.println("Best move: " + bestMove);
 
 //        System.out.println();
@@ -36,14 +36,13 @@ public class Evaluator {
     private static int minMax(int alpha, int beta, int depth, Board board, Player player, Move [] bestMoves) {
         counter++;
 
-        //BaseCase
         if (depth <= 0) {
             return board.getValue() * player.getValue();
         }
         int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
 
-        //Sort moves by heuristic value
+        //TODO: Sort moves by heuristic value to increase pruning
         List<Move> moves = board.getAvailableMoves(player, false);
 //        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue()));
 //        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
@@ -63,19 +62,15 @@ public class Evaluator {
                 alpha = maxValue;
             }
 
-            String spaces = "|";
-            for (int i = 0; i < 3-depth; i++) {
-                spaces += "--";
-            }
-            if (alpha >= beta) {
-                System.out.println(spaces + move + " | " + value + " PRUNE");
-            } else {
-                System.out.println(spaces + move + " | " + value);
-            }
-
-
-
-
+//            String spaces = "|";
+//            for (int i = 0; i < 5-depth; i++) {
+//                spaces += "--";
+//            }
+//            if (alpha >= beta) {
+//                System.out.println(spaces + move + " | " + value + " | alpha=" + alpha + " beta=" + beta + " PRUNE");
+//            } else {
+//                System.out.println(spaces + move + " | " + value + " | alpha=" + alpha + " beta=" + beta);
+//            }
 
             if (alpha >= beta) {
 //                System.out.print(" P");
@@ -86,6 +81,19 @@ public class Evaluator {
 
         bestMove = maxEvalMove;
         return maxValue;
+    }
+
+    public static int perft(Board board, int depth, Player player) {
+        if (depth == 0) return 1;
+        int nodes = 0;
+        List<Move> moves = board.getAvailableMoves(player, false);
+        for (Move move : moves) {
+            board.executeMove(move);
+            nodes += perft(board, depth -1, player.getOpponent());
+            board.executeInvertedMove(move);
+        }
+
+        return nodes;
     }
 
 //

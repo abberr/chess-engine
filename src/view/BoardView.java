@@ -58,12 +58,12 @@ public class BoardView extends JPanel {
 				}
 				else if (selectedPiece == null) {
 					selectedPiece = contr.getPieceAt(selectedSquare);
-//					if(selectedPiece != null) {
-//						for(Move move : contr.getMoves(selectedPiece)) {
-//							System.out.print(move + ",");
-//						}
-//						System.out.println();
-//					}
+					if(selectedPiece != null) {
+						for(Move move : contr.getMoves(selectedPiece)) {
+							System.out.print(move + ",");
+						}
+						System.out.println();
+					}
 				}
 
 			}

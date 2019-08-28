@@ -1,4 +1,4 @@
-package piece;
+package game;
 
 public enum Player {
 	WHITE,

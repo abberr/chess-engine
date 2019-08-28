@@ -3,9 +3,8 @@ package piece;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import game.Move;
+import game.Player;
 import game.Position;
-import util.Util;
 
 public abstract class Piece {
 	
@@ -26,6 +25,8 @@ public abstract class Piece {
 	public abstract Type getType();
 
 	public abstract BufferedImage getImage();
+
+	public abstract char getUnicodeSymbol();
 	
 	protected void removeIllegalMoves(ArrayList<Position> moves, Piece [][] board) {
 		for (int i = 0; i < moves.size(); i++) {

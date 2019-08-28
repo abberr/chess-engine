@@ -6,10 +6,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import game.Player;
 import game.Position;
 import util.Util;
 
 public class King extends Piece {
+
+	private int moveCounter; //Used for checking castling rights
 
 	private int[][] pieceSquareTable = {
 			{-30,-40,-40,-50,-50,-40,-40,-30},
@@ -26,6 +30,14 @@ public class King extends Piece {
         if (player == Player.BLACK) {
             pieceSquareTable = Util.reverseArray(pieceSquareTable);
         }
+	}
+
+	public void increaseMoveCounter() {
+		this.moveCounter++;
+	}
+
+	public void decreaseMoveCounter() {
+		this.moveCounter--;
 	}
 
 	@Override
@@ -47,6 +59,11 @@ public class King extends Piece {
 	}
 
 	@Override
+	public char getUnicodeSymbol() {
+		return this.player == Player.BLACK ? '♔' : '♚';
+	}
+
+	@Override
 	public Position[] getAvailableMoves(Position pos, Piece [][] board) {
 		ArrayList<Position> moves = new ArrayList<>();
 
@@ -60,6 +77,24 @@ public class King extends Piece {
 		moves.add(new Position(pos.x - 1, pos.y - 1));
 
 		removeIllegalMoves(moves, board);
+
+		//TODO: Castling
+		if (this.moveCounter == 0) {
+			//Kingside
+			if (board[5][pos.y] == null &&
+					board[6][pos.y] == null &&
+					board[7][pos.y].getType() == Type.ROOK) {
+				moves.add(new Position(6, pos.y));
+			}
+			//Queenside
+			else if(board[3][pos.y] == null &&
+					board[2][pos.y] == null &&
+					board[1][pos.y] == null &&
+					board[0][pos.y].getType() == Type.ROOK) {
+				moves.add(new Position(1, pos.y));
+			}
+		}
+
 
 		return moves.toArray(new Position[0]);
 	}

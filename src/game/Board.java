@@ -26,42 +26,42 @@ public class Board {
 
 
         // Init pieces
-//        board[0][1] = new Pawn(Player.BLACK);
-//        board[1][1] = new Pawn(Player.BLACK);
-//        board[2][1] = new Pawn(Player.BLACK);
-//        board[3][1] = new Pawn(Player.BLACK);
-//        board[4][1] = new Pawn(Player.BLACK);
-//        board[5][1] = new Pawn(Player.BLACK);
-//        board[6][1] = new Pawn(Player.BLACK);
-//        board[7][1] = new Pawn(Player.BLACK);
-//
-//        board[0][0] = new Rook(Player.BLACK);
-//        board[7][0] = new Rook(Player.BLACK);
-//        board[1][0] = new Knight(Player.BLACK);
-//        board[6][0] = new Knight(Player.BLACK);
-//        board[2][0] = new Bishop(Player.BLACK);
-//        board[5][0] = new Bishop(Player.BLACK);
-//        board[3][0] = new Queen(Player.BLACK);
-//        board[4][0] = new King(Player.BLACK);
-//
-//
-//        board[0][6] = new Pawn(Player.WHITE);
-//        board[1][6] = new Pawn(Player.WHITE);
-//        board[2][6] = new Pawn(Player.WHITE);
-//        board[3][6] = new Pawn(Player.WHITE);
-//        board[4][6] = new Pawn(Player.WHITE);
-//        board[5][6] = new Pawn(Player.WHITE);
-//        board[6][6] = new Pawn(Player.WHITE);
-//        board[7][6] = new Pawn(Player.WHITE);
-//
-//        board[0][7] = new Rook(Player.WHITE);
-//        board[7][7] = new Rook(Player.WHITE);
-//        board[1][7] = new Knight(Player.WHITE);
-//        board[6][7] = new Knight(Player.WHITE);
-//        board[2][7] = new Bishop(Player.WHITE);
-//        board[5][7] = new Bishop(Player.WHITE);
-//        board[3][7] = new Queen(Player.WHITE);
-//        board[4][7] = new King(Player.WHITE);
+        board[0][1] = new Pawn(Player.BLACK);
+        board[1][1] = new Pawn(Player.BLACK);
+        board[2][1] = new Pawn(Player.BLACK);
+        board[3][1] = new Pawn(Player.BLACK);
+        board[4][1] = new Pawn(Player.BLACK);
+        board[5][1] = new Pawn(Player.BLACK);
+        board[6][1] = new Pawn(Player.BLACK);
+        board[7][1] = new Pawn(Player.BLACK);
+
+        board[0][0] = new Rook(Player.BLACK);
+        board[7][0] = new Rook(Player.BLACK);
+        board[1][0] = new Knight(Player.BLACK);
+        board[6][0] = new Knight(Player.BLACK);
+        board[2][0] = new Bishop(Player.BLACK);
+        board[5][0] = new Bishop(Player.BLACK);
+        board[3][0] = new Queen(Player.BLACK);
+        board[4][0] = new King(Player.BLACK);
+
+
+        board[0][6] = new Pawn(Player.WHITE);
+        board[1][6] = new Pawn(Player.WHITE);
+        board[2][6] = new Pawn(Player.WHITE);
+        board[3][6] = new Pawn(Player.WHITE);
+        board[4][6] = new Pawn(Player.WHITE);
+        board[5][6] = new Pawn(Player.WHITE);
+        board[6][6] = new Pawn(Player.WHITE);
+        board[7][6] = new Pawn(Player.WHITE);
+
+        board[0][7] = new Rook(Player.WHITE);
+        board[7][7] = new Rook(Player.WHITE);
+        board[1][7] = new Knight(Player.WHITE);
+        board[6][7] = new Knight(Player.WHITE);
+        board[2][7] = new Bishop(Player.WHITE);
+        board[5][7] = new Bishop(Player.WHITE);
+        board[3][7] = new Queen(Player.WHITE);
+        board[4][7] = new King(Player.WHITE);
 
 
 
@@ -82,14 +82,14 @@ public class Board {
 
 
 
-        board[2][2] = new King(Player.BLACK);
-        board[1][2] = new Rook(Player.BLACK);
-        board[3][5] = new Pawn(Player.BLACK);
-        board[4][4] = new Pawn(Player.BLACK);
-
-        board[0][7] = new King(Player.WHITE);
-        board[0][0] = new Knight(Player.WHITE);
-        board[5][7] = new Bishop(Player.WHITE);
+//        board[2][2] = new King(Player.BLACK);
+//        board[1][2] = new Rook(Player.BLACK);
+//        board[3][5] = new Pawn(Player.BLACK);
+//        board[4][4] = new Pawn(Player.BLACK);
+//
+//        board[0][7] = new King(Player.WHITE);
+//        board[0][0] = new Knight(Player.WHITE);
+//        board[5][7] = new Bishop(Player.WHITE);
 
         hash = generateZobristHash();
     }
@@ -100,14 +100,15 @@ public class Board {
     }
 
     public void executeMove(Move move) {
+        Piece movingPiece = move.getPiece();
         Piece capturedPiece = board[move.moveTo.x][move.moveTo.y];
 
         if (capturedPiece != null) {
             move.setCapturedPiece(capturedPiece);
         }
 
-        if (move.getPiece().getType() == Type.PAWN) {
-            if (move.getPiece().player == Player.WHITE) {
+        if (movingPiece.getType() == Type.PAWN) {
+            if (movingPiece.player == Player.WHITE) {
                 if (move.moveTo.y == 0) {
                     move.promotingMove = true;
                 }
@@ -118,12 +119,28 @@ public class Board {
                 }
             }
         }
+        else if (movingPiece.getType() == Type.KING) {
+            ((King) movingPiece).increaseMoveCounter();
+            //Castling
+            if(move.moveFrom.x == 4 && move.moveTo.x == 6) {
+                move.setKingSideCastle(true);
+                //move rook
+                board[5][move.moveTo.y] = board[7][move.moveTo.y];
+                board[7][move.moveTo.y] = null;
+            }
+            else if(move.moveFrom.x == 4 && move.moveTo.x == 1) {
+                move.setQueenSideCastle(true);
+
+                board[2][move.moveTo.y] = board[0][move.moveTo.y];
+                board[0][move.moveTo.y] = null;
+            }
+        }
 
         board[move.moveFrom.x][move.moveFrom.y] = null;
-        board[move.moveTo.x][move.moveTo.y] = move.getPiece();
+        board[move.moveTo.x][move.moveTo.y] = movingPiece;
 
         if (move.promotingMove) {
-            board[move.moveTo.x][move.moveTo.y] = new Queen(move.piece.player);
+            board[move.moveTo.x][move.moveTo.y] = new Queen(movingPiece.player);
         }
 
         updateHash(move);
@@ -131,8 +148,28 @@ public class Board {
 
 
     public void executeInvertedMove(Move move) {
-        board[move.moveFrom.x][move.moveFrom.y] = move.getPiece();
+        Piece movingPiece = move.getPiece();
+
+        board[move.moveFrom.x][move.moveFrom.y] = movingPiece;
         board[move.moveTo.x][move.moveTo.y] = move.getCapturedPiece();
+
+        if (movingPiece.getType() == Type.KING) {
+            ((King) movingPiece).decreaseMoveCounter();
+
+            //Revert castling
+            if (move.isKingSideCastle()) {
+                board[7][move.moveTo.y] = board[5][move.moveTo.y];
+                board[5][move.moveTo.y] = null;
+            }
+            else if (move.isQueenSideCastle()) {
+                board[0][move.moveTo.y] = board[2][move.moveTo.y];
+                board[2][move.moveTo.y] = null;
+            }
+        }
+
+        //No need to reverse promotion
+
+
 
         updateHash(move);
     }
@@ -147,6 +184,9 @@ public class Board {
         if (move.capturedPiece != null) {
             hash ^= zobristTable[moveToindex][move.capturedPiece.getIndex()];
         }
+        //TODO: promoting hash
+
+        //TODO: castling hash
     }
 
     private Position getPositionOfPiece(Piece piece) {
@@ -175,6 +215,15 @@ public class Board {
                 if (!Evaluator.isChecked(piece.player, this)) {
                     moves.add(move);
                 }
+
+                //TODO: castling
+                if (move.isKingSideCastle()) {
+
+                }
+                else if (move.isQueenSideCastle()) {
+
+                }
+
                 executeInvertedMove(move);
             } else {
                 moves.add(move);
@@ -254,8 +303,28 @@ public class Board {
         return hash;
     }
 
-
     public long getHash() {
         return hash;
     }
+
+//    ⬛⬜
+    public void printBoard() {
+        for (int i = 0; i < board.length; i++) {
+            System.out.println();
+            for (int j = 0; j < board.length; j++) {
+                Piece p = board[j][i];
+                System.out.print("[");
+                if (p == null)
+                    System.out.print("  ");
+                else {
+                    System.out.print(p.getUnicodeSymbol());
+                }
+                System.out.print("]");
+            }
+        }
+        System.out.println();
+    }
+
+
+
 }
