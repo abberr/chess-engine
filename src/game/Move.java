@@ -6,8 +6,8 @@ public class Move {
 	
 	Piece piece;
 	Piece capturedPiece;
+	Piece promotingPiece;
 	public Position moveFrom, moveTo;
-	boolean promotingMove;
 
 	boolean kingSideCastle;
 	boolean queenSideCastle;

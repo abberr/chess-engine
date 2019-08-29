@@ -26,14 +26,10 @@ public class Board {
 
 
         // Init pieces
-        board[0][1] = new Pawn(Player.BLACK);
-        board[1][1] = new Pawn(Player.BLACK);
-        board[2][1] = new Pawn(Player.BLACK);
-        board[3][1] = new Pawn(Player.BLACK);
-        board[4][1] = new Pawn(Player.BLACK);
-        board[5][1] = new Pawn(Player.BLACK);
-        board[6][1] = new Pawn(Player.BLACK);
-        board[7][1] = new Pawn(Player.BLACK);
+        for (int i = 0; i < board.length; i++) {
+            board[i][1] = new Pawn(Player.BLACK);
+            board[i][6] = new Pawn(Player.WHITE);
+        }
 
         board[0][0] = new Rook(Player.BLACK);
         board[7][0] = new Rook(Player.BLACK);
@@ -44,16 +40,6 @@ public class Board {
         board[3][0] = new Queen(Player.BLACK);
         board[4][0] = new King(Player.BLACK);
 
-
-        board[0][6] = new Pawn(Player.WHITE);
-        board[1][6] = new Pawn(Player.WHITE);
-        board[2][6] = new Pawn(Player.WHITE);
-        board[3][6] = new Pawn(Player.WHITE);
-        board[4][6] = new Pawn(Player.WHITE);
-        board[5][6] = new Pawn(Player.WHITE);
-        board[6][6] = new Pawn(Player.WHITE);
-        board[7][6] = new Pawn(Player.WHITE);
-
         board[0][7] = new Rook(Player.WHITE);
         board[7][7] = new Rook(Player.WHITE);
         board[1][7] = new Knight(Player.WHITE);
@@ -62,6 +48,15 @@ public class Board {
         board[5][7] = new Bishop(Player.WHITE);
         board[3][7] = new Queen(Player.WHITE);
         board[4][7] = new King(Player.WHITE);
+
+        //Check castling
+//        board[4][7] = new King(Player.WHITE);
+//        board[0][7] = new Rook(Player.WHITE);
+//        board[7][7] = new Rook(Player.WHITE);
+//        board[4][0] = new King(Player.BLACK);
+//        board[0][0] = new Rook(Player.BLACK);
+//        board[5][0] = new Rook(Player.BLACK);
+
 
 
 
@@ -110,12 +105,12 @@ public class Board {
         if (movingPiece.getType() == Type.PAWN) {
             if (movingPiece.player == Player.WHITE) {
                 if (move.moveTo.y == 0) {
-                    move.promotingMove = true;
+                    move.promotingPiece = new Queen(movingPiece.player);
                 }
             }
             else {
                 if (move.moveTo.y == 7) {
-                    move.promotingMove = true;
+                    move.promotingPiece = new Queen(movingPiece.player);
                 }
             }
         }
@@ -139,8 +134,8 @@ public class Board {
         board[move.moveFrom.x][move.moveFrom.y] = null;
         board[move.moveTo.x][move.moveTo.y] = movingPiece;
 
-        if (move.promotingMove) {
-            board[move.moveTo.x][move.moveTo.y] = new Queen(movingPiece.player);
+        if (move.promotingPiece != null) {
+            board[move.moveTo.x][move.moveTo.y] = move.promotingPiece;
         }
 
         updateHash(move);
@@ -169,8 +164,7 @@ public class Board {
 
         //No need to reverse promotion
 
-
-
+        //TODO check if reversing castling works
         updateHash(move);
     }
 
@@ -178,18 +172,36 @@ public class Board {
         int moveFromindex = move.moveFrom.x + (move.moveFrom.y*8);
         int moveToindex = move.moveTo.x + (move.moveTo.y*8);
 
-        hash ^= zobristTable[moveFromindex][move.piece.getIndex()];
-        hash ^= zobristTable[moveToindex][move.piece.getIndex()];
-
-        if (move.capturedPiece != null) {
-            hash ^= zobristTable[moveToindex][move.capturedPiece.getIndex()];
+        hash ^= zobristTable[moveFromindex][move.piece.getIndex()];             //Remove piece from origin
+        //If promoting move
+        if (move.promotingPiece != null) {
+            hash ^= zobristTable[moveToindex][move.promotingPiece.getIndex()];  //Add promoting piece to new square
         }
-        //TODO: promoting hash
+        //If regular move
+        else {
+            hash ^= zobristTable[moveToindex][move.piece.getIndex()];           //Add origin piece to new square
+        }
 
-        //TODO: castling hash
+        //If capturing move
+        if (move.capturedPiece != null) {
+            hash ^= zobristTable[moveToindex][move.capturedPiece.getIndex()];   //Remove captured piece from new square
+        }
+
+        //If castling move
+        if (move.isKingSideCastle() || move.isQueenSideCastle()) {
+            int rookFromX = move.isKingSideCastle() ? 7 : 0;
+            int rookToX = move.isKingSideCastle() ? 5 : 2;
+//            Piece rook = board[rookToX][move.moveTo.y];
+            Piece rook = new Rook(move.piece.player);
+            int rookMoveFromindex = rookFromX + (move.moveTo.y*8);
+            int rookMoveToindex = rookToX + (move.moveTo.y*8);
+
+            hash ^= zobristTable[rookMoveFromindex][rook.getIndex()];           //Remove rook from corner
+            hash ^= zobristTable[rookMoveToindex][rook.getIndex()];             //Add rook to new location
+        }
     }
 
-    private Position getPositionOfPiece(Piece piece) {
+    public Position getPositionOfPiece(Piece piece) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[0].length; j++) {
                 if (piece.equals(board[i][j])) {
@@ -223,11 +235,13 @@ public class Board {
                 executeMove(move);
                 if (!Evaluator.isChecked(piece.player, this)) {
 
-                    if (move.isKingSideCastle() && !isSquareUnderAttack(new Position(5, move.moveTo.y), piece.player)) {
-                        moves.add(move);
-                    } else if (move.isQueenSideCastle() && !isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player)
-                            && !isSquareUnderAttack(new Position(2, move.moveTo.y), piece.player)) {
-                        moves.add(move);
+                    if (move.isKingSideCastle()) {
+                        if (!isSquareUnderAttack(new Position(5, move.moveTo.y), piece.player))
+                            moves.add(move);
+                    } else if (move.isQueenSideCastle()) {
+                        if (!isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player)
+                                && !isSquareUnderAttack(new Position(2, move.moveTo.y), piece.player))
+                            moves.add(move);
                     }
                     else {
                         moves.add(move);

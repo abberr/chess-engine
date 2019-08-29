@@ -78,18 +78,19 @@ public class King extends Piece {
 
 		removeIllegalMoves(moves, board);
 
-		//TODO: Castling
 		if (this.moveCounter == 0) {
 			//Kingside
 			if (board[5][pos.y] == null &&
 					board[6][pos.y] == null &&
+					board[7][pos.y] != null &&
 					board[7][pos.y].getType() == Type.ROOK) {
 				moves.add(new Position(6, pos.y));
 			}
 			//Queenside
-			else if(board[3][pos.y] == null &&
+			if(board[3][pos.y] == null &&
 					board[2][pos.y] == null &&
 					board[1][pos.y] == null &&
+					board[0][pos.y] != null &&
 					board[0][pos.y].getType() == Type.ROOK) {
 				moves.add(new Position(1, pos.y));
 			}

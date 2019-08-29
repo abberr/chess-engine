@@ -1,6 +1,7 @@
 package view;
 
 import controller.Controller;
+import game.Move;
 import game.Position;
 import piece.Piece;
 
@@ -21,7 +22,22 @@ public class ConsoleView {
 
             String input = myObj.nextLine();
 
-            if (validInput(input)) {
+            if (input.length() == 2) {
+                int fromX = input.charAt(0) - 'a';
+                int fromY = 8 - Integer.parseInt("" + input.charAt(1));
+                Piece selectedPiece = contr.getPieceAt(new Position(fromX, fromY));
+                if(selectedPiece != null) {
+                    for(Move move : contr.getMoves(selectedPiece)) {
+                        System.out.print(move + ",");
+                    }
+                    System.out.println();
+                }
+            }
+            else if (input.length() == 1 && input.charAt(0) == 'r') {
+                contr.revertLastMove();
+            }
+
+            else if (validInput(input)) {
                 int fromX = input.charAt(0) - 'a';
                 int fromY = 8 - Integer.parseInt("" + input.charAt(1));
                 int destX = input.charAt(2) - 'a';
