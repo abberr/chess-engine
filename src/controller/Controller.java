@@ -19,7 +19,7 @@ public class Controller {
 	public Controller() {
         board = new Board();
         System.out.println(board.getValue());
-        Evaluator.minMax(board, Player.WHITE, 5);
+        Evaluator.minMax(board, Player.WHITE, 6);
 
 //		Evaluator.perft(board, 5, Player.WHITE);
 		System.out.println("Hash: " + board.getHash());
@@ -35,7 +35,7 @@ public class Controller {
 		board.executeMove(lastMove);
 		System.out.println("Hash: " + board.getHash());
 
-//		Move[] bestMoves = Evaluator.minMax(board, piece.player.getOpponent(), 5);
+		Move[] bestMoves = Evaluator.minMax(board, piece.player.getOpponent(), 6);
 	}
 
 	public void revertLastMove() {

@@ -1,19 +1,26 @@
 package game;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class Evaluator {
 
     private static int counter;
+    private static int startingDepth;
     private static Move bestMove;
+    private static HashMap<Long, State> hashMap = new HashMap<>();
+
 	
 	public static Move[] minMax(Board board, Player player, int depth) {
+
+	    startingDepth = depth;
 
 	    Move [] bestMoves = new Move[depth];
 
         long time = System.currentTimeMillis();
         counter = 0;
-	    float minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, player, bestMoves);
+	    float minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, player, bestMoves);
 
 	    long evalTime = System.currentTimeMillis() - time;
 	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
@@ -37,18 +44,21 @@ public class Evaluator {
         counter++;
 
         if (depth <= 0) {
+            //TODO: Quiescence Search
+
             return board.getValue() * player.getValue();
         }
         int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
 
-        //TODO: Sort moves by heuristic value to increase pruning
         List<Move> moves = board.getAvailableMoves(player, false);
-//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue()));
-//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
 
+        //Sort moves by heuristic value to increase pruning
+        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+
+        //Find best move
         for(Move move : moves) {
-            
+
             board.executeMove(move);
             int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent(), bestMoves);
             board.executeInvertedMove(move);
@@ -73,13 +83,16 @@ public class Evaluator {
 //            }
 
             if (alpha >= beta) {
-//                System.out.print(" P");
                 break;
             }
         }
         bestMoves[bestMoves.length-depth] = maxEvalMove;
-
         bestMove = maxEvalMove;
+
+
+
+//        hashMap.put(board.getHash(), new State(board.getHash(), maxEvalMove, depth, maxValue, nodeType));
+
         return maxValue;
     }
 
