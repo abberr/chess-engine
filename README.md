@@ -4,6 +4,8 @@
 - GUI
 - NegMax with alpha beta pruning
 - perft
+- TODO Transposition tables
+- TODO Quiescence Search
 
 
 ###Stats
@@ -25,5 +27,8 @@ Perft
 [  ][♖][♟][  ][  ][  ][  ][♞]
 [  ][♟][♜][  ][  ][  ][  ][♟]
 [  ][  ][  ][  ][♜][  ][  ][  ]
-
 g4h5
+
+
+##Links
+Transposition table: http://web.archive.org/web/20080315233307/http://www.seanet.com/~brucemo/topics/hashing.htm

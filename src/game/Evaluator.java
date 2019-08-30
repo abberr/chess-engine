@@ -1,7 +1,6 @@
 package game;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 public class Evaluator {
@@ -9,44 +8,63 @@ public class Evaluator {
     private static int counter;
     private static int startingDepth;
     private static Move bestMove;
-    private static HashMap<Long, State> hashMap = new HashMap<>();
+
+    private static TranspositionTable transpositionTable = new TranspositionTable();
 
 	
-	public static Move[] minMax(Board board, Player player, int depth) {
+	public static Move minMax(Board board, Player player, int depth) {
 
 	    startingDepth = depth;
 
-	    Move [] bestMoves = new Move[depth];
-
         long time = System.currentTimeMillis();
         counter = 0;
-	    float minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, player, bestMoves);
+	    int minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, player);
 
 	    long evalTime = System.currentTimeMillis() - time;
 	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
 
         System.out.println(counter + " moves calculated. Time: " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
         System.out.println("Best move: " + bestMove);
-
-//        System.out.println();
-//        for (Move m: bestMoves) {
-//            System.out.print(m + ", ");
-//        }
-//        System.out.println("maxnMove " + maxMove);
-//        System.out.println("minMove " + minMove);
 		System.out.println(minMax);
 
 
-		return bestMoves;
+		return bestMove;
     }
 
-    private static int minMax(int alpha, int beta, int depth, Board board, Player player, Move [] bestMoves) {
+    private static int minMax(int alpha, int beta, int depth, Board board, Player player) {
         counter++;
+
+        NodeType nodeType = NodeType.ALPHA;
+
+        //TODO: Transposition table lookup
+        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
+        if (lookUpState != null) {
+
+            if (lookUpState.nodeType == NodeType.EXACT) {
+                return lookUpState.score;
+            }
+            else if (lookUpState.nodeType == NodeType.ALPHA) {
+                if (lookUpState.score <= alpha ) {
+                    return alpha;
+                }
+            }
+
+            else if (lookUpState.nodeType == NodeType.BETA) {
+                if (lookUpState.score >= beta ) {
+                    return beta;
+                }
+            }
+
+            else {
+                System.out.println("ERROR?");
+            }
+        }
 
         if (depth <= 0) {
             //TODO: Quiescence Search
-
-            return board.getValue() * player.getValue();
+            int value = board.getValue() * player.getValue();
+            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            return value;
         }
         int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
@@ -60,7 +78,7 @@ public class Evaluator {
         for(Move move : moves) {
 
             board.executeMove(move);
-            int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent(), bestMoves);
+            int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent());
             board.executeInvertedMove(move);
 
             if (value > maxValue) {
@@ -68,8 +86,9 @@ public class Evaluator {
                 maxEvalMove = move;
             }
 
-            if (maxValue > alpha) {
+            if (value > alpha) {
                 alpha = maxValue;
+                nodeType = NodeType.EXACT;
             }
 
 //            String spaces = "|";
@@ -82,17 +101,18 @@ public class Evaluator {
 //                System.out.println(spaces + move + " | " + value + " | alpha=" + alpha + " beta=" + beta);
 //            }
 
-            if (alpha >= beta) {
-                break;
+            if (value >= beta) {
+//                bestMove = maxEvalMove;
+                transpositionTable.saveState(board.getHash(), depth, beta, null, NodeType.BETA);
+                return beta;
+//                break;
             }
         }
-        bestMoves[bestMoves.length-depth] = maxEvalMove;
+
+
+        //TODO: Transposition table insert
+        transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
         bestMove = maxEvalMove;
-
-
-
-//        hashMap.put(board.getHash(), new State(board.getHash(), maxEvalMove, depth, maxValue, nodeType));
-
         return maxValue;
     }
 
