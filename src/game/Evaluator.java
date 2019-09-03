@@ -15,9 +15,10 @@ public class Evaluator {
 	public static Move minMax(Board board, int depth) {
 
 	    startingDepth = depth;
+        bestMove= null;
+        counter = 0;
 
         long time = System.currentTimeMillis();
-        counter = 0;
 	    int minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, board.getPlayerToMove());
 
 	    long evalTime = System.currentTimeMillis() - time;
@@ -62,12 +63,20 @@ public class Evaluator {
 
         List<Move> moves = board.getAvailableMoves(player, false);
 
-        //Mate if no moves
-        //TODO: move this above base case?
+        //Mate or stalemate if no moves
         if (moves.isEmpty()) {
-            int value = (Integer.MIN_VALUE+1) * player.getValue();
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-            return value;
+            //Stalemate = max value?
+            if (isChecked(player, board)) {
+                int value = (Integer.MIN_VALUE+1) * player.getValue();
+                transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+                return value;
+            }
+            //Mate
+            else {
+                int value = (Integer.MAX_VALUE-1) * player.getValue();
+                transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+                return value;
+            }
         }
 
 

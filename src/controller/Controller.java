@@ -17,13 +17,14 @@ public class Controller {
 
 
 	public Controller() {
-        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+//        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
 //        board = new Board("rnbqkbnr/ppp1pppp/8/1B1p4/4P3/8/PPPP1PPP/RNBQK1NR b ");
 //        board = new Board("4r3/p4p1Q/P2k4/2np4/1p6/1B3q1P/2P1r3/5K2 w");          //Mate
-        board = new Board("4r2r/k1p2ppp/8/P7/1b4P1/3q4/1K6/8 b ");          //Mate
+//        board = new Board("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
+        board = new Board("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 
 //        System.out.println(board.getValue());
-//        Move bestMove = Evaluator.minMax(board, Player.WHITE, 6);
+        Move bestMove = Evaluator.minMax(board, 3);
 
 //		Evaluator.perft(board, 5, Player.WHITE);
 //		System.out.println("Hash: " + board.getHash());
@@ -38,6 +39,8 @@ public class Controller {
 		this.lastMove = new Move(piece, board.getPositionOfPiece(piece), moveTo);
 		board.executeMove(lastMove);
 		System.out.println("Hash: " + board.getHash());
+
+        Move bestMove = Evaluator.minMax(board, 3);
 
 
 //		executeMove(bestMove.getPiece(), bestMove.moveTo);
