@@ -64,6 +64,11 @@ public class King extends Piece {
 	}
 
 	@Override
+	public char getSymbol() {
+		return this.player == Player.BLACK ? 'k' : 'K';
+	}
+
+	@Override
 	public Position[] getAvailableMoves(Position pos, Piece [][] board) {
 		ArrayList<Position> moves = new ArrayList<>();
 

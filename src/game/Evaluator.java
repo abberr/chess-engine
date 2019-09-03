@@ -12,13 +12,13 @@ public class Evaluator {
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
 	
-	public static Move minMax(Board board, Player player, int depth) {
+	public static Move minMax(Board board, int depth) {
 
 	    startingDepth = depth;
 
         long time = System.currentTimeMillis();
         counter = 0;
-	    int minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, player);
+	    int minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, board.getPlayerToMove());
 
 	    long evalTime = System.currentTimeMillis() - time;
 	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
@@ -37,28 +37,39 @@ public class Evaluator {
         NodeType nodeType = NodeType.ALPHA;
 
         //TODO: Transposition table lookup
-        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
-        if (lookUpState != null) {
+//        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
+//        if (lookUpState != null) {
+//
+//            if (lookUpState.nodeType == NodeType.EXACT) {
+//                return lookUpState.score;
+//            }
+//            else if (lookUpState.nodeType == NodeType.ALPHA) {
+//                if (lookUpState.score <= alpha ) {
+//                    return alpha;
+//                }
+//            }
+//
+//            else if (lookUpState.nodeType == NodeType.BETA) {
+//                if (lookUpState.score >= beta ) {
+//                    return beta;
+//                }
+//            }
+//
+//            else {
+//                System.out.println("ERROR?");
+//            }
+//        }
 
-            if (lookUpState.nodeType == NodeType.EXACT) {
-                return lookUpState.score;
-            }
-            else if (lookUpState.nodeType == NodeType.ALPHA) {
-                if (lookUpState.score <= alpha ) {
-                    return alpha;
-                }
-            }
+        List<Move> moves = board.getAvailableMoves(player, false);
 
-            else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score >= beta ) {
-                    return beta;
-                }
-            }
-
-            else {
-                System.out.println("ERROR?");
-            }
+        //Mate if no moves
+        //TODO: move this above base case?
+        if (moves.isEmpty()) {
+            int value = (Integer.MIN_VALUE+1) * player.getValue();
+            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            return value;
         }
+
 
         if (depth <= 0) {
             //TODO: Quiescence Search
@@ -69,7 +80,7 @@ public class Evaluator {
         int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
 
-        List<Move> moves = board.getAvailableMoves(player, false);
+
 
         //Sort moves by heuristic value to increase pruning
         moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
@@ -102,7 +113,7 @@ public class Evaluator {
 //            }
 
             if (value >= beta) {
-//                bestMove = maxEvalMove;
+                bestMove = maxEvalMove;
                 transpositionTable.saveState(board.getHash(), depth, beta, null, NodeType.BETA);
                 return beta;
 //                break;

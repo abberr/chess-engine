@@ -52,6 +52,11 @@ public class BoardView extends JPanel {
 //						System.out.println("move to " + selectedSquare);
 						contr.executeMove(selectedPiece, selectedSquare);
 						BoardView.this.repaint();
+
+                        System.out.println("Moving");
+
+						contr.computerMove();
+                        BoardView.this.repaint();
 					}
 
                     selectedPiece = null;

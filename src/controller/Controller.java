@@ -17,12 +17,16 @@ public class Controller {
 
 
 	public Controller() {
-        board = new Board();
-        System.out.println(board.getValue());
-        Evaluator.minMax(board, Player.WHITE, 5);
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+//        board = new Board("rnbqkbnr/ppp1pppp/8/1B1p4/4P3/8/PPPP1PPP/RNBQK1NR b ");
+//        board = new Board("4r3/p4p1Q/P2k4/2np4/1p6/1B3q1P/2P1r3/5K2 w");          //Mate
+        board = new Board("4r2r/k1p2ppp/8/P7/1b4P1/3q4/1K6/8 b ");          //Mate
+
+//        System.out.println(board.getValue());
+//        Move bestMove = Evaluator.minMax(board, Player.WHITE, 6);
 
 //		Evaluator.perft(board, 5, Player.WHITE);
-		System.out.println("Hash: " + board.getHash());
+//		System.out.println("Hash: " + board.getHash());
 	}
 
 	public Board getBoard() {
@@ -35,8 +39,15 @@ public class Controller {
 		board.executeMove(lastMove);
 		System.out.println("Hash: " + board.getHash());
 
-		Move bestMove = Evaluator.minMax(board, piece.player.getOpponent(), 5);
+
+//		executeMove(bestMove.getPiece(), bestMove.moveTo);
 	}
+
+	public void computerMove() {
+        this.lastMove = Evaluator.minMax(board, 5);
+        board.executeMove(lastMove);
+        board.printBoard();
+    }
 
 	public void revertLastMove() {
 		board.executeInvertedMove(lastMove);

@@ -27,7 +27,9 @@ public abstract class Piece {
 	public abstract BufferedImage getImage();
 
 	public abstract char getUnicodeSymbol();
-	
+
+	public abstract char getSymbol();
+
 	protected void removeIllegalMoves(ArrayList<Position> moves, Piece [][] board) {
 		for (int i = 0; i < moves.size(); i++) {
 			int x = moves.get(i).x;

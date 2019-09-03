@@ -10,10 +10,51 @@ public class Board {
 
 //    private static final int a=0, b=1, c=2, d=3, e=4, f=5, g=6, h=7;
 
+    private Player playerToMove;
     private Piece[][] board = new Piece[8][8];
     private long [][] zobristTable = new long[64][12];
 
     private long hash;
+
+    public Board(String fen) {
+        Random rnd = new Random(1);
+        //Init zobrist
+        for (int i = 0; i < zobristTable.length; i++) {
+            for (int j = 0; j < zobristTable[0].length; j++) {
+                zobristTable[i][j] = rnd.nextLong();
+            }
+        }
+
+        int x = 0, y = 0;
+        for (char c : fen.split(" ")[0].toCharArray()) {
+            if (c == 'P')  board[x][y] = new Pawn(Player.WHITE);
+            else if (c == 'p')  board[x][y] = new Pawn(Player.BLACK);
+            else if (c == 'N')  board[x][y] = new Knight(Player.WHITE);
+            else if (c == 'n')  board[x][y] = new Knight(Player.BLACK);
+            else if (c == 'B')  board[x][y] = new Bishop(Player.WHITE);
+            else if (c == 'b')  board[x][y] = new Bishop(Player.BLACK);
+            else if (c == 'R')  board[x][y] = new Rook(Player.WHITE);
+            else if (c == 'r')  board[x][y] = new Rook(Player.BLACK);
+            else if (c == 'Q')  board[x][y] = new Queen(Player.WHITE);
+            else if (c == 'q')  board[x][y] = new Queen(Player.BLACK);
+            else if (c == 'K')  board[x][y] = new King(Player.WHITE);
+            else if (c == 'k')  board[x][y] = new King(Player.BLACK);
+            else if (c >= '0' && c <= '8') x += (c - '0') - 1;
+            else if (c == '/') {
+                y++;
+                x = 0;
+                continue;
+            }
+
+            x++;
+        }
+
+        playerToMove = Player.WHITE;
+        if (fen.split(" ")[1].charAt(0) == 'b') {
+            playerToMove = Player.BLACK;
+        }
+
+    }
 
     public Board() {
         Random rnd = new Random(1);
@@ -24,6 +65,7 @@ public class Board {
             }
         }
 
+        playerToMove = Player.WHITE;
 
         // Init pieces
         for (int i = 0; i < board.length; i++) {
@@ -139,6 +181,8 @@ public class Board {
         }
 
         updateHash(move);
+
+        playerToMove = playerToMove.getOpponent();
     }
 
 
@@ -166,6 +210,8 @@ public class Board {
 
         //TODO check if reversing castling works
         updateHash(move);
+
+        playerToMove = playerToMove.getOpponent();
     }
 
     private void updateHash(Move move) {
@@ -313,6 +359,32 @@ public class Board {
         return value;
     }
 
+    public String generateFen() {
+        String fen = "";
+
+        //Board
+        for (int y = 0; y < board.length; y++) {
+            int emptySpaces = 0;
+            for (int x = 0; x < board.length; x++) {
+                Piece p = board[x][y];
+                if (p != null) {
+                    fen = emptySpaces == 0 ? fen + p.getSymbol() : fen + emptySpaces + p.getSymbol();
+                    emptySpaces = 0;
+                } else {
+                    emptySpaces++;
+                }
+            }
+            fen = emptySpaces == 0 ? fen : fen + emptySpaces;
+            fen = y < board.length-1 ? fen + "/" : fen + "";
+
+        }
+
+        fen += playerToMove == Player.WHITE ? " w " : " b ";
+
+        //TODO Castling rights
+
+        return fen;
+    }
 
     private long generateZobristHash() {
         long hash = 0;
@@ -333,6 +405,10 @@ public class Board {
         return hash;
     }
 
+    public Player getPlayerToMove() {
+        return playerToMove;
+    }
+
 //    ⬛⬜
     public void printBoard() {
         for (int i = 0; i < board.length; i++) {
@@ -348,7 +424,7 @@ public class Board {
                 System.out.print("]");
             }
         }
-        System.out.println();
+        System.out.println("\n" + generateFen());
     }
 
 
