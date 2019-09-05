@@ -45,6 +45,9 @@ public class ConsoleView {
 
                 Piece piece = contr.getPieceAt(new Position(fromX, fromY));
                 contr.executeMove(piece, new Position(destX, destY));
+                contr.getBoard().printBoard();
+
+                contr.computerMove();
 
             } else {
                 System.out.println("Invalid input");

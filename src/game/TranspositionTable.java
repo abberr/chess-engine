@@ -25,41 +25,6 @@ public class TranspositionTable {
         State state = new State(hash, depth, value, bestMove, nodeType);
         hashMap.put((hash & 0xFFFF), state);
     }
-
-    /*
-    int ProbeHash(int depth, int alpha, int beta)
-{
-
-    HASHE * phashe = &hash_table[ZobristKey() % TableSize()];
-
-    if (phashe->key == ZobristKey()) {
-        if (phashe->depth >= depth) {
-            if (phashe->flags == hashfEXACT)
-                return phashe->val;
-            if ((phashe->flags == hashfALPHA) &&
-                (phashe->val <= alpha))
-                return alpha;
-            if ((phashe->flags == hashfBETA) &&
-                (phashe->val >= beta))
-                return beta;
-        }
-        RememberBestMove();
-    }
-    return valUNKNOWN;
-}
-
-
-
-void RecordHash(int depth, int val, int hashf)
-    HASHE * phashe = &hash_table[ZobristKey() % TableSize()];
-    phashe->key = ZobristKey();
-    phashe->best = BestMove();
-    phashe->val = val;
-    phashe->hashf = hashf;
-    phashe->depth = depth;
-}
-     */
-
 }
 
 enum NodeType {

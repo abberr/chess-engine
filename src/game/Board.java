@@ -47,6 +47,8 @@ public class Board {
             }
 
             x++;
+
+            hash = generateZobristHash();
         }
 
         playerToMove = Player.WHITE;
@@ -57,78 +59,7 @@ public class Board {
     }
 
     public Board() {
-        Random rnd = new Random(1);
-        //Init zobrist
-        for (int i = 0; i < zobristTable.length; i++) {
-            for (int j = 0; j < zobristTable[0].length; j++) {
-                zobristTable[i][j] = rnd.nextLong();
-            }
-        }
-
-        playerToMove = Player.WHITE;
-
-        // Init pieces
-        for (int i = 0; i < board.length; i++) {
-            board[i][1] = new Pawn(Player.BLACK);
-            board[i][6] = new Pawn(Player.WHITE);
-        }
-
-        board[0][0] = new Rook(Player.BLACK);
-        board[7][0] = new Rook(Player.BLACK);
-        board[1][0] = new Knight(Player.BLACK);
-        board[6][0] = new Knight(Player.BLACK);
-        board[2][0] = new Bishop(Player.BLACK);
-        board[5][0] = new Bishop(Player.BLACK);
-        board[3][0] = new Queen(Player.BLACK);
-        board[4][0] = new King(Player.BLACK);
-
-        board[0][7] = new Rook(Player.WHITE);
-        board[7][7] = new Rook(Player.WHITE);
-        board[1][7] = new Knight(Player.WHITE);
-        board[6][7] = new Knight(Player.WHITE);
-        board[2][7] = new Bishop(Player.WHITE);
-        board[5][7] = new Bishop(Player.WHITE);
-        board[3][7] = new Queen(Player.WHITE);
-        board[4][7] = new King(Player.WHITE);
-
-        //Check castling
-//        board[4][7] = new King(Player.WHITE);
-//        board[0][7] = new Rook(Player.WHITE);
-//        board[7][7] = new Rook(Player.WHITE);
-//        board[4][0] = new King(Player.BLACK);
-//        board[0][0] = new Rook(Player.BLACK);
-//        board[5][0] = new Rook(Player.BLACK);
-
-
-
-
-//        board[2][2] = new King(Player.BLACK);
-//        board[1][2] = new Rook(Player.BLACK);
-//
-//        board[0][7] = new King(Player.WHITE);
-//        board[0][0] = new Knight(Player.WHITE);
-
-
-
-//        board[7][0] = new King(Player.BLACK);
-//        board[1][1] = new Pawn(Player.BLACK);
-//
-//        board[0][7] = new King(Player.WHITE);
-//        board[1][3] = new Pawn(Player.WHITE);
-//        board[1][6] = new Knight(Player.WHITE);
-
-
-
-//        board[2][2] = new King(Player.BLACK);
-//        board[1][2] = new Rook(Player.BLACK);
-//        board[3][5] = new Pawn(Player.BLACK);
-//        board[4][4] = new Pawn(Player.BLACK);
-//
-//        board[0][7] = new King(Player.WHITE);
-//        board[0][0] = new Knight(Player.WHITE);
-//        board[5][7] = new Bishop(Player.WHITE);
-
-        hash = generateZobristHash();
+        this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
     }
 
     public void executeMove(Piece piece, Position moveTo) {
@@ -165,10 +96,10 @@ public class Board {
                 board[5][move.moveTo.y] = board[7][move.moveTo.y];
                 board[7][move.moveTo.y] = null;
             }
-            else if(move.moveFrom.x == 4 && move.moveTo.x == 1) {
+            else if(move.moveFrom.x == 4 && move.moveTo.x == 2) {
                 move.setQueenSideCastle(true);
 
-                board[2][move.moveTo.y] = board[0][move.moveTo.y];
+                board[3][move.moveTo.y] = board[0][move.moveTo.y];
                 board[0][move.moveTo.y] = null;
             }
         }
@@ -201,14 +132,13 @@ public class Board {
                 board[5][move.moveTo.y] = null;
             }
             else if (move.isQueenSideCastle()) {
-                board[0][move.moveTo.y] = board[2][move.moveTo.y];
-                board[2][move.moveTo.y] = null;
+                board[0][move.moveTo.y] = board[3][move.moveTo.y];
+                board[3][move.moveTo.y] = null;
             }
         }
 
         //No need to reverse promotion
 
-        //TODO check if reversing castling works
         updateHash(move);
 
         playerToMove = playerToMove.getOpponent();
@@ -236,7 +166,7 @@ public class Board {
         //If castling move
         if (move.isKingSideCastle() || move.isQueenSideCastle()) {
             int rookFromX = move.isKingSideCastle() ? 7 : 0;
-            int rookToX = move.isKingSideCastle() ? 5 : 2;
+            int rookToX = move.isKingSideCastle() ? 5 : 3;
 //            Piece rook = board[rookToX][move.moveTo.y];
             Piece rook = new Rook(move.piece.player);
             int rookMoveFromindex = rookFromX + (move.moveTo.y*8);
@@ -285,16 +215,13 @@ public class Board {
                         if (!isSquareUnderAttack(new Position(5, move.moveTo.y), piece.player))
                             moves.add(move);
                     } else if (move.isQueenSideCastle()) {
-                        if (!isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player)
-                                && !isSquareUnderAttack(new Position(2, move.moveTo.y), piece.player))
+                        if (!isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player))
                             moves.add(move);
                     }
                     else {
                         moves.add(move);
                     }
                 }
-
-                //TODO: castling
 
                 executeInvertedMove(move);
             } else {
@@ -425,6 +352,7 @@ public class Board {
             }
         }
         System.out.println("\n" + generateFen());
+        System.out.println("Hash: " + hash);
     }
 
 

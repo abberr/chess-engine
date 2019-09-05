@@ -5,28 +5,49 @@ import java.util.List;
 
 public class Evaluator {
 
+    private static int searchDepth = 5;
+
+    private static boolean useHash;
     private static int counter;
-    private static int startingDepth;
     private static Move bestMove;
 
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
 	
-	public static Move minMax(Board board, int depth) {
+	public static Move findBestMove(Board board) {
 
-	    startingDepth = depth;
         bestMove= null;
+        useHash = true;
         counter = 0;
 
         long time = System.currentTimeMillis();
-	    int minMax = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, startingDepth, board, board.getPlayerToMove());
+
+	    int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, searchDepth, board, board.getPlayerToMove());
+
+	    //If forced mate is found, try to find mate in less moves
+	    if (value == Integer.MAX_VALUE - 1) {
+            System.out.println("MATE FOUND");
+
+            int depth = searchDepth - 2;
+            Move shortestMateMove = bestMove;
+            useHash = false;
+            while (depth > 0 ) {
+                value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
+                if (value != Integer.MAX_VALUE - 1 ) {
+                    break;
+                }
+                shortestMateMove = bestMove;
+                depth -= 2;
+            }
+
+            bestMove = shortestMateMove;
+        }
 
 	    long evalTime = System.currentTimeMillis() - time;
 	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
 
-        System.out.println(counter + " moves calculated. Time: " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
-        System.out.println("Best move: " + bestMove);
-		System.out.println(minMax);
+        System.out.println(counter + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println("Best move: " + bestMove + ", value: " + value);
 
 
 		return bestMove;
@@ -38,45 +59,34 @@ public class Evaluator {
         NodeType nodeType = NodeType.ALPHA;
 
         //TODO: Transposition table lookup
-//        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
-//        if (lookUpState != null) {
-//
-//            if (lookUpState.nodeType == NodeType.EXACT) {
-//                return lookUpState.score;
-//            }
-//            else if (lookUpState.nodeType == NodeType.ALPHA) {
-//                if (lookUpState.score <= alpha ) {
-//                    return alpha;
-//                }
-//            }
-//
-//            else if (lookUpState.nodeType == NodeType.BETA) {
-//                if (lookUpState.score >= beta ) {
-//                    return beta;
-//                }
-//            }
-//
-//            else {
-//                System.out.println("ERROR?");
-//            }
-//        }
+        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
+        if (useHash && lookUpState != null) {
+            bestMove = lookUpState.bestMove;        //TODO
+            if (lookUpState.nodeType == NodeType.EXACT) {
+                return lookUpState.score;
+            }
+            else if (lookUpState.nodeType == NodeType.ALPHA) {
+                if (lookUpState.score <= alpha ) {
+                    return alpha;
+                }
+            }
+
+            else if (lookUpState.nodeType == NodeType.BETA) {
+                if (lookUpState.score >= beta ) {
+                    return beta;
+                }
+            }
+        }
 
         List<Move> moves = board.getAvailableMoves(player, false);
 
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
-            //Stalemate = max value?
-            if (isChecked(player, board)) {
-                int value = (Integer.MIN_VALUE+1) * player.getValue();
-                transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-                return value;
-            }
-            //Mate
-            else {
-                int value = (Integer.MAX_VALUE-1) * player.getValue();
-                transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-                return value;
-            }
+            //Min value if check
+            int value = isChecked(player, board) ? Integer.MIN_VALUE + 1 : 0;
+            value *= player.getValue();
+            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            return value;
         }
 
 
@@ -123,7 +133,7 @@ public class Evaluator {
 
             if (value >= beta) {
                 bestMove = maxEvalMove;
-                transpositionTable.saveState(board.getHash(), depth, beta, null, NodeType.BETA);
+                transpositionTable.saveState(board.getHash(), depth, beta, bestMove, NodeType.BETA);
                 return beta;
 //                break;
             }
@@ -143,7 +153,7 @@ public class Evaluator {
         long evalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float)calculations/evalTime) * 1000;
 
-        System.out.println(calculations + " moves calculated. Time: " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println(calculations + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
     }
 
     public static long perftRecursive(Board board, int depth, Player player) {

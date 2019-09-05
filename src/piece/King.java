@@ -83,6 +83,7 @@ public class King extends Piece {
 
 		removeIllegalMoves(moves, board);
 
+		//TODO: check rook move counter
 		if (this.moveCounter == 0) {
 			//Kingside
 			if (board[5][pos.y] == null &&
@@ -97,7 +98,7 @@ public class King extends Piece {
 					board[1][pos.y] == null &&
 					board[0][pos.y] != null &&
 					board[0][pos.y].getType() == Type.ROOK) {
-				moves.add(new Position(1, pos.y));
+				moves.add(new Position(2, pos.y));
 			}
 		}
 

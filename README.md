@@ -2,6 +2,7 @@
 
 ##Features
 - GUI
+- Command line interface
 - NegMax with alpha beta pruning
 - perft
 - TODO Transposition tables
