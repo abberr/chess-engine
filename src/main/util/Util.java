@@ -1,6 +1,6 @@
-package util;
+package main.util;
 
-import piece.Piece;
+import main.piece.Piece;
 
 public class Util {
 	public static Piece[][] copyBoard(Piece[][] array) {

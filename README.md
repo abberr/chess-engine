@@ -5,7 +5,7 @@
 - Command line interface
 - NegMax with alpha beta pruning
 - perft
-- TODO Transposition tables
+- Transposition tables
 - TODO Quiescence Search
 
 

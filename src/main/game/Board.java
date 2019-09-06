@@ -1,6 +1,6 @@
-package game;
+package main.game;
 
-import piece.*;
+import main.piece.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +62,14 @@ public class Board {
         this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
     }
 
-    public void executeMove(Piece piece, Position moveTo) {
-        Move move = new Move(piece, getPositionOfPiece(piece), moveTo);
+    public void executeMove(Piece piece, Position moveTO) {
+        Move move = new Move(piece, getPositionOfPiece(piece), moveTO);
         executeMove(move);
     }
 
     public void executeMove(Move move) {
         Piece movingPiece = move.getPiece();
-        Piece capturedPiece = board[move.moveTo.x][move.moveTo.y];
+        Piece capturedPiece = board[move.getMoveTo().x][move.getMoveTo().y];
 
         if (capturedPiece != null) {
             move.setCapturedPiece(capturedPiece);
@@ -77,38 +77,38 @@ public class Board {
 
         if (movingPiece.getType() == Type.PAWN) {
             if (movingPiece.player == Player.WHITE) {
-                if (move.moveTo.y == 0) {
-                    move.promotingPiece = new Queen(movingPiece.player);
+                if (move.getMoveTo().y == 0) {
+                    move.setPromotingPiece(new Queen(movingPiece.player));
                 }
             }
             else {
-                if (move.moveTo.y == 7) {
-                    move.promotingPiece = new Queen(movingPiece.player);
+                if (move.getMoveTo().y == 7) {
+                    move.setPromotingPiece(new Queen(movingPiece.player));
                 }
             }
         }
         else if (movingPiece.getType() == Type.KING) {
             ((King) movingPiece).increaseMoveCounter();
             //Castling
-            if(move.moveFrom.x == 4 && move.moveTo.x == 6) {
+            if(move.getMoveFrom().x == 4 && move.getMoveTo().x == 6) {
                 move.setKingSideCastle(true);
                 //move rook
-                board[5][move.moveTo.y] = board[7][move.moveTo.y];
-                board[7][move.moveTo.y] = null;
+                board[5][move.getMoveTo().y] = board[7][move.getMoveTo().y];
+                board[7][move.getMoveTo().y] = null;
             }
-            else if(move.moveFrom.x == 4 && move.moveTo.x == 2) {
+            else if(move.getMoveFrom().x == 4 && move.getMoveTo().x == 2) {
                 move.setQueenSideCastle(true);
 
-                board[3][move.moveTo.y] = board[0][move.moveTo.y];
-                board[0][move.moveTo.y] = null;
+                board[3][move.getMoveTo().y] = board[0][move.getMoveTo().y];
+                board[0][move.getMoveTo().y] = null;
             }
         }
 
-        board[move.moveFrom.x][move.moveFrom.y] = null;
-        board[move.moveTo.x][move.moveTo.y] = movingPiece;
+        board[move.getMoveFrom().x][move.getMoveFrom().y] = null;
+        board[move.getMoveTo().x][move.getMoveTo().y] = movingPiece;
 
-        if (move.promotingPiece != null) {
-            board[move.moveTo.x][move.moveTo.y] = move.promotingPiece;
+        if (move.getPromotingPiece() != null) {
+            board[move.getMoveTo().x][move.getMoveTo().y] = move.getPromotingPiece();
         }
 
         updateHash(move);
@@ -120,20 +120,20 @@ public class Board {
     public void executeInvertedMove(Move move) {
         Piece movingPiece = move.getPiece();
 
-        board[move.moveFrom.x][move.moveFrom.y] = movingPiece;
-        board[move.moveTo.x][move.moveTo.y] = move.getCapturedPiece();
+        board[move.getMoveFrom().x][move.getMoveFrom().y] = movingPiece;
+        board[move.getMoveTo().x][move.getMoveTo().y] = move.getCapturedPiece();
 
         if (movingPiece.getType() == Type.KING) {
             ((King) movingPiece).decreaseMoveCounter();
 
             //Revert castling
             if (move.isKingSideCastle()) {
-                board[7][move.moveTo.y] = board[5][move.moveTo.y];
-                board[5][move.moveTo.y] = null;
+                board[7][move.getMoveTo().y] = board[5][move.getMoveTo().y];
+                board[5][move.getMoveTo().y] = null;
             }
             else if (move.isQueenSideCastle()) {
-                board[0][move.moveTo.y] = board[3][move.moveTo.y];
-                board[3][move.moveTo.y] = null;
+                board[0][move.getMoveTo().y] = board[3][move.getMoveTo().y];
+                board[3][move.getMoveTo().y] = null;
             }
         }
 
@@ -145,35 +145,35 @@ public class Board {
     }
 
     private void updateHash(Move move) {
-        int moveFromindex = move.moveFrom.x + (move.moveFrom.y*8);
-        int moveToindex = move.moveTo.x + (move.moveTo.y*8);
+        int moveFromindex = move.getMoveFrom().x + (move.getMoveFrom().y*8);
+        int moveToindex = move.getMoveTo().x + (move.getMoveTo().y*8);
 
-        hash ^= zobristTable[moveFromindex][move.piece.getIndex()];             //Remove piece from origin
+        hash ^= zobristTable[moveFromindex][move.getPiece().getIndex()];             //Remove main.piece from origin
         //If promoting move
-        if (move.promotingPiece != null) {
-            hash ^= zobristTable[moveToindex][move.promotingPiece.getIndex()];  //Add promoting piece to new square
+        if (move.getPromotingPiece() != null) {
+            hash ^= zobristTable[moveToindex][move.getPromotingPiece().getIndex()];  //Add promoting main.piece to new square
         }
         //If regular move
         else {
-            hash ^= zobristTable[moveToindex][move.piece.getIndex()];           //Add origin piece to new square
+            hash ^= zobristTable[moveToindex][move.getPiece().getIndex()];           //Add origin main.piece to new square
         }
 
         //If capturing move
-        if (move.capturedPiece != null) {
-            hash ^= zobristTable[moveToindex][move.capturedPiece.getIndex()];   //Remove captured piece from new square
+        if (move.getCapturedPiece() != null) {
+            hash ^= zobristTable[moveToindex][move.getCapturedPiece().getIndex()];   //Remove captured main.piece from new square
         }
 
         //If castling move
         if (move.isKingSideCastle() || move.isQueenSideCastle()) {
             int rookFromX = move.isKingSideCastle() ? 7 : 0;
             int rookToX = move.isKingSideCastle() ? 5 : 3;
-//            Piece rook = board[rookToX][move.moveTo.y];
-            Piece rook = new Rook(move.piece.player);
-            int rookMoveFromindex = rookFromX + (move.moveTo.y*8);
-            int rookMoveToindex = rookToX + (move.moveTo.y*8);
+//            Piece rook = board[rookToX][move.getMoveTo().y];
+            Piece rook = new Rook(move.getPiece().player);
+            int rookMoveFromindex = rookFromX + (move.getMoveTo().y*8);
+            int rookMoveToIndex = rookToX + (move.getMoveTo().y*8);
 
             hash ^= zobristTable[rookMoveFromindex][rook.getIndex()];           //Remove rook from corner
-            hash ^= zobristTable[rookMoveToindex][rook.getIndex()];             //Add rook to new location
+            hash ^= zobristTable[rookMoveToIndex][rook.getIndex()];             //Add rook to new location
         }
     }
 
@@ -194,7 +194,7 @@ public class Board {
 
     public boolean isSquareUnderAttack(Position pos, Player player) {
        for(Move move : getAvailableMoves(player.getOpponent(), true)) {
-           if (move.moveTo.equals(pos)) {
+           if (move.getMoveTo().equals(pos)) {
                return true;
            }
        }
@@ -212,10 +212,10 @@ public class Board {
                 if (!Evaluator.isChecked(piece.player, this)) {
 
                     if (move.isKingSideCastle()) {
-                        if (!isSquareUnderAttack(new Position(5, move.moveTo.y), piece.player))
+                        if (!isSquareUnderAttack(new Position(5, move.getMoveTo().y), piece.player))
                             moves.add(move);
                     } else if (move.isQueenSideCastle()) {
-                        if (!isSquareUnderAttack(new Position(3, move.moveTo.y), piece.player))
+                        if (!isSquareUnderAttack(new Position(3, move.getMoveTo().y), piece.player))
                             moves.add(move);
                     }
                     else {
@@ -243,15 +243,15 @@ public class Board {
         return null;
     }
 
-    //illegal = moves that cause check on self
-    public List<Move> getAvailableMoves(Player player, boolean includeIllegal) {
+    //pseudo legal = moves that cause check on self
+    public List<Move> getAvailableMoves(Player player, boolean includePseudoLegal) {
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board.length; j++) {
                 if (board[i][j] != null) {
                     Piece p = board[i][j];
                     if (p.player == player) {
-                        moves.addAll(getMoves(p, includeIllegal));
+                        moves.addAll(getMoves(p, includePseudoLegal));
                     }
                 }
             }
@@ -275,13 +275,6 @@ public class Board {
                 }
             }
         }
-
-        //Checkmate
-//        if (getAvailableMoves(Player.WHITE, false).size() == 0) {
-//            value = Integer.MIN_VALUE;
-//        } else if (getAvailableMoves(Player.BLACK, false).size() == 0) {
-//            value = Integer.MAX_VALUE;
-//        }
 
         return value;
     }

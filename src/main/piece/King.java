@@ -1,4 +1,4 @@
-package piece;
+package main.piece;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import game.Player;
-import game.Position;
-import util.Util;
+import main.game.Player;
+import main.game.Position;
+import main.util.Util;
 
 public class King extends Piece {
 
@@ -49,9 +49,9 @@ public class King extends Piece {
 	public BufferedImage getImage() {
 		try {
 			if (player == Player.WHITE)
-				return ImageIO.read(new File("src/res/kingw.png"));
+				return ImageIO.read(new File("src/main.res/kingw.png"));
 			else
-				return ImageIO.read(new File("src/res/kingb.png"));
+				return ImageIO.read(new File("src/main.res/kingb.png"));
 		} catch (IOException e) {
 			System.out.println(e);
 			return null;

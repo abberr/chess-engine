@@ -1,7 +1,7 @@
-package controller;
+package main.controller;
 
-import game.*;
-import piece.Piece;
+import main.game.*;
+import main.piece.Piece;
 
 import java.util.LinkedList;
 import java.util.List;

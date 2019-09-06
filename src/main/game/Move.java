@@ -1,16 +1,16 @@
-package game;
+package main.game;
 
-import piece.Piece;
+import main.piece.Piece;
 
 public class Move {
 	
-	Piece piece;
-	Piece capturedPiece;
-	Piece promotingPiece;
-	public Position moveFrom, moveTo;
+	private Piece piece;
+	private Piece capturedPiece;
+	private Piece promotingPiece;
+	private Position moveFrom, moveTo;
 
-	boolean kingSideCastle;
-	boolean queenSideCastle;
+	private boolean kingSideCastle;
+	private boolean queenSideCastle;
 	
 	public Move(Piece piece, Position moveFrom, Position moveTo) {
 		this.piece = piece;
@@ -56,6 +56,18 @@ public class Move {
 
 	public void setQueenSideCastle(boolean queenSideCastle) {
 		this.queenSideCastle = queenSideCastle;
+	}
+
+	public void setPromotingPiece(Piece promotingPiece) {
+		this.promotingPiece = promotingPiece;
+	}
+
+	public Piece getPromotingPiece() {
+		return promotingPiece;
+	}
+
+	public Position getMoveFrom() {
+		return moveFrom;
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package piece;
+package main.piece;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -7,9 +7,9 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
-import game.Player;
-import game.Position;
-import util.Util;
+import main.game.Player;
+import main.game.Position;
+import main.util.Util;
 
 public class Pawn extends Piece {
 
@@ -40,9 +40,9 @@ public class Pawn extends Piece {
     public BufferedImage getImage() {
         try {
             if (player == Player.WHITE)
-                return ImageIO.read(new File("src/res/pw.png"));
+                return ImageIO.read(new File("src/main.res/pw.png"));
             else
-                return ImageIO.read(new File("src/res/pb.png"));
+                return ImageIO.read(new File("src/main.res/pb.png"));
         } catch (IOException e) {
             System.out.println(e);
             return null;

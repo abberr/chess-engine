@@ -1,9 +1,9 @@
-package view;
+package main.view;
 
-import controller.Controller;
-import game.Move;
-import game.Position;
-import piece.Piece;
+import main.controller.Controller;
+import main.game.Move;
+import main.game.Position;
+import main.piece.Piece;
 
 import java.util.Scanner;
 

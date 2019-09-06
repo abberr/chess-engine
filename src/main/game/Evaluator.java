@@ -1,9 +1,13 @@
-package game;
+package main.game;
 
 import java.util.Comparator;
 import java.util.List;
 
 public class Evaluator {
+
+    private static long sortingTime;
+    private static long moveGenTime;
+    private static long evalTime;
 
     private static int searchDepth = 5;
 
@@ -19,6 +23,9 @@ public class Evaluator {
         bestMove= null;
         useHash = true;
         counter = 0;
+        sortingTime = 0;
+        moveGenTime = 0;
+        evalTime = 0;
 
         long time = System.currentTimeMillis();
 
@@ -43,11 +50,14 @@ public class Evaluator {
             bestMove = shortestMateMove;
         }
 
-	    long evalTime = System.currentTimeMillis() - time;
-	    float evalsPerSecond = ((float)counter/evalTime) * 1000;
+	    long totalTime = System.currentTimeMillis() - time;
+	    float evalsPerSecond = ((float)counter/totalTime) * 1000;
 
-        System.out.println(counter + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println(counter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
         System.out.println("Best move: " + bestMove + ", value: " + value);
+        System.out.println("Sorting time: " + sortingTime);
+        System.out.println("MoveGen time: " + moveGenTime);
+        System.out.println("Eval time: " + evalTime);
 
 
 		return bestMove;
@@ -58,7 +68,6 @@ public class Evaluator {
 
         NodeType nodeType = NodeType.ALPHA;
 
-        //TODO: Transposition table lookup
         State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
         if (useHash && lookUpState != null) {
             bestMove = lookUpState.bestMove;        //TODO
@@ -78,7 +87,10 @@ public class Evaluator {
             }
         }
 
+        //Move generation
+        long time = System.currentTimeMillis();
         List<Move> moves = board.getAvailableMoves(player, false);
+        moveGenTime += System.currentTimeMillis() - time;
 
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
@@ -92,7 +104,10 @@ public class Evaluator {
 
         if (depth <= 0) {
             //TODO: Quiescence Search
+            time = System.currentTimeMillis();
             int value = board.getValue() * player.getValue();
+            evalTime += System.currentTimeMillis() - time;
+
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
             return value;
         }
@@ -102,7 +117,9 @@ public class Evaluator {
 
 
         //Sort moves by heuristic value to increase pruning
+        time = System.currentTimeMillis();
         moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+        sortingTime += System.currentTimeMillis() - time;
 
         //Find best move
         for(Move move : moves) {
@@ -139,8 +156,6 @@ public class Evaluator {
             }
         }
 
-
-        //TODO: Transposition table insert
         transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
         bestMove = maxEvalMove;
         return maxValue;
@@ -168,77 +183,6 @@ public class Evaluator {
 
         return nodes;
     }
-
-//
-//    private static float minMax(float alpha, float beta, int depth, Board board, Player player, Move [] bestMoves) {
-//        //BaseCase
-//        if (depth <= 0) {
-//            return board.getValue();
-//        }
-//        else if (player == Player.WHITE) {
-//            float maxEval = alpha;
-//            Move maxEvalMove = null;
-//
-//            //Sort moves by heuristic value
-//            List<Move> moves = board.getAvailableMoves(player, false);
-//            moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)));
-//
-//            for(Move move : moves) {
-//                board.executeMove(move);
-//                float value = minMax(alpha, beta, depth-1, board, Player.BLACK, bestMoves);
-//                board.executeInvertedMove(move);
-//
-//                //TODO förenkla, typ såhär https://stackoverflow.com/questions/9964496/alpha-beta-move-ordering
-//                if (value > maxEval) {
-//                    maxEval = value;
-//                    maxEvalMove = move;
-//                }
-//                if (alpha > maxEval) {
-//                    alpha = maxEval;
-//                }
-//                if (beta <= alpha) {
-//                    System.out.println("PRUNE");
-//                    break;
-//                }
-//            }
-//
-//            maxMove = maxEvalMove;
-//            bestMoves[bestMoves.length-depth] = maxEvalMove;
-//
-//            return maxEval;
-//        }
-//        else if (player == Player.BLACK) {
-//            float minEval = beta;
-//            Move minEvalMove = null;
-//            for(Move move : board.getAvailableMoves(player, false)) {
-//                board.executeMove(move);
-//                float value = minMax(alpha, beta, depth-1, board, Player.WHITE, bestMoves);
-//                board.executeInvertedMove(move);
-//
-//                //TODO förenkla
-//                if (value < minEval) {
-//                    minEval = value;
-//                    minEvalMove = move;
-//                }
-//                if (beta < minEval) {
-//                    beta = minEval;
-//                }
-//                if (beta <= alpha) {
-//                    System.out.println("PRUNE");
-//                    break;
-//                }
-//            }
-//            minMove = minEvalMove;
-//            bestMoves[bestMoves.length-depth] = minEvalMove;
-//
-//            return minEval;
-//        }
-//
-//
-//        return 0;
-//    }
-
-
 	
 	public static boolean isChecked(Player player, Board board) {
 		Position kingPos = board.getPositionOfKing(player);

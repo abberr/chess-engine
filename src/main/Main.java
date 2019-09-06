@@ -1,9 +1,7 @@
-import controller.Controller;
-import view.BoardView;
-import view.ConsoleView;
+package main;
 
-import javax.swing.*;
-import java.util.Scanner;
+import main.controller.Controller;
+import main.view.ConsoleView;
 
 public class Main {
 	

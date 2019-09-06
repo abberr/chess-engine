@@ -1,10 +1,10 @@
-package piece;
+package main.piece;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import game.Player;
-import game.Position;
+import main.game.Player;
+import main.game.Position;
 
 public abstract class Piece {
 	
@@ -39,7 +39,7 @@ public abstract class Piece {
 				moves.remove(i);
 				i--;
 			} 
-			//If occupied by piece of same color
+			//If occupied by main.piece of same color
 			else if (board[x][y] != null && board[x][y].player == player) {
 				moves.remove(i);
 				i--;
