@@ -14,6 +14,7 @@ public class Board {
     private Piece[][] board = new Piece[8][8];
     private long [][] zobristTable = new long[64][12];
 
+
     private long hash;
 
     public Board(String fen) {
