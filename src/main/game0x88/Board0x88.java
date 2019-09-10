@@ -3,6 +3,7 @@ package main.game0x88;
 import main.game.Player;
 import main.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +13,10 @@ public class Board0x88 {
 
     private Player playerToMove;
     private byte[] squares = new byte[128];
+    private byte castlingRights;        //0bqkQK
+
     private long [][] zobristTable = new long[64][12];
+
 
     private long hash;
 
@@ -57,8 +61,21 @@ public class Board0x88 {
             playerToMove = Player.BLACK;
         }
 
+        //TODO castling rights from fen
+        castlingRights = 0b1111;
+
         hash = generateZobristHash();
     }
+
+    public Player getPlayerToMove() {
+        return playerToMove;
+    }
+
+
+    public long getHash() {
+        return hash;
+    }
+
 
     public void executeMove(String move){
         int moveFrom = Util.algebraicNotationToIndex(move.substring(0,2));
@@ -71,8 +88,26 @@ public class Board0x88 {
     public void executeMove(Move move) {
         squares[move.getMoveFrom()] = EMPY_SQUARE;
         squares[move.getMoveTo()] = move.getPiece();
+
         if (move.getPromotingPiece() != EMPY_SQUARE) {
             squares[move.getMoveTo()] = move.getPromotingPiece();
+        }
+        else if (move.isKingSideCastle()) {
+            if (move.getPiece() == WHITE_KING) {
+                squares[0x07] = EMPY_SQUARE;
+                squares[0x05] = WHITE_ROOK;
+            } else {
+                squares[0x77] = EMPY_SQUARE;
+                squares[0x75] = BLACK_ROOK;
+            }
+        } else if (move.isQueenSideCastle()) {
+            if (move.getPiece() == WHITE_KING) {
+                squares[0x00] = EMPY_SQUARE;
+                squares[0x03] = WHITE_ROOK;
+            } else {
+                squares[0x70] = EMPY_SQUARE;
+                squares[0x73] = BLACK_ROOK;
+            }
         }
 
         playerToMove = playerToMove.getOpponent();
@@ -80,11 +115,25 @@ public class Board0x88 {
 
     public void executeInvertedMove(Move move) {
         squares[move.getMoveFrom()] = move.getPiece();
+        squares[move.getMoveTo()] = move.getCapturedPiece();
 
-        if (move.getCapturedPiece() != EMPY_SQUARE) {
-            squares[move.getMoveTo()] = move.getCapturedPiece();
-        } else {
-            squares[move.getMoveTo()] = EMPY_SQUARE;
+        //Revert castling
+        if (move.isKingSideCastle()) {
+            if (move.getPiece() == WHITE_KING) {
+                squares[0x07] = WHITE_ROOK;
+                squares[0x05] = EMPY_SQUARE;
+            } else {
+                squares[0x77] = BLACK_ROOK;
+                squares[0x75] = EMPY_SQUARE;
+            }
+        } else if (move.isQueenSideCastle()) {
+            if (move.getPiece() == WHITE_KING) {
+                squares[0x00] = WHITE_ROOK;
+                squares[0x03] = EMPY_SQUARE;
+            } else {
+                squares[0x70] = BLACK_ROOK;
+                squares[0x73] = EMPY_SQUARE;
+            }
         }
 
         playerToMove = playerToMove.getOpponent();
@@ -93,7 +142,48 @@ public class Board0x88 {
     public List<Move> getMovesOfPiece(String position, boolean includePseudoLegal) {
 
         int index = Util.algebraicNotationToIndex(position);
-        return MoveGenerator.generateMovesOfPiece(squares, index);
+        return MoveGenerator.generateMovesOfPiece(squares, index, castlingRights, includePseudoLegal);
+    }
+
+    public List<Move> getAvailableMoves(boolean includePseudoLegal) {
+        return MoveGenerator.generateMoves(squares, playerToMove, castlingRights, includePseudoLegal);
+    }
+
+    public int getValue() {
+        int value = 0;
+
+        for (int i = 0; i < 120; i++) {
+            if ((i&0x88) != 0) continue;
+            byte piece = squares[i];
+            value += PIECE_VALUES[piece];
+            if (piece == WHITE_PAWN ) {
+                value += WHITE_PAWN_VALUE_TABLE[i];
+            } else if (piece == BLACK_PAWN) {
+                value -= BLACK_PAWN_VALUE_TABLE[i];
+            } else if (piece == WHITE_KNIGHT ) {
+                value += WHITE_KNIGHT_VALUE_TABLE[i];
+            } else if (piece == BLACK_KNIGHT) {
+                value -= BLACK_KNIGHT_VALUE_TABLE[i];
+            } else if (piece == WHITE_BISHOP ) {
+                value += WHITE_BISHOP_VALUE_TABLE[i];
+            } else if (piece == BLACK_BISHOP) {
+                value -= BLACK_BISHOP_VALUE_TABLE[i];
+            } else if (piece == WHITE_ROOK) {
+                value += WHITE_ROOK_VALUE_TABLE[i];
+            } else if (piece == BLACK_ROOK) {
+                value -= BLACK_ROOK_VALUE_TABLE[i];
+            } else if (piece == WHITE_QUEEN) {
+                value += WHITE_QUEEN_VALUE_TABLE[i];
+            } else if (piece == BLACK_QUEEN) {
+                value -= BLACK_QUEEN_VALUE_TABLE[i];
+            } else if (piece == WHITE_KING) {
+                value += WHITE_KING_VALUE_TABLE[i];
+            } else if (piece == BLACK_KING) {
+                value -= BLACK_KING_VALUE_TABLE[i];
+            }
+        }
+
+        return value;
     }
 
     //TODO
@@ -161,24 +251,28 @@ public class Board0x88 {
             }
         }
         System.out.println("\nhash: [" + hash + "]");
+        System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
     }
 
     public static void main(String [] args) {
-//        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+//        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/3p4/4K3/1B6/PPPPPPPP/RNBQ1BNR w");
 //        Board0x88 board = new Board0x88("1nbqkbnr/Pppp0ppp/8/2ppp3/2PPP3/8/PPP1PPPP/RNBQKBNR w");   //Test pawn capture
-        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/4Rp2/8/PPPPPPPP/RNBQKBNR w");       //Test rook moves
-        List<Move> list = board.getMovesOfPiece("e4", true);
-        for(Move m : list) {
-            System.out.println(m);
-        }
+//        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/3p4/8/4N3/8/PPPPPPPP/RNBQKBNR w");       //Test rook moves
+//        Board0x88 board = new Board0x88("r3k2r/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w ");       //Castling
+//        List<Move> list = board.getMovesOfPiece("e8", false);
+//        for(Move m : list) {
+//            System.out.println(m);
+//        }
 //        board.executeMove("b1c3");
-//        board.executeMove(list.get(0));
-//        board.executeInvertedMove(list.get(0));
+//        board.executeMove(list.get(2));
+//        board.executeInvertedMove(list.get(2));
 
+//        board.getAvailableMoves(false).stream().forEach(System.out::println);
+//        Evaluator.perft(board, 5, Player.WHITE);
+
+        System.out.println(board.getValue());
+        Evaluator.findBestMove(board);
         board.printBoard();
     }
-
-
-
-
 }

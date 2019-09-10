@@ -1,4 +1,6 @@
-package main.game;
+package main.game0x88;
+
+import main.game.Player;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +11,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 5;
+    private static int searchDepth = 7;
 
     private static boolean useHash;
     private static int counter;
@@ -17,11 +19,10 @@ public class Evaluator {
 
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
-
-	public static Move findBestMove(Board board) {
+    public static Move findBestMove(Board0x88 board) {
 
         bestMove= null;
-        useHash = true;
+        useHash = false;
         counter = 0;
         sortingTime = 0;
         moveGenTime = 0;
@@ -29,10 +30,10 @@ public class Evaluator {
 
         long time = System.currentTimeMillis();
 
-	    int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, searchDepth, board, board.getPlayerToMove());
+        int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, searchDepth, board, board.getPlayerToMove());
 
-	    //If forced mate is found, try to find mate in less moves
-	    if (value == Integer.MAX_VALUE - 1) {
+        //If forced mate is found, try to find mate in less moves
+        if (value == Integer.MAX_VALUE - 1) {
             System.out.println("MATE FOUND");
 
             int depth = searchDepth - 2;
@@ -50,8 +51,8 @@ public class Evaluator {
             bestMove = shortestMateMove;
         }
 
-	    long totalTime = System.currentTimeMillis() - time;
-	    float evalsPerSecond = ((float)counter/totalTime) * 1000;
+        long totalTime = System.currentTimeMillis() - time;
+        float evalsPerSecond = ((float)counter/totalTime) * 1000;
 
         System.out.println(counter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
         System.out.println("Best move: " + bestMove + ", value: " + value);
@@ -60,10 +61,10 @@ public class Evaluator {
         System.out.println("Eval time: " + evalTime);
 
 
-		return bestMove;
+        return bestMove;
     }
 
-    private static int minMax(int alpha, int beta, int depth, Board board, Player player) {
+    private static int minMax(int alpha, int beta, int depth,Board0x88 board, Player player) {
         counter++;
 
         NodeType nodeType = NodeType.ALPHA;
@@ -89,17 +90,18 @@ public class Evaluator {
 
         //Move generation
         long time = System.currentTimeMillis();
-        List<Move> moves = board.getAvailableMoves(player, false);
+        List<Move> moves = board.getAvailableMoves( false);
         moveGenTime += System.currentTimeMillis() - time;
 
         //Mate or stalemate if no moves
-        if (moves.isEmpty()) {
-            //Min value if check
-            int value = isChecked(player, board) ? Integer.MIN_VALUE + 1 : 0;
-            value *= player.getValue();
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-            return value;
-        }
+        //TODO
+//        if (moves.isEmpty()) {
+//            //Min value if check
+//            int value = isChecked(player, board) ? Integer.MIN_VALUE + 1 : 0;
+//            value *= player.getValue();
+//            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+//            return value;
+//        }
 
 
         if (depth <= 0) {
@@ -161,7 +163,16 @@ public class Evaluator {
         return maxValue;
     }
 
-    public static void perft(Board board, int depth, Player player) {
+    private static float boardValueAfterMove(Move move, Board0x88 board) {
+        board.executeMove(move);
+        float value = board.getValue();
+        board.executeInvertedMove(move);
+
+        return value;
+    }
+
+
+    public static void perft(Board0x88 board, int depth, Player player) {
         long time = System.currentTimeMillis();
         long calculations = perftRecursive(board, depth, player);
 
@@ -171,10 +182,10 @@ public class Evaluator {
         System.out.println(calculations + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
     }
 
-    public static long perftRecursive(Board board, int depth, Player player) {
+    public static long perftRecursive(Board0x88 board, int depth, Player player) {
         if (depth == 0) return 1;
         int nodes = 0;
-        List<Move> moves = board.getAvailableMoves(player, false);
+        List<Move> moves = board.getAvailableMoves(false);
         for (Move move : moves) {
             board.executeMove(move);
             nodes += perftRecursive(board, depth -1, player.getOpponent());
@@ -183,19 +194,5 @@ public class Evaluator {
 
         return nodes;
     }
-
-	public static boolean isChecked(Player player, Board board) {
-		Position kingPos = board.getPositionOfKing(player);
-		return board.isSquareUnderAttack(kingPos, player);
-	}
-
-	private static float boardValueAfterMove(Move move, Board board) {
-        board.executeMove(move);
-        float value = board.getValue();
-        board.executeInvertedMove(move);
-
-        return value;
-    }
-
 
 }

@@ -13,6 +13,14 @@ public class Util {
 		return copy;
 	}
 
+    public static byte[] copySquares(byte[] array) {
+        byte [] copy = new byte[array.length];
+        for (int i = 0; i < copy.length; i++) {
+            copy[i] = array[i];
+        }
+        return copy;
+    }
+
     public static int[][] reverseArray(int[][] myArray){
         int my_rows = myArray.length;
         int my_cols = myArray[0].length;
@@ -23,6 +31,20 @@ public class Util {
             }
         }
         return array;
+    }
+
+    public static int[] invertSquareValueTable(int[] array){
+        int [] reversedArray = new int[array.length];
+
+        for (int i = 0; i < array.length; i++) {
+            if ((i&0x88) != 0) continue;
+            int row = i >> 4;
+            int col = i&0b111;
+            int newRowLoc = 0x70 - (row*16) + col;
+            reversedArray[newRowLoc] = array[i];
+        }
+
+        return reversedArray;
     }
 
     //index mask: 0rrr0ccc

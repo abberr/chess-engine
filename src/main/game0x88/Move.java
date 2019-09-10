@@ -6,12 +6,9 @@ public class Move {
 
     private byte piece;
     private int moveFrom, moveTo;
-
     private byte capturedPiece;
     private byte promotingPiece;
-
     private boolean kingSideCastle;
-
     private boolean queenSideCastle;
 
     public Move(byte piece, int moveFrom, int moveTo) {
