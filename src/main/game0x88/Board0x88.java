@@ -78,16 +78,17 @@ public class Board0x88 {
     }
 
 
-    public void executeMove(String move){
+    public boolean executeMove(String move){
         int moveFrom = Util.algebraicNotationToIndex(move.substring(0,2));
         int moveTo = Util.algebraicNotationToIndex(move.substring(2,4));
 
         for(Move m : getMovesOfPiece(move.substring(0,2), false)) {
             if (moveTo == m.getMoveTo()) {
                 executeMove(m);
-                break;
+                return true;
             }
         }
+        return false;
     }
 
     public void executeMove(Move move) {
@@ -255,6 +256,9 @@ public class Board0x88 {
         return hash;
     }
 
+    public byte[] getSquares() {
+        return squares;
+    }
 
     public void printBoard() {
         for (int i = 0; i < 8; i++) {
@@ -263,7 +267,7 @@ public class Board0x88 {
                 byte p = squares[j + (7*16 - i*16)];
                 System.out.print("[");
                 if (p == 0)
-                    System.out.print(" ");
+                    System.out.print("  ");
                 else {
                     System.out.print(PIECE_UNICODE[p]);
                 }
@@ -277,7 +281,8 @@ public class Board0x88 {
 
     public static void main(String [] args) {
         Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
-        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
+//        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
+//        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 //        Board0x88 board = new Board0x88("1nbqkbnr/Pppp0ppp/8/2ppp3/2PPP3/8/PPP1PPPP/RNBQKBNR w");   //Test pawn capture
 //        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/3p4/8/4N3/8/PPPPPPPP/RNBQKBNR w");       //Test rook moves
 //        Board0x88 board = new Board0x88("r3k2r/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w ");       //Castling
@@ -289,15 +294,20 @@ public class Board0x88 {
 //        board.getAvailableMoves(false).stream().forEach(System.out::println);
 //        Evaluator.perft(board, 5, Player.WHITE);
 
-//        board.executeMove("e2e4");
-        while (true) {
-            board.executeMove(Evaluator.findBestMove(board));
-            board.printBoard();
-        }
+//        board.getMovesOfPiece("b2", false).forEach(System.out::println);
+        Evaluator.findBestMove(board);
 
 //        board.executeMove("e4d5");
-//        board.printBoard();
+        board.printBoard();
 //        board.revertLastMove();
 //        board.printBoard();
+
+//        board.executeMove("e2e4");
+//        while (true) {
+//            board.executeMove(Evaluator.findBestMove(board));
+//            board.printBoard();
+//        }
+
+
     }
 }

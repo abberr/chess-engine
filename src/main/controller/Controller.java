@@ -1,6 +1,9 @@
 package main.controller;
 
-import main.game.*;
+import main.game.Player;
+import main.game0x88.Board0x88;
+import main.game0x88.Evaluator;
+import main.game0x88.Move;
 import main.piece.Piece;
 
 import java.util.LinkedList;
@@ -8,14 +11,14 @@ import java.util.List;
 
 public class Controller {
 
-	private Board board;
+	private Board0x88 board;
 
 	private LinkedList<Move> moveList;
 
 
 	public Controller() {
 		moveList = new LinkedList<>();
-        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
 //        board = new Board("rn2kb1r/pppq1pp1/3p1n1p/1N2p3/4P3/3PBN2/PPP2PPP/R2QK2R w ");
 //        board = new Board("rn2k2r/ppp2pp1/7p/3qp3/1b6/3PB3/PPQN1PPP/R4RK1 b");	//Slow evaluation (>50s depth 5)
 //		board = new Board("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w "); //Castling
@@ -26,7 +29,7 @@ public class Controller {
 //        board = new Board("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 
 //        System.out.println(board.getValue());
-        Move bestMove = Evaluator.findBestMove(board);
+//        Move bestMove = Evaluator.findBestMove(board);
 
 //		Evaluator.perft(board, 5, Player.WHITE);
 //		System.out.println("Hash: " + board.getHash());
@@ -34,25 +37,20 @@ public class Controller {
 //		computerMove();
 	}
 
-	public Board getBoard() {
+	public Board0x88 getBoard() {
 	    return board;
     }
 
 
-	public void executeMove(Piece piece, Position moveTo) {
-		Move move = new Move(piece, board.getPositionOfPiece(piece), moveTo);
-		board.executeMove(move);
-		moveList.add(move);
-
-//        Move bestMove = Evaluator.findBestMove(board);
-
-//		executeMove(bestMove.getPiece(), bestMove.moveTo);
+    //TODO return false if not legal
+	public boolean executeMove(String move) {
+		return board.executeMove(move);
 	}
 
 	public void computerMove() {
         Move move = Evaluator.findBestMove(board);
         board.executeMove(move);
-		moveList.add(move);
+//		moveList.add(move);
 
 //        board.printBoard();
 
@@ -60,22 +58,23 @@ public class Controller {
     }
 
 	public void revertLastMove() {
-		if(moveList.size() == 0) {
-			return;
-		}
-		board.executeInvertedMove(moveList.pollLast());
+		board.revertLastMove();
 	}
 	
-	public List<Move> getAvailableMoves(Player player, Board board) {
-		return board.getAvailableMoves(player, false);
+	public List<Move> getAvailableMoves(Board0x88 board) {
+		return board.getAvailableMoves(false);
 	}
 
-	public Piece getPieceAt(Position pos) {
-		return board.getPieceAt(pos);
+	public List<Move> getMovesFromSquare(String square) {
+		return board.getMovesOfPiece(square, false);
 	}
 
-	public List<Move> getMoves(Piece piece) {
-		return board.getMoves(piece, false);
-	}
+//	public Piece getPieceAt(int index) {
+//		return board.getPieceAt(pos);
+//	}
+
+//	public List<Move> getMoves(Piece piece) {
+//		return board.getMoves(piece, false);
+//	}
 
 }

@@ -1,7 +1,10 @@
 package main;
 
 import main.controller.Controller;
+import main.view.BoardView;
 import main.view.ConsoleView;
+
+import javax.swing.*;
 
 public class Main {
 	
@@ -19,6 +22,7 @@ public class Main {
 
         ConsoleView view = new ConsoleView(contr);
         view.startGame();
+
 
 	}
 }

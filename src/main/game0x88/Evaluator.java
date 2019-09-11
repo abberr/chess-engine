@@ -22,7 +22,7 @@ public class Evaluator {
     public static Move findBestMove(Board0x88 board) {
 
         bestMove= null;
-        useHash = true;
+        useHash = false;
         counter = 0;
         sortingTime = 0;
         moveGenTime = 0;
@@ -94,14 +94,13 @@ public class Evaluator {
         moveGenTime += System.currentTimeMillis() - time;
 
         //Mate or stalemate if no moves
-        //TODO
-//        if (moves.isEmpty()) {
-//            //Min value if check
-//            int value = isChecked(player, board) ? Integer.MIN_VALUE + 1 : 0;
-//            value *= player.getValue();
-//            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-//            return value;
-//        }
+        if (moves.isEmpty()) {
+            //Min value if check
+            int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 1 : 0;
+            value *= player.getValue();
+            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            return value;
+        }
 
 
         if (depth <= 0) {
