@@ -15,8 +15,9 @@ public class Board0x88 {
     private byte[] squares = new byte[128];
     private byte castlingRights;        //0bqkQK
 
-    private long [][] zobristTable = new long[64][12];
+    private long [][] zobristTable = new long[128][12];
 
+    Move lastMove;
 
     private long hash;
 
@@ -80,9 +81,13 @@ public class Board0x88 {
     public void executeMove(String move){
         int moveFrom = Util.algebraicNotationToIndex(move.substring(0,2));
         int moveTo = Util.algebraicNotationToIndex(move.substring(2,4));
-        byte piece = squares[moveFrom];
 
-        executeMove(new Move(piece, moveFrom, moveTo));
+        for(Move m : getMovesOfPiece(move.substring(0,2), false)) {
+            if (moveTo == m.getMoveTo()) {
+                executeMove(m);
+                break;
+            }
+        }
     }
 
     public void executeMove(Move move) {
@@ -110,7 +115,10 @@ public class Board0x88 {
             }
         }
 
+        updateHash(move);
+
         playerToMove = playerToMove.getOpponent();
+        lastMove = move;
     }
 
     public void executeInvertedMove(Move move) {
@@ -136,7 +144,13 @@ public class Board0x88 {
             }
         }
 
+        updateHash(move);
+
         playerToMove = playerToMove.getOpponent();
+    }
+
+    public void revertLastMove() {
+        executeInvertedMove(lastMove);
     }
 
     public List<Move> getMovesOfPiece(String position, boolean includePseudoLegal) {
@@ -188,8 +202,8 @@ public class Board0x88 {
 
     //TODO
     private void updateHash(Move move) {
-        int moveFromindex = 0;
-        int moveToindex = 0;
+        int moveFromindex = move.getMoveFrom();
+        int moveToindex = move.getMoveTo();
 
         hash ^= zobristTable[moveFromindex][move.getPiece() - 1];             //Remove piece from origin
         //If promoting move
@@ -223,13 +237,19 @@ public class Board0x88 {
 
     private long generateZobristHash() {
         long hash = 0;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                byte piece = squares[j + (i*16)];
+//        for (int i = 0; i < 8; i++) {
+//            for (int j = 0; j < 8; j++) {
+//                byte piece = squares[j + (i*16)];
+//                if (piece != 0) {
+//                    hash ^= zobristTable[j + (i*8)][piece - 1];
+//                }
+//            }
+//        }
+        for (int i = 0; i < 128; i++) {
+                byte piece = squares[i];
                 if (piece != 0) {
-                    hash ^= zobristTable[j + (i*8)][piece - 1];
+                    hash ^= zobristTable[i][piece - 1];
                 }
-            }
         }
 
         return hash;
@@ -251,12 +271,13 @@ public class Board0x88 {
             }
         }
         System.out.println("\nhash: [" + hash + "]");
+        System.out.println("value: [" + getValue() + "]");
         System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
     }
 
     public static void main(String [] args) {
         Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
-//        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/3p4/4K3/1B6/PPPPPPPP/RNBQ1BNR w");
+        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
 //        Board0x88 board = new Board0x88("1nbqkbnr/Pppp0ppp/8/2ppp3/2PPP3/8/PPP1PPPP/RNBQKBNR w");   //Test pawn capture
 //        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/3p4/8/4N3/8/PPPPPPPP/RNBQKBNR w");       //Test rook moves
 //        Board0x88 board = new Board0x88("r3k2r/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w ");       //Castling
@@ -264,15 +285,19 @@ public class Board0x88 {
 //        for(Move m : list) {
 //            System.out.println(m);
 //        }
-//        board.executeMove("b1c3");
-//        board.executeMove(list.get(2));
-//        board.executeInvertedMove(list.get(2));
 
 //        board.getAvailableMoves(false).stream().forEach(System.out::println);
 //        Evaluator.perft(board, 5, Player.WHITE);
 
-        System.out.println(board.getValue());
-        Evaluator.findBestMove(board);
-        board.printBoard();
+//        board.executeMove("e2e4");
+        while (true) {
+            board.executeMove(Evaluator.findBestMove(board));
+            board.printBoard();
+        }
+
+//        board.executeMove("e4d5");
+//        board.printBoard();
+//        board.revertLastMove();
+//        board.printBoard();
     }
 }

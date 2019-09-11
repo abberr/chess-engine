@@ -11,7 +11,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 7;
+    private static int searchDepth = 5;
 
     private static boolean useHash;
     private static int counter;
@@ -22,7 +22,7 @@ public class Evaluator {
     public static Move findBestMove(Board0x88 board) {
 
         bestMove= null;
-        useHash = false;
+        useHash = true;
         counter = 0;
         sortingTime = 0;
         moveGenTime = 0;
@@ -163,9 +163,9 @@ public class Evaluator {
         return maxValue;
     }
 
-    private static float boardValueAfterMove(Move move, Board0x88 board) {
+    private static int boardValueAfterMove(Move move, Board0x88 board) {
         board.executeMove(move);
-        float value = board.getValue();
+        int value = board.getValue();
         board.executeInvertedMove(move);
 
         return value;
