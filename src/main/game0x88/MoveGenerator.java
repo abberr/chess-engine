@@ -73,12 +73,26 @@ public class MoveGenerator {
                     moves.remove(i);
                     i--;
                 }
+
+                //If castling move
+                else if (move.isKingSideCastle()) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()+1, player)) {
+                        moves.remove(i);
+                        i--;
+                    }
+                } else if (move.isQueenSideCastle()) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()-1, player)) {
+                        moves.remove(i);
+                        i--;
+                    }
+                }
             }
         }
 
 
         return moves;
     }
+
 
     //TODO make private
     public static boolean isInCheck(byte[] squares, Player player) {
@@ -96,19 +110,23 @@ public class MoveGenerator {
             }
         }
 
+        return isSquareUnderAttack(squares, kingIndex, player);
+    }
+
+    private static boolean isSquareUnderAttack(byte[] squares, int squareIndex, Player player) {
         //Check for pawn checks
-        if ((player == Player.WHITE && squares[kingIndex + NORTH_WEST] == BLACK_PAWN) ||
-                (player == Player.WHITE && squares[kingIndex + NORTH_EAST] == BLACK_PAWN)) {
+        if ((player == Player.WHITE && squares[squareIndex + NORTH_WEST] == BLACK_PAWN) ||
+                (player == Player.WHITE && squares[squareIndex + NORTH_EAST] == BLACK_PAWN)) {
             return true;
-        } else if ((player == Player.BLACK && squares[kingIndex + SOUTH_WEST] == WHITE_PAWN) ||
-                (player == Player.BLACK && squares[kingIndex + SOUTH_EAST] == WHITE_PAWN)) {
+        } else if ((player == Player.BLACK && squares[squareIndex + SOUTH_WEST] == WHITE_PAWN) ||
+                (player == Player.BLACK && squares[squareIndex + SOUTH_EAST] == WHITE_PAWN)) {
             return true;
         }
 
         //Raytrace from king position
         //Rook and queen
         for(byte direction : ROOK_DIRECTIONS) {
-            int desitnationIndex = kingIndex + direction;
+            int desitnationIndex = squareIndex + direction;
             while (!isOutOfBounds(desitnationIndex)) {
                 byte pieceOnSquare = squares[desitnationIndex];
                 if (pieceOnSquare == EMPY_SQUARE) {
@@ -132,7 +150,7 @@ public class MoveGenerator {
 
         //Bishop and queen
         for(byte direction : BISHOP_DIRECTIONS) {
-            int desitnationIndex = kingIndex + direction;
+            int desitnationIndex = squareIndex + direction;
             while (!isOutOfBounds(desitnationIndex)) {
                 byte pieceOnSquare = squares[desitnationIndex];
                 if (pieceOnSquare == EMPY_SQUARE) {
@@ -156,7 +174,7 @@ public class MoveGenerator {
 
         //Knight
         for(byte direction : KNIGHT_DIRECTIONS) {
-            int destinationIndex = kingIndex + direction;
+            int destinationIndex = squareIndex + direction;
             if (isOutOfBounds(destinationIndex)) {
                 continue;
             }
@@ -171,7 +189,7 @@ public class MoveGenerator {
 
         //King
         for(byte direction : KING_DIRECTIONS) {
-            int destinationIndex = kingIndex + direction;
+            int destinationIndex = squareIndex + direction;
             if (isOutOfBounds(destinationIndex)) {
                 continue;
             }

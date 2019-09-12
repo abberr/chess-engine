@@ -5,13 +5,20 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import main.controller.Controller;
+import main.game.Player;
 import main.game0x88.Board0x88;
 import main.game0x88.Move;
 import main.piece.Piece;
+import main.util.Util;
 
 public class BoardView extends JPanel {
 
@@ -21,12 +28,15 @@ public class BoardView extends JPanel {
 	private static final Color WHITE = new Color(255, 206, 158);
 	private static final Color BLACK = new Color(209, 139, 71);
 
+	private static final BufferedImage[] pieceImages = new BufferedImage[12];
+
 	private Controller contr;
 	private String selectedSquare = null;
 
 	public BoardView(Controller contr) {
 		this.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 		this.contr = contr;
+		initImages();
 
 		this.addMouseListener(new MouseAdapter() {
 			@Override
@@ -34,34 +44,38 @@ public class BoardView extends JPanel {
 				int xSquare = e.getX() / SQUARE_SIZE;
 				int ySquare = e.getY() / SQUARE_SIZE;
 
-				String clickedSquare = ""; //TODO
-
-				// Select main.piece
+				int clickedSquareIndex = ((7*16) - 16*ySquare) + xSquare;
+				String clickedSquare = Util.indexToAlgebraicNotation(clickedSquareIndex);
 
 				// Make move with selected main.piece
 				if (selectedSquare != null){
 					// Check if available move
 
 //					System.out.println("move to " + selectedSquare);
-					contr.executeMove(clickedSquare);
+					if (!contr.executeMove(selectedSquare + clickedSquare)) {
+						return;
+					}
 					BoardView.this.repaint();
 
 					System.out.println("Moving");
 
-//					contr.computerMove();
-//					BoardView.this.repaint();
+					contr.computerMove();
+					BoardView.this.repaint();
 
 
                     selectedSquare = null;
 				}
 				else if (selectedSquare == null) {
-					selectedSquare = clickedSquare;
-					if(selectedSquare != null) {
-						for(Move move : contr.getMovesFromSquare(clickedSquare)) {
-							System.out.print(move + ",");
-						}
-						System.out.println();
+					List<Move> moves = contr.getMovesFromSquare(clickedSquare);
+					if (moves != null) {
+						selectedSquare = clickedSquare;
 					}
+//					if(selectedSquare != null) {
+//						for(Move move : contr.getMovesFromSquare(clickedSquare)) {
+//							System.out.print(move + ",");
+//						}
+//						System.out.println();
+//					}
 				}
 
 			}
@@ -85,13 +99,32 @@ public class BoardView extends JPanel {
 		Board0x88 board = contr.getBoard();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
-			    //TODO get piece
-                byte piece = 0;
+                byte piece = board.getSquares()[((7*16) - 16*j) + i];
 				if (piece != 0) {
-//					g.drawImage(p.getImage(), i * SQUARE_SIZE, j * SQUARE_SIZE, (int) (SQUARE_SIZE * 0.8), (int) (SQUARE_SIZE * 0.8), null);
+					g.drawImage(pieceImages[piece - 1], i * SQUARE_SIZE, j * SQUARE_SIZE, (int) (SQUARE_SIZE * 0.8), (int) (SQUARE_SIZE * 0.8), null);
 				}
 			}
 		}
+	}
+
+	public BufferedImage initImages() {
+		try {
+			pieceImages[0] = ImageIO.read(new File("src/main/res/pw.png"));
+			pieceImages[1] = ImageIO.read(new File("src/main/res/kw.png"));
+			pieceImages[2] = ImageIO.read(new File("src/main/res/bw.png"));
+			pieceImages[3] = ImageIO.read(new File("src/main/res/rw.png"));
+			pieceImages[4] = ImageIO.read(new File("src/main/res/qw.png"));
+			pieceImages[5] = ImageIO.read(new File("src/main/res/kingw.png"));
+			pieceImages[6] = ImageIO.read(new File("src/main/res/pb.png"));
+			pieceImages[7] = ImageIO.read(new File("src/main/res/kb.png"));
+			pieceImages[8] = ImageIO.read(new File("src/main/res/bb.png"));
+			pieceImages[9] = ImageIO.read(new File("src/main/res/rb.png"));
+			pieceImages[10] = ImageIO.read(new File("src/main/res/qb.png"));
+			pieceImages[11] = ImageIO.read(new File("src/main/res/kingb.png"));
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return null;
 	}
 
 }

@@ -6,6 +6,7 @@ public enum Player {
 
 	private Player opposite;
 	private int value;
+	private int hashValue;
 
 	static {
 		WHITE.opposite = BLACK;
@@ -13,6 +14,9 @@ public enum Player {
 
 		WHITE.value = 1;
 		BLACK.value = -1;
+
+		WHITE.hashValue = 1;
+		BLACK.hashValue = 0;
 	}
 
 	public Player getOpponent() {
@@ -21,5 +25,9 @@ public enum Player {
 
 	public int getValue() {
 		return value;
+	}
+
+	public int getHashValue() {
+		return hashValue;
 	}
 }

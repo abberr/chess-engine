@@ -3,7 +3,6 @@ package main.game0x88;
 import main.game.Player;
 import main.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,11 +10,15 @@ import static main.game0x88.Pieces.*;
 
 public class Board0x88 {
 
+    private final static int BOARD_SIZE = 128;
+    private final static int PIECES_SIZE = 12;
+    private final static int COLORS_SIZE = 2;
+
     private Player playerToMove;
     private byte[] squares = new byte[128];
-    private byte castlingRights;        //0bqkQK
+    private byte castlingRights;        //qkQK
 
-    private long [][] zobristTable = new long[128][12];
+    private long [][][] zobristTable = new long[BOARD_SIZE][COLORS_SIZE][PIECES_SIZE];
 
     Move lastMove;
 
@@ -27,7 +30,9 @@ public class Board0x88 {
         Random rnd = new Random(1);
         for (int i = 0; i < zobristTable.length; i++) {
             for (int j = 0; j < zobristTable[0].length; j++) {
-                zobristTable[i][j] = rnd.nextLong();
+                for (int k = 0; k < zobristTable[0][0].length; k++) {
+                    zobristTable[i][j][k] = rnd.nextLong();
+                }
             }
         }
 
@@ -52,6 +57,7 @@ public class Board0x88 {
                 x = 0;
                 continue;
             }
+//            squares[y * 16 + x] = piece;
             squares[x + (7*16 - y*16)] = piece;
 
             x++;
@@ -79,11 +85,11 @@ public class Board0x88 {
 
 
     public boolean executeMove(String move){
-        int moveFrom = Util.algebraicNotationToIndex(move.substring(0,2));
-        int moveTo = Util.algebraicNotationToIndex(move.substring(2,4));
+        String moveFrom = move.substring(0,2);
+        int moveToIndex = Util.algebraicNotationToIndex(move.substring(2,4));
 
-        for(Move m : getMovesOfPiece(move.substring(0,2), false)) {
-            if (moveTo == m.getMoveTo()) {
+        for(Move m : getMovesOfPiece(moveFrom, false)) {
+            if (moveToIndex == m.getMoveTo()) {
                 executeMove(m);
                 return true;
             }
@@ -100,17 +106,21 @@ public class Board0x88 {
         }
         else if (move.isKingSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
+                castlingRights = (byte)(castlingRights&0b1110);
                 squares[0x07] = EMPY_SQUARE;
                 squares[0x05] = WHITE_ROOK;
             } else {
+                castlingRights = (byte)(castlingRights&0b1011);
                 squares[0x77] = EMPY_SQUARE;
                 squares[0x75] = BLACK_ROOK;
             }
         } else if (move.isQueenSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
+                castlingRights = (byte)(castlingRights&0b1101);
                 squares[0x00] = EMPY_SQUARE;
                 squares[0x03] = WHITE_ROOK;
             } else {
+                castlingRights = (byte)(castlingRights&0b0111);
                 squares[0x70] = EMPY_SQUARE;
                 squares[0x73] = BLACK_ROOK;
             }
@@ -127,27 +137,32 @@ public class Board0x88 {
         squares[move.getMoveTo()] = move.getCapturedPiece();
 
         //Revert castling
+        //TODO simplify
         if (move.isKingSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
+                castlingRights = (byte)(castlingRights|0b0001);
                 squares[0x07] = WHITE_ROOK;
                 squares[0x05] = EMPY_SQUARE;
             } else {
+                castlingRights = (byte)(castlingRights|0b0100);
                 squares[0x77] = BLACK_ROOK;
                 squares[0x75] = EMPY_SQUARE;
             }
         } else if (move.isQueenSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
+                castlingRights = (byte)(castlingRights|0b0010);
                 squares[0x00] = WHITE_ROOK;
                 squares[0x03] = EMPY_SQUARE;
             } else {
+                castlingRights = (byte)(castlingRights|0b1000);
                 squares[0x70] = BLACK_ROOK;
                 squares[0x73] = EMPY_SQUARE;
             }
         }
 
-        updateHash(move);
-
         playerToMove = playerToMove.getOpponent();
+
+        updateHash(move);   //Has to be after player change to work
     }
 
     public void revertLastMove() {
@@ -201,38 +216,39 @@ public class Board0x88 {
         return value;
     }
 
-    //TODO
     private void updateHash(Move move) {
         int moveFromindex = move.getMoveFrom();
         int moveToindex = move.getMoveTo();
 
-        hash ^= zobristTable[moveFromindex][move.getPiece() - 1];             //Remove piece from origin
+        hash ^= zobristTable[moveFromindex][playerToMove.getHashValue()][move.getPiece() - 1];             //Remove piece from origin
         //If promoting move
         if (move.getPromotingPiece() != EMPY_SQUARE) {
-            hash ^= zobristTable[moveToindex][move.getPromotingPiece() - 1];  //Add promoting piece to new square
+            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getPromotingPiece() - 1];  //Add promoting piece to new square
         }
         //If regular move
         else {
-            hash ^= zobristTable[moveToindex][move.getPiece() - 1];           //Add origin piece to new square
+            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getPiece() - 1];           //Add origin piece to new square
         }
 
         //If capturing move
         if (move.getCapturedPiece() != EMPY_SQUARE) {
-            hash ^= zobristTable[moveToindex][move.getCapturedPiece() - 1];   //Remove captured piece from new square
+            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getCapturedPiece() - 1];   //Remove captured piece from new square
         }
 
         //If castling move
-//        if (move.isKingSideCastle() || move.isQueenSideCastle()) {
-//            int rookFromX = move.isKingSideCastle() ? 7 : 0;
-//            int rookToX = move.isKingSideCastle() ? 5 : 3;
-////            Piece rook = board[rookToX][move.getMoveTo().y];
-//            Piece rook = new Rook(move.getPiece().player);
-//            int rookMoveFromindex = rookFromX + (move.getMoveTo().y*8);
-//            int rookMoveToIndex = rookToX + (move.getMoveTo().y*8);
-//
-//            hash ^= zobristTable[rookMoveFromindex][rook.getIndex()];           //Remove rook from corner
-//            hash ^= zobristTable[rookMoveToIndex][rook.getIndex()];             //Add rook to new location
-//        }
+        if (move.isKingSideCastle() || move.isQueenSideCastle()) {
+            int rookFromX = move.isKingSideCastle() ? 7 : 0;
+            int rookToX = move.isKingSideCastle() ? 5 : 3;
+            int rookY = move.getMoveFrom() >> 4;
+
+            int rookMoveFromindex = rookY*16 + rookFromX;
+            int rookMoveToIndex = rookY*16 + rookToX;
+
+            byte rook = playerToMove == Player.WHITE ? WHITE_ROOK : BLACK_ROOK;
+
+            hash ^= zobristTable[rookMoveFromindex][playerToMove.getHashValue()][rook - 1];           //Remove rook from corner
+            hash ^= zobristTable[rookMoveToIndex][playerToMove.getHashValue()][rook - 1];             //Add rook to new location
+        }
     }
 
 
@@ -249,7 +265,7 @@ public class Board0x88 {
         for (int i = 0; i < 128; i++) {
                 byte piece = squares[i];
                 if (piece != 0) {
-                    hash ^= zobristTable[i][piece - 1];
+                    hash ^= zobristTable[i][playerToMove.getHashValue()][piece - 1];
                 }
         }
 
@@ -261,6 +277,7 @@ public class Board0x88 {
     }
 
     public void printBoard() {
+        System.out.println("--------------------------");
         for (int i = 0; i < 8; i++) {
             System.out.println();
             for (int j = 0; j < 8; j++) {
@@ -275,12 +292,47 @@ public class Board0x88 {
             }
         }
         System.out.println("\nhash: [" + hash + "]");
+        System.out.println("fen: [" + generateFen() + "]");
         System.out.println("value: [" + getValue() + "]");
+        System.out.println("castling rights: [" + castlingRights + "]");
         System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
+
+        System.out.println("--------------------------");
+    }
+
+    private String generateFen() {
+        String fen = "";
+        for (int i = 0; i < 8; i++) {
+            int emptySpaces = 0;
+            for (int j = 0; j < 8; j++) {
+                int index = j + (7*16 - i*16);
+                if (squares[index] == EMPY_SQUARE) {
+                    emptySpaces++;
+                } else {
+                    if(emptySpaces > 0) {
+                        fen += emptySpaces;
+                    }
+                    fen += PIECE_CHAR[squares[index]];
+                    emptySpaces = 0;
+                }
+            }
+            if(emptySpaces > 0) {
+                fen += emptySpaces;
+            }
+            fen += "/";
+        }
+
+        fen = fen.substring(0,fen.length() - 1);
+
+        fen = playerToMove == Player.WHITE ? fen + " w " : fen + " b ";
+
+        return fen;
     }
 
     public static void main(String [] args) {
-        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+
+
 //        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
 //        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 //        Board0x88 board = new Board0x88("1nbqkbnr/Pppp0ppp/8/2ppp3/2PPP3/8/PPP1PPPP/RNBQKBNR w");   //Test pawn capture
@@ -298,9 +350,9 @@ public class Board0x88 {
         Evaluator.findBestMove(board);
 
 //        board.executeMove("e4d5");
-        board.printBoard();
-//        board.revertLastMove();
 //        board.printBoard();
+//        board.revertLastMove();
+        board.printBoard();
 
 //        board.executeMove("e2e4");
 //        while (true) {

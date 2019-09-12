@@ -21,8 +21,9 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
+        useHash = true;
+
         bestMove= null;
-        useHash = false;
         counter = 0;
         sortingTime = 0;
         moveGenTime = 0;
