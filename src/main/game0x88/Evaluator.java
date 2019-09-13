@@ -1,7 +1,5 @@
 package main.game0x88;
 
-import main.game.Player;
-
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,7 +9,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 5;
+    private static int searchDepth = 4;
 
     private static boolean useHash;
     private static int counter;
@@ -21,7 +19,7 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = true;
+        useHash = false;
 
         bestMove= null;
         counter = 0;

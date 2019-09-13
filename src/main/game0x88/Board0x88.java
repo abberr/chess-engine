@@ -1,6 +1,5 @@
 package main.game0x88;
 
-import main.game.Player;
 import main.util.Util;
 
 import java.util.List;
@@ -170,8 +169,12 @@ public class Board0x88 {
     }
 
     public List<Move> getMovesOfPiece(String position, boolean includePseudoLegal) {
-
         int index = Util.algebraicNotationToIndex(position);
+
+        if (squares[index] == EMPY_SQUARE) {
+            return null;
+        }
+
         return MoveGenerator.generateMovesOfPiece(squares, index, castlingRights, includePseudoLegal);
     }
 

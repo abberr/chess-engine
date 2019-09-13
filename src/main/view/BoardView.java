@@ -14,10 +14,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import main.controller.Controller;
-import main.game.Player;
 import main.game0x88.Board0x88;
 import main.game0x88.Move;
-import main.piece.Piece;
 import main.util.Util;
 
 public class BoardView extends JPanel {
@@ -53,9 +51,11 @@ public class BoardView extends JPanel {
 
 //					System.out.println("move to " + selectedSquare);
 					if (!contr.executeMove(selectedSquare + clickedSquare)) {
+					    selectedSquare = null;
 						return;
 					}
 					BoardView.this.repaint();
+					contr.getBoard().printBoard();
 
 					System.out.println("Moving");
 
