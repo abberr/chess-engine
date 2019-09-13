@@ -8,7 +8,6 @@
 - Transposition tables
 
 ##TODO
-- En passant moves
 - Hashing of castling & en passant moves
 - Quiescence Search
 - Better move ordering

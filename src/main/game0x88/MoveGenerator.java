@@ -10,7 +10,7 @@ import static main.game0x88.Pieces.EMPY_SQUARE;
 
 public class MoveGenerator {
 
-    private static final byte NORTH = 0x10, NORTH_EAST = 0x11, EAST = 0x01, SOUTH_EAST = 0x01 - 0x10, SOUTH = -0x10, SOUTH_WEST = -0x11, WEST = -0x01, NORTH_WEST = 0x10 - 0x01;
+    public static final byte NORTH = 0x10, NORTH_EAST = 0x11, EAST = 0x01, SOUTH_EAST = 0x01 - 0x10, SOUTH = -0x10, SOUTH_WEST = -0x11, WEST = -0x01, NORTH_WEST = 0x10 - 0x01;
 
     private static final byte[] ROOK_DIRECTIONS = {NORTH, EAST, SOUTH, WEST};
     private static final byte[] BISHOP_DIRECTIONS = {NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
@@ -24,7 +24,7 @@ public class MoveGenerator {
             WEST + SOUTH_WEST, WEST + NORTH_WEST};
 
 
-    public static List<Move> generateMoves(byte[] squares, Player player, byte castlingRights, boolean includePseudolegal) {
+    public static List<Move> generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
         List<Move> moves = new ArrayList<>();
 
         for (int i = 0; i < 120; i++) {
@@ -33,7 +33,7 @@ public class MoveGenerator {
             if (square == EMPY_SQUARE) continue;
             if (player == Player.WHITE && square <= 6 ||
                     player == Player.BLACK && square >= 7) {
-                moves.addAll(MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, includePseudolegal));
+                moves.addAll(MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, enPassantIndex, includePseudolegal));
             }
 
         }
@@ -41,12 +41,12 @@ public class MoveGenerator {
         return moves;
     }
 
-    public static List<Move> generateMovesOfPiece(byte[] squares, int index, byte castlingRights,boolean includePseudolegal) {
+    public static List<Move> generateMovesOfPiece(byte[] squares, int index, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
 
         byte piece = squares[index];
         List<Move> moves = null;
         if (piece == WHITE_PAWN || piece == BLACK_PAWN) {
-            moves = generatePawnMoves(squares, index, piece);
+            moves = generatePawnMoves(squares, index, piece, enPassantIndex);
         } else if (piece == WHITE_KNIGHT || piece == BLACK_KNIGHT) {
             moves = generateKnightMoves(squares, index, piece);
         } else if (piece == WHITE_ROOK || piece == BLACK_ROOK) {
@@ -114,11 +114,11 @@ public class MoveGenerator {
 
     private static boolean isSquareUnderAttack(byte[] squares, int squareIndex, Player player) {
         //Check for pawn checks
-        if ((player == Player.WHITE && squares[squareIndex + NORTH_WEST] == BLACK_PAWN) ||
-                (player == Player.WHITE && squares[squareIndex + NORTH_EAST] == BLACK_PAWN)) {
+        if ((player == Player.WHITE && ((squareIndex + NORTH_WEST)&0x88) == 0 && squares[squareIndex + NORTH_WEST] == BLACK_PAWN) ||
+                (player == Player.WHITE && ((squareIndex + NORTH_EAST)&0x88) == 0 && squares[squareIndex + NORTH_EAST] == BLACK_PAWN)) {
             return true;
-        } else if ((player == Player.BLACK && squares[squareIndex + SOUTH_WEST] == WHITE_PAWN) ||
-                (player == Player.BLACK && squares[squareIndex + SOUTH_EAST] == WHITE_PAWN)) {
+        } else if ((player == Player.BLACK && ((squareIndex + SOUTH_WEST)&0x88) == 0 && squares[squareIndex + SOUTH_WEST] == WHITE_PAWN) ||
+                (player == Player.BLACK && ((squareIndex + SOUTH_EAST)&0x88) == 0 && squares[squareIndex + SOUTH_EAST] == WHITE_PAWN)) {
             return true;
         }
 
@@ -207,7 +207,7 @@ public class MoveGenerator {
         return false;
     }
 
-    private static List<Move> generatePawnMoves(byte[] squares, int index, byte piece) {
+    private static List<Move> generatePawnMoves(byte[] squares, int index, byte piece, int enPassantIndex) {
         List<Move> moves = new ArrayList<>();
 
         int moveToIndex = piece == WHITE_PAWN ? index + NORTH : index + SOUTH;
@@ -230,9 +230,13 @@ public class MoveGenerator {
 
         //Move 2 squares if starting pos and no piece blocking
         if (piece == WHITE_PAWN && (index >> 4) == 1 && squares[index + NORTH] == EMPY_SQUARE && squares[index + NORTH + NORTH] == EMPY_SQUARE) {
-            moves.add(new Move(piece, index, index + NORTH + NORTH));
+            Move move = new Move(piece, index, index + NORTH + NORTH);
+            move.setPawnDoublePush(true);
+            moves.add(move);
         } else if (piece == BLACK_PAWN && (index >> 4) == 6 && squares[index + SOUTH] == EMPY_SQUARE && squares[index + SOUTH + SOUTH] == EMPY_SQUARE) {
-            moves.add(new Move(piece, index, index + SOUTH + SOUTH));
+            Move move = new Move(piece, index, index + SOUTH + SOUTH);
+            move.setPawnDoublePush(true);
+            moves.add(move);
         }
 
         //Capturing moves
@@ -249,6 +253,21 @@ public class MoveGenerator {
             moves.add(move);
         }
 
+        //En passantMove
+        if (isWhitePiece(piece) && (index>>4)== 4 &&
+                ((index&0b0111) == enPassantIndex - 1 || (index&0b0111) == enPassantIndex + 1)) {
+            Move move = new Move(piece, index, 0x50+enPassantIndex);
+            move.setEnPassant(true);
+            move.setCapturedPiece(BLACK_PAWN);
+            moves.add(move);
+        }
+        else if (!isWhitePiece(piece) && (index>>4)== 3 &&
+                ((index&0b0111) == enPassantIndex - 1 || (index&0b0111) == enPassantIndex + 1)) {
+            Move move = new Move(piece, index, 0x20+enPassantIndex);
+            move.setEnPassant(true);
+            move.setCapturedPiece(WHITE_PAWN);
+            moves.add(move);
+        }
         return moves;
     }
 
@@ -282,7 +301,7 @@ public class MoveGenerator {
         return moves;
     }
 
-    private static List<Move> generateKingMoves(byte[] squares, int index, byte piece, byte castlingRights) {
+    private static List<Move> generateKingMoves(byte[] squares, int index, byte piece, int castlingRights) {
         List<Move> moves = new ArrayList<>();
 
         //Start by adding standard moves

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import main.controller.Controller;
 import main.game0x88.Board0x88;
 import main.game0x88.Move;
+import main.game0x88.Pieces;
 import main.util.Util;
 
 public class BoardView extends JPanel {
@@ -100,7 +101,7 @@ public class BoardView extends JPanel {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
                 byte piece = board.getSquares()[((7*16) - 16*j) + i];
-				if (piece != 0) {
+				if (piece != Pieces.EMPY_SQUARE) {
 					g.drawImage(pieceImages[piece - 1], i * SQUARE_SIZE, j * SQUARE_SIZE, (int) (SQUARE_SIZE * 0.8), (int) (SQUARE_SIZE * 0.8), null);
 				}
 			}

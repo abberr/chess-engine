@@ -10,6 +10,8 @@ public class Move {
     private byte promotingPiece;
     private boolean kingSideCastle;
     private boolean queenSideCastle;
+    private boolean pawnDoublePush;
+    private boolean enPassant;
 
     public Move(byte piece, int moveFrom, int moveTo) {
         this.piece = piece;
@@ -61,8 +63,29 @@ public class Move {
         return queenSideCastle;
     }
 
+    public boolean isPawnDoublePush() {
+        return pawnDoublePush;
+    }
+
+    public void setPawnDoublePush(boolean pawnDoublePush) {
+        this.pawnDoublePush = pawnDoublePush;
+    }
+
+    public boolean isEnPassant() {
+        return enPassant;
+    }
+
+    public void setEnPassant(boolean enPassant) {
+        this.enPassant = enPassant;
+    }
+
     @Override
     public String toString() {
-        return Util.indexToAlgebraicNotation(moveFrom) + "->" + Util.indexToAlgebraicNotation(moveTo);
+        if (isKingSideCastle()) return "O-O";
+        if (isQueenSideCastle()) return "O-O-O";
+        String moveString = Util.indexToAlgebraicNotation(moveFrom);
+        moveString = this.capturedPiece == 0 ? moveString : moveString + "x";
+        moveString += Util.indexToAlgebraicNotation(moveTo);
+        return  moveString;
     }
 }

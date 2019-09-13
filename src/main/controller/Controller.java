@@ -3,6 +3,7 @@ package main.controller;
 import main.game0x88.Board0x88;
 import main.game0x88.Evaluator;
 import main.game0x88.Move;
+import main.game0x88.Player;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class Controller {
 
 	public Controller() {
 		moveList = new LinkedList<>();
-        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK");
 //        board = new Board0x88("1r4k1/ppp2ppp/8/6Q1/8/2P5/qP3PPP/1R1R2K1 b ");   //Blunders?!?!
 //        board = new Board0x88("rn2kb1r/pppq1pp1/3p1n1p/1N2p3/4P3/3PBN2/PPP2PPP/R2QK2R w ");
 //        board = new Board0x88("rn2k2r/ppp2pp1/7p/3qp3/1b6/3PB3/PPQN1PPP/R4RK1 b");	//Slow evaluation (>50s depth 5)
@@ -29,9 +30,9 @@ public class Controller {
 //        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 
 //        System.out.println(board.getValue());
-        Move bestMove = Evaluator.findBestMove(board);
+//        Move bestMove = Evaluator.findBestMove(board);
 
-//		Evaluator.perft(board, 5, Player.WHITE);
+//		Evaluator.perft(board, 6, Player.WHITE);
 //		System.out.println("Hash: " + board.getHash());
 
 //		computerMove();

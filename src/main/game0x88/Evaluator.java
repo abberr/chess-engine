@@ -9,7 +9,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 4;
+    private static int searchDepth = 6;
 
     private static boolean useHash;
     private static int counter;
@@ -19,7 +19,7 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = false;
+        useHash = true;
 
         bestMove= null;
         counter = 0;
