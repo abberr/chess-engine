@@ -1,4 +1,4 @@
-package main.game0x88;
+package game0x88;
 
 import java.util.HashMap;
 

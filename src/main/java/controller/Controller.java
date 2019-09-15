@@ -1,9 +1,8 @@
-package main.controller;
+package controller;
 
-import main.game0x88.Board0x88;
-import main.game0x88.Evaluator;
-import main.game0x88.Move;
-import main.game0x88.Player;
+import game0x88.Board0x88;
+import game0x88.Evaluator;
+import game0x88.Move;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +13,10 @@ public class Controller {
 
 	private LinkedList<Move> moveList;
 
+	public Controller(String fen) {
+		moveList = new LinkedList<>();
+		board = new Board0x88(fen);
+	}
 
 	public Controller() {
 		moveList = new LinkedList<>();

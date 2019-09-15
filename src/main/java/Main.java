@@ -1,10 +1,5 @@
-package main;
-
-import main.controller.Controller;
-import main.view.BoardView;
-import main.view.ConsoleView;
-
-import javax.swing.*;
+import controller.Controller;
+import view.ConsoleView;
 
 public class Main {
 	
