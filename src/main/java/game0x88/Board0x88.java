@@ -15,14 +15,19 @@ public class Board0x88 {
 
     private final static int MAXIMUM_NUMBER_OF_MOVES = 4096;
 
+    private final static int NO_EN_PASSANT_AVAILABLE = 15;
+
     private Player playerToMove;
     private byte[] squares = new byte[BOARD_SIZE];
 
     private long [][][] zobristTable = new long[BOARD_SIZE][COLORS_SIZE][PIECES_SIZE];
+    private long [] zobristCastlingRights = new long[16];
+    private long [] zobristEnPassant = new long[8];
 
     private int moveNumber = 0;
     private int[] castlingRightsHistory = new int[MAXIMUM_NUMBER_OF_MOVES];     //MASK: qkQK
     private int[] enPassantHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
+
 
     Move lastMove;
 
@@ -32,15 +37,7 @@ public class Board0x88 {
 
         String [] fields = fen.split(" ");
 
-        //Init zobrist
-        Random rnd = new Random(1);
-        for (int i = 0; i < zobristTable.length; i++) {
-            for (int j = 0; j < zobristTable[0].length; j++) {
-                for (int k = 0; k < zobristTable[0][0].length; k++) {
-                    zobristTable[i][j][k] = rnd.nextLong();
-                }
-            }
-        }
+        initZobrist();
 
         int x = 0, y = 0;
         for(char c : fields[0].toCharArray()) {
@@ -74,7 +71,6 @@ public class Board0x88 {
             playerToMove = Player.BLACK;
         }
 
-        //TODO castling rights from fen
         if (fields[2].charAt(0) != '-') {
             if (fields[2].contains("q")) castlingRightsHistory[moveNumber] |= 0b1000;
             if (fields[2].contains("k")) castlingRightsHistory[moveNumber] |= 0b0100;
@@ -84,8 +80,11 @@ public class Board0x88 {
             castlingRightsHistory[moveNumber] = 0b1111;
         }
 
-        //TODO en passant from fen
-        enPassantHistory[moveNumber] = 15;
+        if (fields[3].charAt(0) != '-') {
+            enPassantHistory[moveNumber] = (fields[3].charAt(0) - 'a');
+        } else {
+            enPassantHistory[moveNumber] = NO_EN_PASSANT_AVAILABLE;
+        }
 
         hash = generateZobristHash();
     }
@@ -114,14 +113,14 @@ public class Board0x88 {
     }
 
     public void executeMove(Move move) {
-        int newCastlingRights = castlingRightsHistory[moveNumber];
+        int oldCastlingRights = castlingRightsHistory[moveNumber];
 
         moveNumber++;
 
         squares[move.getMoveFrom()] = EMPY_SQUARE;
         squares[move.getMoveTo()] = move.getPiece();
 
-        newCastlingRights = updateCastlingRights(move.getMoveFrom(), move.getMoveTo(), newCastlingRights);
+        int newCastlingRights = updateCastlingRights(move.getMoveFrom(), move.getMoveTo(), oldCastlingRights);
 
         if (move.getPromotingPiece() != EMPY_SQUARE) {
             squares[move.getMoveTo()] = move.getPromotingPiece();
@@ -152,11 +151,15 @@ public class Board0x88 {
             }
         }
 
-        enPassantHistory[moveNumber] = move.isPawnDoublePush() ? move.getMoveFrom()&0b0111 : 15;
+        enPassantHistory[moveNumber] = move.isPawnDoublePush() ? move.getMoveFrom()&0b0111 : NO_EN_PASSANT_AVAILABLE;
 
         castlingRightsHistory[moveNumber] = newCastlingRights;
 
-        updateHash(move);
+        int oldAvailableEnPassant = enPassantHistory[moveNumber - 1];
+        int newAvailableEnPassant = enPassantHistory[moveNumber];
+
+        updateHash(move, oldCastlingRights, newCastlingRights, oldAvailableEnPassant, newAvailableEnPassant);
+
 
         playerToMove = playerToMove.getOpponent();
         lastMove = move;
@@ -217,7 +220,12 @@ public class Board0x88 {
 
         playerToMove = playerToMove.getOpponent();
 
-        updateHash(move);   //Has to be after player change to work
+        int oldCastlingRights = castlingRightsHistory[moveNumber - 1];
+        int newCastlingRights = castlingRightsHistory[moveNumber];
+        int oldAvailableEnPassant = enPassantHistory[moveNumber - 1];
+        int newAvailableEnPassant = enPassantHistory[moveNumber];
+
+        updateHash(move, oldCastlingRights, newCastlingRights, oldAvailableEnPassant, newAvailableEnPassant);   //Has to be after player change to work
         moveNumber--;
     }
 
@@ -278,7 +286,7 @@ public class Board0x88 {
         return value;
     }
 
-    private void updateHash(Move move) {
+    private void updateHash(Move move, int oldCastlingRights, int newCastlingRights, int oldAvailableEnPassant, int newAvailableEnPassant) {
         int moveFromindex = move.getMoveFrom();
         int moveToindex = move.getMoveTo();
 
@@ -311,24 +319,56 @@ public class Board0x88 {
             hash ^= zobristTable[rookMoveFromindex][playerToMove.getHashValue()][rook - 1];           //Remove rook from corner
             hash ^= zobristTable[rookMoveToIndex][playerToMove.getHashValue()][rook - 1];             //Add rook to new location
         }
+
+        //Update castlingRights hash
+        hash ^= zobristCastlingRights[newCastlingRights ^ oldCastlingRights];
+
+        //Update en passant hash
+        if (oldAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[oldAvailableEnPassant];
+        if (newAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[newAvailableEnPassant];
+
     }
 
 
+    private void initZobrist() {
+        //Init zobrist
+        Random rnd = new Random(1);
+        for (int i = 0; i < zobristTable.length; i++) {
+            for (int j = 0; j < zobristTable[0].length; j++) {
+                for (int k = 0; k < zobristTable[0][0].length; k++) {
+                    zobristTable[i][j][k] = rnd.nextLong();
+                }
+            }
+        }
+
+        for (int i = 0; i < zobristCastlingRights.length; i++) {
+            zobristCastlingRights[i] = rnd.nextLong();
+        }
+
+        for (int i = 0; i < zobristEnPassant.length; i++) {
+            zobristEnPassant[i] = rnd.nextLong();
+        }
+    }
+
     private long generateZobristHash() {
+        //Pieces
         long hash = 0;
-//        for (int i = 0; i < 8; i++) {
-//            for (int j = 0; j < 8; j++) {
-//                byte piece = squares[j + (i*16)];
-//                if (piece != 0) {
-//                    hash ^= zobristTable[j + (i*8)][piece - 1];
-//                }
-//            }
-//        }
         for (int i = 0; i < 128; i++) {
                 byte piece = squares[i];
                 if (piece != 0) {
                     hash ^= zobristTable[i][playerToMove.getHashValue()][piece - 1];
                 }
+        }
+
+        //Castling rights
+        //TODO test this
+        int castlingRights = castlingRightsHistory[moveNumber];
+        hash ^= zobristCastlingRights[castlingRights];
+
+        //Available en passant
+        int enPassantSquare = enPassantHistory[moveNumber];
+        if (enPassantSquare != NO_EN_PASSANT_AVAILABLE) {
+            hash ^= zobristEnPassant[enPassantSquare];
         }
 
         return hash;
@@ -398,11 +438,22 @@ public class Board0x88 {
             fen += "- ";
         }
 
+        int currentEnPassantPossibility = enPassantHistory[moveNumber];
+        if (currentEnPassantPossibility != NO_EN_PASSANT_AVAILABLE) {
+            fen += " ";
+            fen += (char)('a' + currentEnPassantPossibility);
+            if (playerToMove == Player.WHITE) {
+                fen += 6;
+            } else {
+                fen += 3;
+            }
+        }
+
         return fen;
     }
 
     public static void main(String [] args) {
-        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w ");
+        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b qkQK e3");
 
 
 //        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
@@ -419,9 +470,10 @@ public class Board0x88 {
 //        Evaluator.perft(board, 5, Player.WHITE);
 
 //        board.getMovesOfPiece("b2", false).forEach(System.out::println);
-        Evaluator.findBestMove(board);
+//        Evaluator.findBestMove(board);
 
-//        board.executeMove("e4d5");
+//        board.executeMove("e2e4");
+//        board.executeMove("a7a5");
 //        board.printBoard();
 //        board.revertLastMove();
         board.printBoard();

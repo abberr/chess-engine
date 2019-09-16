@@ -20,7 +20,7 @@ public class Controller {
 
 	public Controller() {
 		moveList = new LinkedList<>();
-        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK");
+        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
 //        board = new Board0x88("1r4k1/ppp2ppp/8/6Q1/8/2P5/qP3PPP/1R1R2K1 b ");   //Blunders?!?!
 //        board = new Board0x88("rn2kb1r/pppq1pp1/3p1n1p/1N2p3/4P3/3PBN2/PPP2PPP/R2QK2R w ");
 //        board = new Board0x88("rn2k2r/ppp2pp1/7p/3qp3/1b6/3PB3/PPQN1PPP/R4RK1 b");	//Slow evaluation (>50s depth 5)
