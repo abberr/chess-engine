@@ -9,7 +9,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 5;
+    private static int searchDepth = 7;
 
     private static boolean useHash;
     private static int counter;
@@ -188,7 +188,7 @@ public class Evaluator {
         for (Move m : board.getAvailableMoves(false)) {
             board.executeMove(m);
             int score = -quisence(-beta, -alpha, board);
-            board.revertLastMove();
+            board.executeInvertedMove(m);
 
             if( score >= beta )
                 return beta;
