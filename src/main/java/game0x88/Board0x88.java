@@ -2,6 +2,7 @@ package game0x88;
 
 import util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -71,13 +72,12 @@ public class Board0x88 {
             playerToMove = Player.BLACK;
         }
 
+        castlingRightsHistory[moveNumber] = 0b0000;
         if (fields[2].charAt(0) != '-') {
             if (fields[2].contains("q")) castlingRightsHistory[moveNumber] |= 0b1000;
             if (fields[2].contains("k")) castlingRightsHistory[moveNumber] |= 0b0100;
             if (fields[2].contains("Q")) castlingRightsHistory[moveNumber] |= 0b0010;
             if (fields[2].contains("K")) castlingRightsHistory[moveNumber] |= 0b0001;
-        } else {
-            castlingRightsHistory[moveNumber] = 0b1111;
         }
 
         if (fields[3].charAt(0) != '-') {
@@ -242,7 +242,10 @@ public class Board0x88 {
             return null;
         }
 
-        return MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
+        List<Move> moves = new ArrayList<>();
+
+        MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
+        return moves;
     }
 
     public List<Move> getAvailableMoves(boolean includePseudoLegal) {
@@ -361,7 +364,6 @@ public class Board0x88 {
         }
 
         //Castling rights
-        //TODO test this
         int castlingRights = castlingRightsHistory[moveNumber];
         hash ^= zobristCastlingRights[castlingRights];
 

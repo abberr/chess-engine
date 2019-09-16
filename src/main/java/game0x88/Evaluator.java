@@ -9,7 +9,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 6;
+    private static int searchDepth = 5;
 
     private static boolean useHash;
     private static int counter;
@@ -103,10 +103,11 @@ public class Evaluator {
 
 
         if (depth <= 0) {
-            //TODO: Quiescence Search
-            time = System.currentTimeMillis();
-            int value = board.getValue() * player.getValue();
-            evalTime += System.currentTimeMillis() - time;
+
+            MoveGenerator.setSearchModeQuiescence();
+//            int value = board.getValue();
+            int value = quisence(-beta, -alpha, board);
+            MoveGenerator.setSearchModeNormal();
 
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
             return value;
@@ -118,7 +119,7 @@ public class Evaluator {
 
         //Sort moves by heuristic value to increase pruning
         time = System.currentTimeMillis();
-        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
         sortingTime += System.currentTimeMillis() - time;
 
         //Find best move
@@ -169,24 +170,55 @@ public class Evaluator {
         return value;
     }
 
-
-    public static void perft(Board0x88 board, int depth, Player player) {
+    //https://www.chessprogramming.org/Quiescence_Search
+    //TODO fix it
+    private static int quisence(int alpha, int beta, Board0x88 board) {
         long time = System.currentTimeMillis();
-        long calculations = perftRecursive(board, depth, player);
+        int stand_pat = board.getValue();
+        evalTime += System.currentTimeMillis() - time;
+
+        if( stand_pat >= beta ) {
+            return beta;
+        }
+        if( alpha < stand_pat ) {
+            alpha = stand_pat;
+        }
+
+        //TODO generate only capturing moves
+        for (Move m : board.getAvailableMoves(false)) {
+            board.executeMove(m);
+            int score = -quisence(-beta, -alpha, board);
+            board.revertLastMove();
+
+            if( score >= beta )
+                return beta;
+            if( score > alpha )
+                alpha = score;
+        }
+
+        return alpha;
+    }
+
+
+    public static long perft(Board0x88 board, int depth) {
+        long time = System.currentTimeMillis();
+        long calculations = perftRecursive(board, depth);
 
         long evalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float)calculations/evalTime) * 1000;
 
         System.out.println(calculations + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+
+        return calculations;
     }
 
-    public static long perftRecursive(Board0x88 board, int depth, Player player) {
+    public static long perftRecursive(Board0x88 board, int depth) {
         if (depth == 0) return 1;
         int nodes = 0;
         List<Move> moves = board.getAvailableMoves(false);
         for (Move move : moves) {
             board.executeMove(move);
-            nodes += perftRecursive(board, depth -1, player.getOpponent());
+            nodes += perftRecursive(board, depth -1);
             board.executeInvertedMove(move);
         }
 

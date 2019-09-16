@@ -2,6 +2,7 @@ import controller.Controller;
 import org.junit.Before;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 public class HashTest {
@@ -119,6 +120,21 @@ public class HashTest {
     }
 
     @Test
+    public void hashShouldTakeInAccountCastlingFen() {
+        String [] castlingRights = {"q", "qk", "qQ", "qK", "qkQ","qkK","qQK", "qkQK", "k", "kK", "kQ", "kQK", "Q", "QK", "K"};
+        long [] hashes = new long[castlingRights.length];
+
+        for (int i = 0; i < castlingRights.length; i++) {
+            String castlingRight = castlingRights[i];
+            Controller contr = new Controller(("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w " + castlingRight + " -"));
+            hashes[i] = contr.getBoard().getHash();
+        }
+
+        assertFalse(containsDuplicats(hashes));
+    }
+
+
+    @Test
     public void hashShouldTakeInAccountEnPassant() {
 
         contr.executeMove("e2e4");
@@ -145,5 +161,15 @@ public class HashTest {
         long hash2 = contr.getBoard().getHash();
 
         assertTrue(hash == hash2);
+    }
+
+    private boolean containsDuplicats(long [] array) {
+        boolean duplicates=false;
+        for (int j=0;j<array.length;j++)
+            for (int k=j+1;k<array.length;k++)
+                if (k!=j && array[k] == array[j])
+                    duplicates=true;
+
+        return duplicates;
     }
 }
