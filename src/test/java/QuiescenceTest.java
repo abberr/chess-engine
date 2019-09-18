@@ -22,7 +22,7 @@ public class QuiescenceTest {
         Evaluator.setSearchDepth(1);
         Move bestMove = Evaluator.findBestMove(board);
 
-        assertTrue (bestMove.getCapturedPiece() == Pieces.EMPY_SQUARE);
+        assertTrue (bestMove.getCapturedPiece() == Pieces.EMPTY_SQUARE);
     }
 
     @Test

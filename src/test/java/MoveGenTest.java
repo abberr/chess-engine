@@ -33,6 +33,7 @@ public class MoveGenTest {
         assertTrue(calculations == 119060324);
     }
 
+    //TODO: returns 3195871499 moves calculated in 770598ms. Evaluations per second: 4147261.8
     @Test
     public void perft7Test() {
         Evaluator.setSearchDepth(7);
@@ -40,6 +41,7 @@ public class MoveGenTest {
         assertTrue(calculations == 3195901860l);
     }
 
+    //Should not capture the bishop because white will lose queen next move.
     @Test
     public void quiscentMoveGenTest() {
         board = new Board0x88("4k3/8/4r3/4b3/4Q2p/8/8/4K3 w - -");

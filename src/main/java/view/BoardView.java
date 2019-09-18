@@ -101,7 +101,7 @@ public class BoardView extends JPanel {
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
                 byte piece = board.getSquares()[((7*16) - 16*j) + i];
-				if (piece != Pieces.EMPY_SQUARE) {
+				if (piece != Pieces.EMPTY_SQUARE) {
 					g.drawImage(pieceImages[piece - 1], i * SQUARE_SIZE, j * SQUARE_SIZE, (int) (SQUARE_SIZE * 0.8), (int) (SQUARE_SIZE * 0.8), null);
 				}
 			}

@@ -2,6 +2,8 @@ package game0x88;
 
 import util.Util;
 
+import static game0x88.Pieces.EMPTY_SQUARE;
+
 public class Move {
 
     private byte piece;
@@ -86,6 +88,9 @@ public class Move {
         String moveString = Util.indexToAlgebraicNotation(moveFrom);
         moveString = this.capturedPiece == 0 ? moveString : moveString + "x";
         moveString += Util.indexToAlgebraicNotation(moveTo);
+        if(promotingPiece != EMPTY_SQUARE) {
+            moveString += Pieces.PIECE_CHAR[promotingPiece];
+        }
         return  moveString;
     }
 }

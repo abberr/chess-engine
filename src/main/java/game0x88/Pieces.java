@@ -3,7 +3,7 @@ package game0x88;
 import util.Util;
 
 public final class Pieces {
-    public static final byte EMPY_SQUARE = 0;
+    public static final byte EMPTY_SQUARE = 0;
 
     static final byte WHITE_PAWN = 1;
     static final byte WHITE_KNIGHT = 2;

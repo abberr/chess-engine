@@ -5,12 +5,15 @@
 - Command line interface
 - NegMax with alpha beta pruning
 - perft
-- Transposition tables
+- Transposition table
+- Quiescence Search
 
 ##TODO
-- Hashing of castling & en passant moves
-- Quiescence Search
 - Better move ordering
+- Improve evaluation method with pawn structure
+- Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning)
+- Check extension (https://www.chessprogramming.org/Check_Extensions)
+- UCI-protocol compatibility
 
 
 ###Stats

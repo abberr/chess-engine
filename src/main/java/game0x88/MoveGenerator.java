@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static game0x88.Pieces.*;
-import static game0x88.Pieces.EMPY_SQUARE;
+import static game0x88.Pieces.EMPTY_SQUARE;
 
 public class MoveGenerator {
 
@@ -39,7 +39,7 @@ public class MoveGenerator {
         for (int i = 0; i < 120; i++) {
             if (isOutOfBounds(i)) continue;
             byte square = squares[i];
-            if (square == EMPY_SQUARE) continue;
+            if (square == EMPTY_SQUARE) continue;
             if (player == Player.WHITE && isWhitePiece(square) ||
                     player == Player.BLACK && !isWhitePiece(square)) {
                 moves.addAll(MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, enPassantIndex, includePseudolegal));
@@ -77,7 +77,7 @@ public class MoveGenerator {
             for (int i = 0; i < moves.size(); i++) {
                 Move move = moves.get(i);
                 byte[] copySquares = Util.copySquares(squares);
-                copySquares[move.getMoveFrom()] = EMPY_SQUARE;
+                copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
                 copySquares[move.getMoveTo()] = move.getPiece();
                 if (isInCheck(copySquares, player)) {
                     moves.remove(i);
@@ -112,7 +112,7 @@ public class MoveGenerator {
         for (int i = 0; i < 120; i++) {
             if (isOutOfBounds(i)) continue;
             byte square = squares[i];
-            if (square == EMPY_SQUARE) continue;
+            if (square == EMPTY_SQUARE) continue;
             if (player == Player.WHITE && square == WHITE_KING ||
                     player == Player.BLACK && square == BLACK_KING) {
                 kingIndex = i;
@@ -139,7 +139,7 @@ public class MoveGenerator {
             int desitnationIndex = squareIndex + direction;
             while (!isOutOfBounds(desitnationIndex)) {
                 byte pieceOnSquare = squares[desitnationIndex];
-                if (pieceOnSquare == EMPY_SQUARE) {
+                if (pieceOnSquare == EMPTY_SQUARE) {
                 }
                 //If enemy rook or queen
                 else if (player == Player.WHITE && pieceOnSquare == BLACK_ROOK ||
@@ -163,7 +163,7 @@ public class MoveGenerator {
             int desitnationIndex = squareIndex + direction;
             while (!isOutOfBounds(desitnationIndex)) {
                 byte pieceOnSquare = squares[desitnationIndex];
-                if (pieceOnSquare == EMPY_SQUARE) {
+                if (pieceOnSquare == EMPTY_SQUARE) {
                 }
                 //If enemy rook or queen
                 else if (player == Player.WHITE && pieceOnSquare == BLACK_BISHOP ||
@@ -225,8 +225,8 @@ public class MoveGenerator {
         int capturingMoveIndex2 = piece == WHITE_PAWN ? index + NORTH_EAST : index + SOUTH_EAST;
 
         //Capturing moves
-        byte capturedPiece1 = isOutOfBounds(capturingMoveIndex1) ? EMPY_SQUARE : squares[capturingMoveIndex1];
-        byte capturedPiece2 = isOutOfBounds(capturingMoveIndex2) ? EMPY_SQUARE : squares[capturingMoveIndex2];
+        byte capturedPiece1 = isOutOfBounds(capturingMoveIndex1) ? EMPTY_SQUARE : squares[capturingMoveIndex1];
+        byte capturedPiece2 = isOutOfBounds(capturingMoveIndex2) ? EMPTY_SQUARE : squares[capturingMoveIndex2];
         if ((piece == WHITE_PAWN && capturedPiece1 >= 7) || (piece == BLACK_PAWN && capturedPiece1 <= 6 && capturedPiece1 > 0)) {
             Move move = new Move(piece, index, capturingMoveIndex1);
             move.setCapturedPiece(capturedPiece1);
@@ -260,7 +260,7 @@ public class MoveGenerator {
         int moveToIndex = piece == WHITE_PAWN ? index + NORTH : index + SOUTH;
 
         //Regular move
-        if (squares[moveToIndex] == EMPY_SQUARE) {
+        if (squares[moveToIndex] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, moveToIndex);
 
             //Promoting move if landing on last rank
@@ -274,11 +274,11 @@ public class MoveGenerator {
         }
 
         //Move 2 squares if starting pos and no piece blocking
-        if (piece == WHITE_PAWN && (index >> 4) == 1 && squares[index + NORTH] == EMPY_SQUARE && squares[index + NORTH + NORTH] == EMPY_SQUARE) {
+        if (piece == WHITE_PAWN && (index >> 4) == 1 && squares[index + NORTH] == EMPTY_SQUARE && squares[index + NORTH + NORTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + NORTH + NORTH);
             move.setPawnDoublePush(true);
             moves.add(move);
-        } else if (piece == BLACK_PAWN && (index >> 4) == 6 && squares[index + SOUTH] == EMPY_SQUARE && squares[index + SOUTH + SOUTH] == EMPY_SQUARE) {
+        } else if (piece == BLACK_PAWN && (index >> 4) == 6 && squares[index + SOUTH] == EMPTY_SQUARE && squares[index + SOUTH + SOUTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + SOUTH + SOUTH);
             move.setPawnDoublePush(true);
             moves.add(move);
@@ -319,7 +319,7 @@ public class MoveGenerator {
             byte destinationSquare = squares[destinationIndex];
 
             //Non capturing moves
-            if (destinationSquare == EMPY_SQUARE) {
+            if (destinationSquare == EMPTY_SQUARE) {
                 if (!SEARCH_MODE_QUIESCENCE) {
                     moves.add(new Move(piece, index, destinationIndex));
                 }
@@ -350,8 +350,8 @@ public class MoveGenerator {
             //Kingside white
             if ((castlingRights&0b0001) == 1 &&
                     squares[0x07] == WHITE_ROOK &&
-                    squares[0x06] == EMPY_SQUARE &&
-                    squares[0x05] == EMPY_SQUARE) {
+                    squares[0x06] == EMPTY_SQUARE &&
+                    squares[0x05] == EMPTY_SQUARE) {
                 Move m = new Move(piece, index, 0x06);
                 m.setKingSideCastle(true);
                 moves.add(m);
@@ -359,9 +359,9 @@ public class MoveGenerator {
             //Queenside white
             if ((castlingRights&0b0010) == 0b10 &&
                     squares[0x00] == WHITE_ROOK &&
-                    squares[0x03] == EMPY_SQUARE &&
-                    squares[0x02] == EMPY_SQUARE &&
-                    squares[0x01] == EMPY_SQUARE) {
+                    squares[0x03] == EMPTY_SQUARE &&
+                    squares[0x02] == EMPTY_SQUARE &&
+                    squares[0x01] == EMPTY_SQUARE) {
                 Move m = new Move(piece, index, 0x02);
                 m.setQueenSideCastle(true);
                 moves.add(m);
@@ -370,8 +370,8 @@ public class MoveGenerator {
             //Kingside black
             if ((castlingRights&0b0100) == 0b0100 &&
                     squares[0x77] == BLACK_ROOK &&
-                    squares[0x76] == EMPY_SQUARE &&
-                    squares[0x75] == EMPY_SQUARE) {
+                    squares[0x76] == EMPTY_SQUARE &&
+                    squares[0x75] == EMPTY_SQUARE) {
                 Move m = new Move(piece, index, 0x76);
                 m.setKingSideCastle(true);
                 moves.add(m);
@@ -379,9 +379,9 @@ public class MoveGenerator {
             //Queenside black
             if ((castlingRights&0b1000) == 0b1000 &&
                     squares[0x70] == BLACK_ROOK &&
-                    squares[0x73] == EMPY_SQUARE &&
-                    squares[0x72] == EMPY_SQUARE &&
-                    squares[0x71] == EMPY_SQUARE) {
+                    squares[0x73] == EMPTY_SQUARE &&
+                    squares[0x72] == EMPTY_SQUARE &&
+                    squares[0x71] == EMPTY_SQUARE) {
                 Move m = new Move(piece, index, 0x72);
                 m.setQueenSideCastle(true);
                 moves.add(m);
@@ -414,7 +414,7 @@ public class MoveGenerator {
             while (!isOutOfBounds(desitnationIndex)) {
                 Move move = new Move(piece, index, desitnationIndex);
                 byte pieceOnSquare = squares[desitnationIndex];
-                if (pieceOnSquare == EMPY_SQUARE) {
+                if (pieceOnSquare == EMPTY_SQUARE) {
                     if (!SEARCH_MODE_QUIESCENCE) {
                         moves.add(move);
                     }

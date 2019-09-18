@@ -2,7 +2,6 @@ package game0x88;
 
 import util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -42,7 +41,7 @@ public class Board0x88 {
 
         int x = 0, y = 0;
         for(char c : fields[0].toCharArray()) {
-            byte piece = EMPY_SQUARE;
+            byte piece = EMPTY_SQUARE;
             if (c == 'P')  piece = WHITE_PAWN;
             else if (c == 'p') piece = BLACK_PAWN;
             else if (c == 'N') piece = WHITE_KNIGHT;
@@ -117,37 +116,37 @@ public class Board0x88 {
 
         moveNumber++;
 
-        squares[move.getMoveFrom()] = EMPY_SQUARE;
+        squares[move.getMoveFrom()] = EMPTY_SQUARE;
         squares[move.getMoveTo()] = move.getPiece();
 
         int newCastlingRights = updateCastlingRights(move.getMoveFrom(), move.getMoveTo(), oldCastlingRights);
 
-        if (move.getPromotingPiece() != EMPY_SQUARE) {
+        if (move.getPromotingPiece() != EMPTY_SQUARE) {
             squares[move.getMoveTo()] = move.getPromotingPiece();
         }
         else if (move.isKingSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
-                squares[0x07] = EMPY_SQUARE;
+                squares[0x07] = EMPTY_SQUARE;
                 squares[0x05] = WHITE_ROOK;
             } else {
-                squares[0x77] = EMPY_SQUARE;
+                squares[0x77] = EMPTY_SQUARE;
                 squares[0x75] = BLACK_ROOK;
             }
         } else if (move.isQueenSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
-                squares[0x00] = EMPY_SQUARE;
+                squares[0x00] = EMPTY_SQUARE;
                 squares[0x03] = WHITE_ROOK;
             } else {
-                squares[0x70] = EMPY_SQUARE;
+                squares[0x70] = EMPTY_SQUARE;
                 squares[0x73] = BLACK_ROOK;
             }
         }
 
         if (move.isEnPassant()) {
             if (move.getPiece() == WHITE_PAWN) {
-                squares[move.getMoveTo() + MoveGenerator.SOUTH] = EMPY_SQUARE;
+                squares[move.getMoveTo() + MoveGenerator.SOUTH] = EMPTY_SQUARE;
             } else {
-                squares[move.getMoveTo() + MoveGenerator.NORTH] = EMPY_SQUARE;
+                squares[move.getMoveTo() + MoveGenerator.NORTH] = EMPTY_SQUARE;
             }
         }
 
@@ -192,7 +191,7 @@ public class Board0x88 {
         if (move.isEnPassant()) {
             int capturedPieceDirection = move.getPiece() == WHITE_PAWN ? MoveGenerator.SOUTH : MoveGenerator.NORTH;
             squares[move.getMoveTo() + capturedPieceDirection] = move.getCapturedPiece();
-            squares[move.getMoveTo()] = EMPY_SQUARE;
+            squares[move.getMoveTo()] = EMPTY_SQUARE;
         } else {
             squares[move.getMoveTo()] = move.getCapturedPiece();
         }
@@ -203,18 +202,18 @@ public class Board0x88 {
         if (move.isKingSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
                 squares[0x07] = WHITE_ROOK;
-                squares[0x05] = EMPY_SQUARE;
+                squares[0x05] = EMPTY_SQUARE;
             } else {
                 squares[0x77] = BLACK_ROOK;
-                squares[0x75] = EMPY_SQUARE;
+                squares[0x75] = EMPTY_SQUARE;
             }
         } else if (move.isQueenSideCastle()) {
             if (move.getPiece() == WHITE_KING) {
                 squares[0x00] = WHITE_ROOK;
-                squares[0x03] = EMPY_SQUARE;
+                squares[0x03] = EMPTY_SQUARE;
             } else {
                 squares[0x70] = BLACK_ROOK;
-                squares[0x73] = EMPY_SQUARE;
+                squares[0x73] = EMPTY_SQUARE;
             }
         }
 
@@ -238,7 +237,7 @@ public class Board0x88 {
     public List<Move> getMovesOfPiece(String position, boolean includePseudoLegal) {
         int index = Util.algebraicNotationToIndex(position);
 
-        if (squares[index] == EMPY_SQUARE) {
+        if (squares[index] == EMPTY_SQUARE) {
             return null;
         }
 
@@ -292,7 +291,7 @@ public class Board0x88 {
 
         hash ^= zobristTable[moveFromindex][playerToMove.getHashValue()][move.getPiece() - 1];             //Remove piece from origin
         //If promoting move
-        if (move.getPromotingPiece() != EMPY_SQUARE) {
+        if (move.getPromotingPiece() != EMPTY_SQUARE) {
             hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getPromotingPiece() - 1];  //Add promoting piece to new square
         }
         //If regular move
@@ -301,7 +300,7 @@ public class Board0x88 {
         }
 
         //If capturing move
-        if (move.getCapturedPiece() != EMPY_SQUARE) {
+        if (move.getCapturedPiece() != EMPTY_SQUARE) {
             hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getCapturedPiece() - 1];   //Remove captured piece from new square
         }
 
@@ -384,7 +383,7 @@ public class Board0x88 {
             for (int j = 0; j < 8; j++) {
                 byte p = squares[j + (7*16 - i*16)];
                 System.out.print("[");
-                if (p == 0)
+                if (p == EMPTY_SQUARE)
                     System.out.print("  ");
                 else {
                     System.out.print(PIECE_UNICODE[p]);
@@ -395,7 +394,7 @@ public class Board0x88 {
         System.out.println("\nhash: [" + hash + "]");
         System.out.println("fen: [" + generateFen() + "]");
         System.out.println("value: [" + getValue() + "]");
-        System.out.println("En passant file: [" + enPassantHistory[moveNumber] + "]");
+//        System.out.println("En passant file: [" + enPassantHistory[moveNumber] + "]");
         System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
 
         System.out.println("--------------------------");
@@ -407,7 +406,7 @@ public class Board0x88 {
             int emptySpaces = 0;
             for (int j = 0; j < 8; j++) {
                 int index = j + (7*16 - i*16);
-                if (squares[index] == EMPY_SQUARE) {
+                if (squares[index] == EMPTY_SQUARE) {
                     emptySpaces++;
                 } else {
                     if(emptySpaces > 0) {
@@ -434,19 +433,24 @@ public class Board0x88 {
             if ((currentCastlingRights&0b0010) != 0) fen += "Q";
             if ((currentCastlingRights&0b0001) != 0) fen += "K";
         } else {
-            fen += "- ";
+            fen += "-";
         }
+        fen += " ";
 
         int currentEnPassantPossibility = enPassantHistory[moveNumber];
         if (currentEnPassantPossibility != NO_EN_PASSANT_AVAILABLE) {
-            fen += " ";
             fen += (char)('a' + currentEnPassantPossibility);
             if (playerToMove == Player.WHITE) {
                 fen += 6;
             } else {
                 fen += 3;
             }
+        } else {
+            fen += "-";
         }
+
+        //Todo half move counter
+        fen += " 0 0";
 
         return fen;
     }

@@ -12,7 +12,7 @@ public class Evaluator {
     private static int searchDepth = 5;
 
     private static boolean useHash;
-    private static int counter;
+    private static long moveCounter;
     private static Move bestMove;
 
     private static TranspositionTable transpositionTable = new TranspositionTable();
@@ -22,7 +22,7 @@ public class Evaluator {
         useHash = true;
 
         bestMove= null;
-        counter = 0;
+        moveCounter = 0;
         sortingTime = 0;
         moveGenTime = 0;
         evalTime = 0;
@@ -51,9 +51,9 @@ public class Evaluator {
         }
 
         long totalTime = System.currentTimeMillis() - time;
-        float evalsPerSecond = ((float)counter/totalTime) * 1000;
+        float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
 
-        System.out.println(counter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
         System.out.println("Best move: " + bestMove + ", value: " + value);
         System.out.println("Sorting time: " + sortingTime);
         System.out.println("MoveGen time: " + moveGenTime);
@@ -64,7 +64,7 @@ public class Evaluator {
     }
 
     private static int minMax(int alpha, int beta, int depth,Board0x88 board, Player player) {
-        counter++;
+        moveCounter++;
 
         NodeType nodeType = NodeType.ALPHA;
 
@@ -223,7 +223,7 @@ public class Evaluator {
 
     public static long perftRecursive(Board0x88 board, int depth) {
         if (depth == 0) return 1;
-        int nodes = 0;
+        long nodes = 0;
         List<Move> moves = board.getAvailableMoves(false);
         for (Move move : moves) {
             board.executeMove(move);
