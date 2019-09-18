@@ -19,7 +19,7 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = true;
+        useHash = false;
 
         bestMove= null;
         moveCounter = 0;
@@ -97,7 +97,6 @@ public class Evaluator {
         if (moves.isEmpty()) {
             //Min value if check
             int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 1 : 0;
-            value *= player.getValue();
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
             return value;
         }
@@ -106,9 +105,8 @@ public class Evaluator {
         if (depth <= 0) {
 
             MoveGenerator.setSearchModeQuiescence();
-//            int value = board.getValue() * player.getValue();
-//            int value = quisence(-beta, -alpha, board, player);
-            int value = quisence(alpha, beta, board, player);
+            int value = board.getValue() * player.getValue();
+//            int value = quisence(alpha, beta, board, player);
             MoveGenerator.setSearchModeNormal();
 
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );

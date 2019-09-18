@@ -3,6 +3,7 @@ import game0x88.Evaluator;
 import game0x88.Move;
 import game0x88.MoveGenerator;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class MoveGenTest {
 
     //TODO: returns 3195871499 moves calculated in 770598ms. Evaluations per second: 4147261.8
     @Test
+    @Ignore
     public void perft7Test() {
         Evaluator.setSearchDepth(7);
         long calculations = Evaluator.perft(board);

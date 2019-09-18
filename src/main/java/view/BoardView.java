@@ -110,18 +110,18 @@ public class BoardView extends JPanel {
 
 	public BufferedImage initImages() {
 		try {
-			pieceImages[0] = ImageIO.read(new File("src/main/res/pw.png"));
-			pieceImages[1] = ImageIO.read(new File("src/main/res/kw.png"));
-			pieceImages[2] = ImageIO.read(new File("src/main/res/bw.png"));
-			pieceImages[3] = ImageIO.read(new File("src/main/res/rw.png"));
-			pieceImages[4] = ImageIO.read(new File("src/main/res/qw.png"));
-			pieceImages[5] = ImageIO.read(new File("src/main/res/kingw.png"));
-			pieceImages[6] = ImageIO.read(new File("src/main/res/pb.png"));
-			pieceImages[7] = ImageIO.read(new File("src/main/res/kb.png"));
-			pieceImages[8] = ImageIO.read(new File("src/main/res/bb.png"));
-			pieceImages[9] = ImageIO.read(new File("src/main/res/rb.png"));
-			pieceImages[10] = ImageIO.read(new File("src/main/res/qb.png"));
-			pieceImages[11] = ImageIO.read(new File("src/main/res/kingb.png"));
+			pieceImages[0] = ImageIO.read(new File("src/main/java/res/pw.png"));
+			pieceImages[1] = ImageIO.read(new File("src/main/java/res/kw.png"));
+			pieceImages[2] = ImageIO.read(new File("src/main/java/res/bw.png"));
+			pieceImages[3] = ImageIO.read(new File("src/main/java/res/rw.png"));
+			pieceImages[4] = ImageIO.read(new File("src/main/java/res/qw.png"));
+			pieceImages[5] = ImageIO.read(new File("src/main/java/res/kingw.png"));
+			pieceImages[6] = ImageIO.read(new File("src/main/java/res/pb.png"));
+			pieceImages[7] = ImageIO.read(new File("src/main/java/res/kb.png"));
+			pieceImages[8] = ImageIO.read(new File("src/main/java/res/bb.png"));
+			pieceImages[9] = ImageIO.read(new File("src/main/java/res/rb.png"));
+			pieceImages[10] = ImageIO.read(new File("src/main/java/res/qb.png"));
+			pieceImages[11] = ImageIO.read(new File("src/main/java/res/kingb.png"));
 		} catch (IOException e) {
 			System.out.println(e);
 		}
