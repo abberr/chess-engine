@@ -242,10 +242,7 @@ public class Board0x88 {
             return null;
         }
 
-        List<Move> moves = new ArrayList<>();
-
-        MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
-        return moves;
+        return MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
     }
 
     public List<Move> getAvailableMoves(boolean includePseudoLegal) {

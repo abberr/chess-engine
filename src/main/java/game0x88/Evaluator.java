@@ -9,7 +9,7 @@ public class Evaluator {
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 7;
+    private static int searchDepth = 5;
 
     private static boolean useHash;
     private static int counter;
@@ -68,6 +68,7 @@ public class Evaluator {
 
         NodeType nodeType = NodeType.ALPHA;
 
+        //Cache lookup - has this position been evaluated before?
         State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
         if (useHash && lookUpState != null) {
             bestMove = lookUpState.bestMove;        //TODO
@@ -101,12 +102,13 @@ public class Evaluator {
             return value;
         }
 
-
+        //TODO move up before movegen maybe?
         if (depth <= 0) {
 
             MoveGenerator.setSearchModeQuiescence();
-//            int value = board.getValue();
-            int value = quisence(-beta, -alpha, board);
+//            int value = board.getValue() * player.getValue();
+//            int value = quisence(-beta, -alpha, board, player);
+            int value = quisence(alpha, beta, board, player);
             MoveGenerator.setSearchModeNormal();
 
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
@@ -119,7 +121,7 @@ public class Evaluator {
 
         //Sort moves by heuristic value to increase pruning
         time = System.currentTimeMillis();
-//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
         sortingTime += System.currentTimeMillis() - time;
 
         //Find best move
@@ -171,10 +173,11 @@ public class Evaluator {
     }
 
     //https://www.chessprogramming.org/Quiescence_Search
-    //TODO fix it
-    private static int quisence(int alpha, int beta, Board0x88 board) {
+    //Find a quiet position to evaluate
+    //TODO needs to faster, maybe use hashing?
+    private static int quisence(int alpha, int beta, Board0x88 board, Player player) {
         long time = System.currentTimeMillis();
-        int stand_pat = board.getValue();
+        int stand_pat = board.getValue() * player.getValue();
         evalTime += System.currentTimeMillis() - time;
 
         if( stand_pat >= beta ) {
@@ -184,10 +187,12 @@ public class Evaluator {
             alpha = stand_pat;
         }
 
-        //TODO generate only capturing moves
-        for (Move m : board.getAvailableMoves(false)) {
+        List<Move> moves = board.getAvailableMoves(false);
+        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+
+        for (Move m : moves) {
             board.executeMove(m);
-            int score = -quisence(-beta, -alpha, board);
+            int score = -quisence(-beta, -alpha, board, player.getOpponent());
             board.executeInvertedMove(m);
 
             if( score >= beta )
@@ -199,10 +204,14 @@ public class Evaluator {
         return alpha;
     }
 
+    public static void setSearchDepth(int depth) {
+        searchDepth = depth;
+    }
 
-    public static long perft(Board0x88 board, int depth) {
+
+    public static long perft(Board0x88 board) {
         long time = System.currentTimeMillis();
-        long calculations = perftRecursive(board, depth);
+        long calculations = perftRecursive(board, searchDepth);
 
         long evalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float)calculations/evalTime) * 1000;

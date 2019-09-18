@@ -319,8 +319,10 @@ public class MoveGenerator {
             byte destinationSquare = squares[destinationIndex];
 
             //Non capturing moves
-            if (destinationSquare == EMPY_SQUARE && !SEARCH_MODE_QUIESCENCE) {
-                moves.add(new Move(piece, index, destinationIndex));
+            if (destinationSquare == EMPY_SQUARE) {
+                if (!SEARCH_MODE_QUIESCENCE) {
+                    moves.add(new Move(piece, index, destinationIndex));
+                }
             }
             //capturing move
             else if (isOppositeTeams(piece, destinationSquare)) {
@@ -412,8 +414,10 @@ public class MoveGenerator {
             while (!isOutOfBounds(desitnationIndex)) {
                 Move move = new Move(piece, index, desitnationIndex);
                 byte pieceOnSquare = squares[desitnationIndex];
-                if (pieceOnSquare == EMPY_SQUARE && !SEARCH_MODE_QUIESCENCE) {
-                    moves.add(move);
+                if (pieceOnSquare == EMPY_SQUARE) {
+                    if (!SEARCH_MODE_QUIESCENCE) {
+                        moves.add(move);
+                    }
                 }
                 //If capture
                 else if (isOppositeTeams(piece, pieceOnSquare)) {
