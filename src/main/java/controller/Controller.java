@@ -64,6 +64,10 @@ public class Controller {
 //        computerMove();
     }
 
+    public Move findBestMove() {
+		return Evaluator.findBestMove(board);
+	}
+
 	public void revertLastMove() {
 		board.revertLastMove();
 	}
@@ -74,6 +78,10 @@ public class Controller {
 
 	public List<Move> getMovesFromSquare(String square) {
 		return board.getMovesOfPiece(square, false);
+	}
+
+	public void restart() {
+		board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
 	}
 
 //	public Piece getPieceAt(int index) {

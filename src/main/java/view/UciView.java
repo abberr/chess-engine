@@ -1,7 +1,10 @@
 package view;
 
 import controller.Controller;
+import game0x88.Evaluator;
+import game0x88.Move;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 //https://www.stmintz.com/ccc/index.php?id=141612
@@ -31,16 +34,18 @@ public class UciView {
                 System.out.println("readyok");
             }
 
+            if (input.equals("ucinewgame")) {
+                contr.restart();
+            }
 
-//// GUI: let the engine know if starting a new game
-//            ucinewgame
-//
-//// GUI: tell the engine the position to search
-//            position startpos moves e2e4
-//
-//// GUI: tell the engine to start searching
-////      in this case give it the timing information in milliseconds
-//            go wtime 122000 btime 120000 winc 2000 binc 2000
+            if (input.startsWith("position startpos moves")) {
+                contr.restart();
+                Arrays.stream(input.split(" ")).skip(3).forEach(contr::executeMove);
+            }
+
+            if (input.startsWith("go")) {
+                Move bestMove = contr.findBestMove();
+            }
         }
     }
 

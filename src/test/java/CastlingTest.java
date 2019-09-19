@@ -1,13 +1,16 @@
 import game0x88.Board0x88;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
 public class CastlingTest {
 
+    private Board0x88 board;
+
     @Test
-    public void testCastling() {
-        Board0x88 board = new Board0x88("r1b1k2r/8/2n5/2bqp3/8/3B1N2/8/R3K2R b qkQK - 0 0");
+    public void testCastlingRights() {
+        board = new Board0x88("r1b1k2r/8/8/8/8/8/8/R3K2R b qkQK - 0 0");
         board.printBoard();
 
         //Black
@@ -23,6 +26,23 @@ public class CastlingTest {
         assertTrue(board.getCastlingRights().equals("kQK"));
         board.revertLastMove();
 
+        //White
+        board.executeMove("e1g1");
+        assertTrue("White castling kingside", board.getCastlingRights().equals("qk"));
+        board.revertLastMove();
+        assertTrue(board.getCastlingRights().equals("qkQK"));
+        board.executeMove("e1c1");
+        assertTrue("White castling queenside", board.getCastlingRights().equals("qk"));
+        board.revertLastMove();
+        assertTrue(board.getCastlingRights().equals("qkQK"));
+        board.executeMove("h1f1");
+        assertTrue("White queenside rook move", board.getCastlingRights().equals("qkQ"));
+        board.revertLastMove();
+        assertTrue( board.getCastlingRights().equals("qkQK"));
+        board.executeMove("a1b1");
+        assertTrue("White kingside rook moved", board.getCastlingRights().equals("qkK"));
+        board.revertLastMove();
+
         //Special cases
         board.executeMove("h8h1");
         assertTrue(board.getCastlingRights().equals("qQ"));
@@ -33,5 +53,12 @@ public class CastlingTest {
         assertTrue(board.getCastlingRights().equals("kK"));
         board.revertLastMove();
         assertTrue(board.getCastlingRights().equals("qkQK"));
+
+
+    }
+
+    @After
+    public void tearDown() {
+        board.printBoard();
     }
 }

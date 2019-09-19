@@ -5,11 +5,13 @@ import java.util.List;
 
 public class Evaluator {
 
+    private static final int SEARCH_DEPTH_DEFAULT = 6;
+
     private static long sortingTime;
     private static long moveGenTime;
     private static long evalTime;
 
-    private static int searchDepth = 5;
+    private static int searchDepth = SEARCH_DEPTH_DEFAULT;
 
     private static boolean useHash;
     private static long moveCounter;
