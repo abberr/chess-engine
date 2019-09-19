@@ -19,7 +19,7 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = false;
+        useHash = true;
 
         bestMove= null;
         moveCounter = 0;
@@ -105,8 +105,8 @@ public class Evaluator {
         if (depth <= 0) {
 
             MoveGenerator.setSearchModeQuiescence();
-            int value = board.getValue() * player.getValue();
-//            int value = quisence(alpha, beta, board, player);
+//            int value = board.getValue() * player.getValue();
+            int value = quisence(alpha, beta, board, player);
             MoveGenerator.setSearchModeNormal();
 
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
@@ -185,8 +185,14 @@ public class Evaluator {
             alpha = stand_pat;
         }
 
+        time = System.currentTimeMillis();
         List<Move> moves = board.getAvailableMoves(false);
+        moveGenTime += System.currentTimeMillis() - time;
+
+
+        time = System.currentTimeMillis();
         moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+        sortingTime += System.currentTimeMillis() - time;
 
         for (Move m : moves) {
             board.executeMove(m);

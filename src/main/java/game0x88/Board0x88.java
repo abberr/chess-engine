@@ -169,16 +169,16 @@ public class Board0x88 {
         //TODO make constants
         if (moveFrom == 0x00 || moveTo == 0x00) {
             newCastlingRights &= 0b1101;
-        } else if (moveFrom == 0x07 || moveTo == 0x07) {
+        } if (moveFrom == 0x07 || moveTo == 0x07) {
             newCastlingRights &= 0b1110;
-        } else if (moveFrom == 0x70 || moveTo == 0x70) {
+        } if (moveFrom == 0x70 || moveTo == 0x70) {
             newCastlingRights &= 0b0111;
-        } else if (moveFrom == 0x77 || moveTo == 0x77) {
+        } if (moveFrom == 0x77 || moveTo == 0x77) {
             newCastlingRights &= 0b1011;
-        } else if (moveFrom == 0x04 || moveTo == 0x04) {
+        } if (moveFrom == 0x04 || moveTo == 0x04) {
             newCastlingRights &= 0b1100;
-        } else if (moveFrom == 0x74 || moveTo == 0x74) {
-            newCastlingRights &= 0b1100;
+        } if (moveFrom == 0x74 || moveTo == 0x74) {
+            newCastlingRights &= 0b0011;
         }
         
         return newCastlingRights;
@@ -384,9 +384,9 @@ public class Board0x88 {
                 byte p = squares[j + (7*16 - i*16)];
                 System.out.print("[");
                 if (p == EMPTY_SQUARE)
-                    System.out.print("  ");
+                    System.out.print(" ");
                 else {
-                    System.out.print(PIECE_UNICODE[p]);
+                    System.out.print(PIECE_CHAR[p]);
                 }
                 System.out.print("]");
             }
@@ -394,10 +394,24 @@ public class Board0x88 {
         System.out.println("\nhash: [" + hash + "]");
         System.out.println("fen: [" + generateFen() + "]");
         System.out.println("value: [" + getValue() + "]");
-//        System.out.println("En passant file: [" + enPassantHistory[moveNumber] + "]");
         System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
 
         System.out.println("--------------------------");
+    }
+
+    public String getCastlingRights() {
+        String castlingRights = "";
+        int currentCastlingRights = castlingRightsHistory[moveNumber];
+        if (currentCastlingRights != 0b0000) {
+            if ((currentCastlingRights&0b1000) != 0) castlingRights += "q";
+            if ((currentCastlingRights&0b0100) != 0) castlingRights += "k";
+            if ((currentCastlingRights&0b0010) != 0) castlingRights += "Q";
+            if ((currentCastlingRights&0b0001) != 0) castlingRights += "K";
+        } else {
+            castlingRights += "-";
+        }
+
+        return castlingRights;
     }
 
     private String generateFen() {
@@ -426,16 +440,7 @@ public class Board0x88 {
 
         fen = playerToMove == Player.WHITE ? fen + " w " : fen + " b ";
 
-        int currentCastlingRights = castlingRightsHistory[moveNumber];
-        if (currentCastlingRights != 0b0000) {
-            if ((currentCastlingRights&0b1000) != 0) fen += "q";
-            if ((currentCastlingRights&0b0100) != 0) fen += "k";
-            if ((currentCastlingRights&0b0010) != 0) fen += "Q";
-            if ((currentCastlingRights&0b0001) != 0) fen += "K";
-        } else {
-            fen += "-";
-        }
-        fen += " ";
+        fen += getCastlingRights() + " ";
 
         int currentEnPassantPossibility = enPassantHistory[moveNumber];
         if (currentEnPassantPossibility != NO_EN_PASSANT_AVAILABLE) {

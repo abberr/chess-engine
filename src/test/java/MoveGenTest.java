@@ -41,6 +41,7 @@ public class MoveGenTest {
         Evaluator.setSearchDepth(7);
         long calculations = Evaluator.perft(board);
         assertTrue(calculations == 3195901860l);
+        assertTrue(calculations == 3195903162l);
     }
 
     //Should not capture the bishop because white will lose queen next move.
