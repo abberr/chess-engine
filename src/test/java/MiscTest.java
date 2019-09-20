@@ -17,8 +17,5 @@ public class MiscTest {
 
         Move bestMove = Evaluator.findBestMove(board);
         assertTrue(bestMove.toString().equals("c8f5"));
-
-
-
     }
 }

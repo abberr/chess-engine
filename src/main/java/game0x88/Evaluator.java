@@ -1,11 +1,12 @@
 package game0x88;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class Evaluator {
 
-    private static final int SEARCH_DEPTH_DEFAULT = 6;
+    private static final int SEARCH_DEPTH_DEFAULT = 5;
 
     private static long sortingTime;
     private static long moveGenTime;
@@ -19,9 +20,12 @@ public class Evaluator {
 
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
+    //PV list
+    private static Move[] pv = new Move[SEARCH_DEPTH_DEFAULT + 2];
+
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = true;
+        useHash = false;
 
         bestMove= null;
         moveCounter = 0;
@@ -61,6 +65,9 @@ public class Evaluator {
         System.out.println("MoveGen time: " + moveGenTime);
         System.out.println("Eval time: " + evalTime);
 
+        for(Move m : pv) {
+            System.out.println(m);
+        }
 
         return bestMove;
     }
@@ -90,6 +97,17 @@ public class Evaluator {
             }
         }
 
+        if (depth <= 0) {
+
+            MoveGenerator.setSearchModeQuiescence();
+//            int value = board.getValue() * player.getValue();
+            int value = quisence(alpha, beta, board, player);
+            MoveGenerator.setSearchModeNormal();
+
+            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            return value;
+        }
+
         //Move generation
         long time = System.currentTimeMillis();
         List<Move> moves = board.getAvailableMoves( false);
@@ -103,21 +121,8 @@ public class Evaluator {
             return value;
         }
 
-        //TODO move up before movegen maybe?
-        if (depth <= 0) {
-
-            MoveGenerator.setSearchModeQuiescence();
-//            int value = board.getValue() * player.getValue();
-            int value = quisence(alpha, beta, board, player);
-            MoveGenerator.setSearchModeNormal();
-
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
-            return value;
-        }
         int maxValue = Integer.MIN_VALUE;
         Move maxEvalMove = null;
-
-
 
         //Sort moves by heuristic value to increase pruning
         time = System.currentTimeMillis();
@@ -153,6 +158,7 @@ public class Evaluator {
 
             if (value >= beta) {
                 bestMove = maxEvalMove;
+                pv[pv.length-depth] = bestMove;
                 transpositionTable.saveState(board.getHash(), depth, beta, bestMove, NodeType.BETA);
                 return beta;
 //                break;
@@ -161,7 +167,17 @@ public class Evaluator {
 
         transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
         bestMove = maxEvalMove;
+        pv[pv.length-depth] = bestMove;
         return maxValue;
+    }
+
+    //Todo: Move ordering
+    private static void sortList(List<Move> moves) {
+        List<Move> promotingMoves = new ArrayList<>();
+        List<Move> capturingMoves = new ArrayList<>();
+        List<Move> otherMoves = new ArrayList<>();
+
+
     }
 
     private static int boardValueAfterMove(Move move, Board0x88 board) {

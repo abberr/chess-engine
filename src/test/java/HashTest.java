@@ -1,4 +1,5 @@
 import controller.Controller;
+import game0x88.Board0x88;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -7,21 +8,21 @@ import static junit.framework.TestCase.assertTrue;
 
 public class HashTest {
 
-    private Controller contr;
+    private Board0x88 board;
 
     @Before
     public void before() {
-        contr = new Controller();
+        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
     }
 
     @Test
     public void hashShouldChangeOnMove() {
 
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e2e4");
-        long hash2 = contr.getBoard().getHash();
-        contr.executeMove("e7e5");
-        long hash3 = contr.getBoard().getHash();
+        long hash = board.getHash();
+        board.executeMove("e2e4");
+        long hash2 = board.getHash();
+        board.executeMove("e7e5");
+        long hash3 = board.getHash();
 
         assertTrue(hash != hash2);
         assertTrue(hash2 != hash3);
@@ -30,23 +31,23 @@ public class HashTest {
 
     @Test
     public void hashShouldBeSameOnSamePosition() {
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("b1c3");
-        contr.executeMove("b8c6");
+        long hash = board.getHash();
+        board.executeMove("b1c3");
+        board.executeMove("b8c6");
 
-        contr.executeMove("c3b1");
-        contr.executeMove("c6b8");
-        long hash2 = contr.getBoard().getHash();
+        board.executeMove("c3b1");
+        board.executeMove("c6b8");
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }
 
     @Test
     public void hashShouldTakeTurnIntoAccount() {
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("b1c3");
-        contr.executeMove("c3b1");
-        long hash2 = contr.getBoard().getHash();
+        long hash = board.getHash();
+        board.executeMove("b1c3");
+        board.executeMove("c3b1");
+        long hash2 = board.getHash();
 
         assertTrue(hash != hash2);
     }
@@ -54,10 +55,10 @@ public class HashTest {
     @Test
     public void hashShouldBeSameAfterRevert() {
 
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e2e4");
-        contr.revertLastMove();
-        long hash2 = contr.getBoard().getHash();
+        long hash = board.getHash();
+        board.executeMove("e2e4");
+        board.revertLastMove();
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }
@@ -65,56 +66,56 @@ public class HashTest {
     @Test
     public void hashShouldBeSameAfterRevertedCapture() {
 
-        contr.executeMove("e2e4");
-        contr.executeMove("d7d5");
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e4d5");
-        contr.revertLastMove();
-        long hash2 = contr.getBoard().getHash();
+        board.executeMove("e2e4");
+        board.executeMove("d7d5");
+        long hash = board.getHash();
+        board.executeMove("e4d5");
+        board.revertLastMove();
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }
 
     @Test
     public void hashShouldBeSameAfterRevertCastle() {
-        contr = new Controller("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
+        board = new Board0x88("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
 
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e1g1");
-        contr.revertLastMove();
-        long hash2 = contr.getBoard().getHash();
+        long hash = board.getHash();
+        board.executeMove("e1g1");
+        board.revertLastMove();
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }
 
     @Test
     public void hashShouldBeSameAfterRevertEnPassant() {
-        contr = new Controller("rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b qkQK -");
+        board = new Board0x88("rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b qkQK -");
 
-        contr.executeMove("d7d5");
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e5d6");
-        contr.revertLastMove();
-        long hash2 = contr.getBoard().getHash();
+        board.executeMove("d7d5");
+        long hash = board.getHash();
+        board.executeMove("e5d6");
+        board.revertLastMove();
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }
 
     @Test
     public void hashShouldTakeInAccountCastling() {
-        Controller contr = new Controller("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
+        board = new Board0x88("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
 
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e1g1");
-        contr.executeMove("d8c8");
-        contr.executeMove("g1f2");
-        contr.executeMove("c8d8");
-        contr.executeMove("f2e1");
-        contr.executeMove("d8c8");
-        contr.executeMove("f1h1");
-        contr.executeMove("c8d8");
+        long hash = board.getHash();
+        board.executeMove("e1g1");
+        board.executeMove("d8c8");
+        board.executeMove("g1f2");
+        board.executeMove("c8d8");
+        board.executeMove("f2e1");
+        board.executeMove("d8c8");
+        board.executeMove("f1h1");
+        board.executeMove("c8d8");
 
-        long hash2 = contr.getBoard().getHash();
+        long hash2 = board.getHash();
 
         assertTrue(hash != hash2);
     }
@@ -126,8 +127,8 @@ public class HashTest {
 
         for (int i = 0; i < castlingRights.length; i++) {
             String castlingRight = castlingRights[i];
-            Controller contr = new Controller(("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w " + castlingRight + " -"));
-            hashes[i] = contr.getBoard().getHash();
+            board = new Board0x88(("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w " + castlingRight + " -"));
+            hashes[i] = board.getHash();
         }
 
         assertFalse(containsDuplicats(hashes));
@@ -137,16 +138,16 @@ public class HashTest {
     @Test
     public void hashShouldTakeInAccountEnPassant() {
 
-        contr.executeMove("e2e4");
-        contr.executeMove("e7e5");
-        long hash = contr.getBoard().getHash();
+        board.executeMove("e2e4");
+        board.executeMove("e7e5");
+        long hash = board.getHash();
 
-        contr = new Controller();
-        contr.executeMove("e2e3");
-        contr.executeMove("e7e6");
-        contr.executeMove("e3e4");
-        contr.executeMove("e6e5");
-        long hash2 = contr.getBoard().getHash();
+        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+        board.executeMove("e2e3");
+        board.executeMove("e7e6");
+        board.executeMove("e3e4");
+        board.executeMove("e6e5");
+        long hash2 = board.getHash();
 
         assertTrue(hash != hash2);
     }
@@ -154,11 +155,11 @@ public class HashTest {
     @Test
     public void hashShouldTakeInAccountEnPassantRevert() {
 
-        contr.executeMove("e2e4");
-        long hash = contr.getBoard().getHash();
-        contr.executeMove("e7e5");
-        contr.revertLastMove();
-        long hash2 = contr.getBoard().getHash();
+        board.executeMove("e2e4");
+        long hash = board.getHash();
+        board.executeMove("e7e5");
+        board.revertLastMove();
+        long hash2 = board.getHash();
 
         assertTrue(hash == hash2);
     }

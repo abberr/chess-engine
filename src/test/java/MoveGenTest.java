@@ -50,7 +50,7 @@ public class MoveGenTest {
         board = new Board0x88("4k3/8/4r3/4b3/4Q2p/8/8/4K3 w - -");
         MoveGenerator.setSearchModeQuiescence();
         List<Move> moves = board.getAvailableMoves(false);
-        MoveGenerator.setSearchModeQuiescence();
+        MoveGenerator.setSearchModeNormal();
 
 //        board.printBoard();
 
