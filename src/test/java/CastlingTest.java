@@ -1,6 +1,9 @@
 import game0x88.Board0x88;
+import game0x88.Move;
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -53,8 +56,15 @@ public class CastlingTest {
         assertTrue(board.getCastlingRights().equals("kK"));
         board.revertLastMove();
         assertTrue(board.getCastlingRights().equals("qkQK"));
+    }
 
+    @Test
+    public void edgeCases() {
+        board = new Board0x88("r3k2r/8/8/1Q6/8/8/8/4K3 b qkQK - 0 0");
+        board.getAvailableMoves(false).forEach(System.out::println);
+        List<Move> moves = board.getAvailableMoves(false);
 
+        assertTrue("", moves.size() == 4);
     }
 
     @After

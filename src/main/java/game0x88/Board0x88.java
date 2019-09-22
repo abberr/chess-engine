@@ -372,6 +372,10 @@ public class Board0x88 {
         return hash;
     }
 
+    public boolean isInCheck() {
+        return MoveGenerator.isInCheck(squares, playerToMove);
+    }
+
     public byte[] getSquares() {
         return squares;
     }

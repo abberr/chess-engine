@@ -1,7 +1,4 @@
-import game0x88.Board0x88;
-import game0x88.Evaluator;
-import game0x88.Move;
-import game0x88.MoveGenerator;
+import game0x88.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,31 +14,6 @@ public class MoveGenTest {
     @Before
     public void before() {
         board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
-    }
-
-    @Test
-    public void perft5Test() {
-        Evaluator.setSearchDepth(5);
-        long calculations = Evaluator.perft(board);
-        assertTrue(calculations == 4865609);
-    }
-
-    //Should take about 40s
-    @Test
-    public void perft6Test() {
-        Evaluator.setSearchDepth(6);
-        long calculations = Evaluator.perft(board);
-        assertTrue(calculations == 119060324);
-    }
-
-    //TODO: returns 3195871499 moves calculated in 770598ms. Evaluations per second: 4147261.8
-    @Test
-    @Ignore
-    public void perft7Test() {
-        Evaluator.setSearchDepth(7);
-        long calculations = Evaluator.perft(board);
-        assertTrue(calculations == 3195901860l);
-//        assertTrue(calculations == 3195903162l);
     }
 
     //Should not capture the bishop because white will lose queen next move.

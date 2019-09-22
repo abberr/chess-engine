@@ -41,7 +41,7 @@ public class MoveGenerator {
             byte square = squares[i];
             if (square == EMPTY_SQUARE) continue;
             if (player == Player.WHITE && isWhitePiece(square) ||
-                    player == Player.BLACK && !isWhitePiece(square)) {
+                    player == Player.BLACK && isBlackPiece(square)) {
                 moves.addAll(MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, enPassantIndex, includePseudolegal));
             }
 
@@ -86,12 +86,12 @@ public class MoveGenerator {
 
                 //If castling move
                 else if (move.isKingSideCastle()) {
-                    if (isSquareUnderAttack(squares, move.getMoveFrom()+1, player)) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()+1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
                         moves.remove(i);
                         i--;
                     }
                 } else if (move.isQueenSideCastle()) {
-                    if (isSquareUnderAttack(squares, move.getMoveFrom()-1, player)) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()-1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
                         moves.remove(i);
                         i--;
                     }
@@ -221,35 +221,44 @@ public class MoveGenerator {
     private static List<Move> generatePawnMoves(byte[] squares, int index, byte piece, int enPassantIndex) {
         List<Move> moves = new ArrayList<>();
 
+        //Capturing moves
         int capturingMoveIndex1 = piece == WHITE_PAWN ? index + NORTH_WEST : index + SOUTH_WEST;
         int capturingMoveIndex2 = piece == WHITE_PAWN ? index + NORTH_EAST : index + SOUTH_EAST;
 
-        //Capturing moves
         byte capturedPiece1 = isOutOfBounds(capturingMoveIndex1) ? EMPTY_SQUARE : squares[capturingMoveIndex1];
         byte capturedPiece2 = isOutOfBounds(capturingMoveIndex2) ? EMPTY_SQUARE : squares[capturingMoveIndex2];
-        if ((piece == WHITE_PAWN && capturedPiece1 >= 7) || (piece == BLACK_PAWN && capturedPiece1 <= 6 && capturedPiece1 > 0)) {
-            Move move = new Move(piece, index, capturingMoveIndex1);
-            move.setCapturedPiece(capturedPiece1);
+        if ((piece == WHITE_PAWN && isBlackPiece(capturedPiece1)) || (piece == BLACK_PAWN && isWhitePiece(capturedPiece1))) {
+
             //Todo refactor
             //Promoting move if landing on last rank
-            if (piece == WHITE_PAWN && capturingMoveIndex1 >> 4 == 7) {
-                move.setPromotingPiece(WHITE_QUEEN);
-            } else if (piece == BLACK_PAWN && capturingMoveIndex1 >> 4 == 0) {
-                move.setPromotingPiece(BLACK_QUEEN);
+            if ((piece == WHITE_PAWN && capturingMoveIndex1 >> 4 == 7) || (piece == BLACK_PAWN && capturingMoveIndex1 >> 4 == 0)) {
+                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex1, piece);
+                for (Move m : promoMoves) {
+                    m.setCapturedPiece(capturedPiece1);
+                }
+                moves.addAll(promoMoves);
+            } else {
+                Move move = new Move(piece, index, capturingMoveIndex1);
+                move.setCapturedPiece(capturedPiece1);
+                moves.add(move);
             }
-            moves.add(move);
         }
-        if ((piece == WHITE_PAWN && capturedPiece2 >= 7) || (piece == BLACK_PAWN && capturedPiece2 <= 6 && capturedPiece2 > 0)) {
-            Move move = new Move(piece, index, capturingMoveIndex2);
-            move.setCapturedPiece(capturedPiece2);
+
+        if ((piece == WHITE_PAWN && isBlackPiece(capturedPiece2)) || (piece == BLACK_PAWN && isWhitePiece(capturedPiece2))) {
+
             //Todo refactor
             //Promoting move if landing on last rank
-            if (piece == WHITE_PAWN && capturingMoveIndex2 >> 4 == 7) {
-                move.setPromotingPiece(WHITE_QUEEN);
-            } else if (piece == BLACK_PAWN && capturingMoveIndex2 >> 4 == 0) {
-                move.setPromotingPiece(BLACK_QUEEN);
+            if ((piece == WHITE_PAWN && capturingMoveIndex2 >> 4 == 7) || (piece == BLACK_PAWN && capturingMoveIndex2 >> 4 == 0)) {
+                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex2, piece);
+                for (Move m : promoMoves) {
+                    m.setCapturedPiece(capturedPiece2);
+                }
+                moves.addAll(promoMoves);
+            } else {
+                Move move = new Move(piece, index, capturingMoveIndex2);
+                move.setCapturedPiece(capturedPiece2);
+                moves.add(move);
             }
-            moves.add(move);
         }
 
         //All captures found
@@ -259,18 +268,18 @@ public class MoveGenerator {
 
         int moveToIndex = piece == WHITE_PAWN ? index + NORTH : index + SOUTH;
 
-        //Regular move
+        //Regular and promo moves
         if (squares[moveToIndex] == EMPTY_SQUARE) {
-            Move move = new Move(piece, index, moveToIndex);
-
             //Promoting move if landing on last rank
             if (piece == WHITE_PAWN && moveToIndex >> 4 == 7) {
-                move.setPromotingPiece(WHITE_QUEEN);
+                moves.addAll(generatePromoMoves(index, moveToIndex, piece));
             } else if (piece == BLACK_PAWN && moveToIndex >> 4 == 0) {
-                move.setPromotingPiece(BLACK_QUEEN);
+                moves.addAll(generatePromoMoves(index, moveToIndex, piece));
             }
-
-            moves.add(move);
+            //Regular
+            else {
+                moves.add(new Move(piece, index, moveToIndex));
+            }
         }
 
         //Move 2 squares if starting pos and no piece blocking
@@ -299,6 +308,26 @@ public class MoveGenerator {
             move.setCapturedPiece(WHITE_PAWN);
             moves.add(move);
         }
+        return moves;
+    }
+
+    private static List<Move> generatePromoMoves(int moveFrom, int moveTo, byte piece) {
+        List<Move> moves = new ArrayList<>(4);
+        for (int i = 0; i < 4; i++) {
+            moves.add(new Move(piece, moveFrom, moveTo));
+        }
+        if (piece == WHITE_PAWN) {
+            moves.get(0).setPromotingPiece(WHITE_QUEEN);
+            moves.get(1).setPromotingPiece(WHITE_ROOK);
+            moves.get(2).setPromotingPiece(WHITE_BISHOP);
+            moves.get(3).setPromotingPiece(WHITE_BISHOP);
+        } else if (piece == BLACK_PAWN) {
+            moves.get(0).setPromotingPiece(BLACK_QUEEN);
+            moves.get(1).setPromotingPiece(BLACK_ROOK);
+            moves.get(2).setPromotingPiece(BLACK_BISHOP);
+            moves.get(3).setPromotingPiece(BLACK_BISHOP);
+        }
+
         return moves;
     }
 
@@ -443,10 +472,14 @@ public class MoveGenerator {
     }
 
     private static boolean isWhitePiece(byte piece) {
-        return !(piece >= 7);
+        return piece != 0 && piece <= 6;
+    }
+
+    private static boolean isBlackPiece(byte piece) {
+        return piece >= 7;
     }
 
     private static boolean isOppositeTeams(byte piece1, byte piece2) {
-        return (isWhitePiece(piece1) && !isWhitePiece(piece2)) || (!isWhitePiece(piece1) && isWhitePiece(piece2));
+        return (isWhitePiece(piece1) && isBlackPiece(piece2)) || (isBlackPiece(piece1) && isWhitePiece(piece2));
     }
 }

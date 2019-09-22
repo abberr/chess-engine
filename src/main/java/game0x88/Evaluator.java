@@ -229,31 +229,4 @@ public class Evaluator {
     public static void setSearchDepth(int depth) {
         searchDepth = depth;
     }
-
-
-    public static long perft(Board0x88 board) {
-        long time = System.currentTimeMillis();
-        long calculations = perftRecursive(board, searchDepth);
-
-        long evalTime = System.currentTimeMillis() - time;
-        float evalsPerSecond = ((float)calculations/evalTime) * 1000;
-
-        System.out.println(calculations + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
-
-        return calculations;
-    }
-
-    public static long perftRecursive(Board0x88 board, int depth) {
-        if (depth == 0) return 1;
-        long nodes = 0;
-        List<Move> moves = board.getAvailableMoves(false);
-        for (Move move : moves) {
-            board.executeMove(move);
-            nodes += perftRecursive(board, depth -1);
-            board.executeInvertedMove(move);
-        }
-
-        return nodes;
-    }
-
 }
