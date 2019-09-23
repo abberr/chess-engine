@@ -46,7 +46,7 @@ public class Perft {
         long evalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float) nodesCounter / evalTime) * 1000;
 
-        System.out.println(nodesCounter + " moves calculated in " + evalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println(nodesCounter + " moves calculated in " + evalTime + "ms. Nodes per second: " + evalsPerSecond);
         System.out.println("captures: " + capturesCounter);
         System.out.println("promos: " + promotionsCounter);
         System.out.println("ep: " + epCounter);

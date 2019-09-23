@@ -21,6 +21,10 @@ public class UciView {
         while (true) {
             String input = myObj.nextLine();
 
+            if(input.equals("exit")) {
+                break;
+            }
+
             if (input.equals("uci")) {
                 System.out.println("id name abberchess 1");
                 System.out.println("id author Albin");

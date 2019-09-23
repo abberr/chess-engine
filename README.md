@@ -8,7 +8,7 @@
 - Transposition table
 - Quiescence Search
 
-##TODO
+## TODO
 - Better move ordering
 - Improve evaluation method with pawn structure
 - Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning)
@@ -16,7 +16,7 @@
 - UCI-protocol compatibility
 
 
-###Stats
+### Stats
 
 perft with depth 5\
 `4865351 moves calculated in 1870ms. Evaluations per second: 2601792.0`
@@ -48,8 +48,8 @@ Sorting time: 1604
 MoveGen time: 898
 Eval time: 59`
 
-###Bugs
+### Bugs
 
 
-##Links
+## Links
 Transposition table: http://web.archive.org/web/20080315233307/http://www.seanet.com/~brucemo/topics/hashing.htm

@@ -1,5 +1,5 @@
-import controller.Controller;
-import game0x88.Board0x88;
+package game0x88;
+
 import org.junit.Before;
 import org.junit.Test;
 

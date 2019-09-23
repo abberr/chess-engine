@@ -79,6 +79,15 @@ public class MoveGenerator {
                 byte[] copySquares = Util.copySquares(squares);
                 copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
                 copySquares[move.getMoveTo()] = move.getPiece();
+
+                if (move.isEnPassant()) {
+                    if (move.getPiece() == WHITE_PAWN) {
+                        copySquares[move.getMoveTo() + SOUTH] = EMPTY_SQUARE;
+                    } else {
+                        copySquares[move.getMoveTo() + NORTH] = EMPTY_SQUARE;
+                    }
+                }
+
                 if (isInCheck(copySquares, player)) {
                     moves.remove(i);
                     i--;
@@ -212,9 +221,6 @@ public class MoveGenerator {
             }
         }
 
-
-
-
         return false;
     }
 
@@ -320,12 +326,12 @@ public class MoveGenerator {
             moves.get(0).setPromotingPiece(WHITE_QUEEN);
             moves.get(1).setPromotingPiece(WHITE_ROOK);
             moves.get(2).setPromotingPiece(WHITE_BISHOP);
-            moves.get(3).setPromotingPiece(WHITE_BISHOP);
+            moves.get(3).setPromotingPiece(WHITE_KNIGHT);
         } else if (piece == BLACK_PAWN) {
             moves.get(0).setPromotingPiece(BLACK_QUEEN);
             moves.get(1).setPromotingPiece(BLACK_ROOK);
             moves.get(2).setPromotingPiece(BLACK_BISHOP);
-            moves.get(3).setPromotingPiece(BLACK_BISHOP);
+            moves.get(3).setPromotingPiece(BLACK_KNIGHT);
         }
 
         return moves;

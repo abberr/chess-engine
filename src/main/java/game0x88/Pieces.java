@@ -100,7 +100,4 @@ public final class Pieces {
         WHITE_QUEEN_VALUE_TABLE= Util.invertSquareValueTable(BLACK_QUEEN_VALUE_TABLE);
         WHITE_KING_VALUE_TABLE= Util.invertSquareValueTable(BLACK_KING_VALUE_TABLE);
     }
-
-
-
 }

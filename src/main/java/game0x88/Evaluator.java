@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Evaluator {
 
-    private static final int SEARCH_DEPTH_DEFAULT = 5;
+    private static final int SEARCH_DEPTH_DEFAULT = 6;
 
     private static long sortingTime;
     private static long moveGenTime;
@@ -25,7 +25,7 @@ public class Evaluator {
 
     public static Move findBestMove(Board0x88 board) {
 
-        useHash = false;
+        useHash = true;
 
         bestMove= null;
         moveCounter = 0;
@@ -65,9 +65,9 @@ public class Evaluator {
         System.out.println("MoveGen time: " + moveGenTime);
         System.out.println("Eval time: " + evalTime);
 
-        for(Move m : pv) {
-            System.out.println(m);
-        }
+//        for(Move m : pv) {
+//            System.out.println(m);
+//        }
 
         return bestMove;
     }
@@ -91,7 +91,7 @@ public class Evaluator {
             }
 
             else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score >= beta ) {
+                if (lookUpState.score >= beta) {
                     return beta;
                 }
             }
@@ -117,6 +117,7 @@ public class Evaluator {
         if (moves.isEmpty()) {
             //Min value if check
             int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 1 : 0;
+            //TODO set depth to +infinity? Since it's a terminal node anyways
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
             return value;
         }
@@ -136,6 +137,8 @@ public class Evaluator {
             int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent());
             board.executeInvertedMove(move);
 
+
+
             if (value > maxValue) {
                 maxValue = value;
                 maxEvalMove = move;
@@ -146,28 +149,17 @@ public class Evaluator {
                 nodeType = NodeType.EXACT;
             }
 
-//            String spaces = "|";
-//            for (int i = 0; i < 5-depth; i++) {
-//                spaces += "--";
-//            }
-//            if (alpha >= beta) {
-//                System.out.println(spaces + move + " | " + value + " | alpha=" + alpha + " beta=" + beta + " PRUNE");
-//            } else {
-//                System.out.println(spaces + move + " | " + value + " | alpha=" + alpha + " beta=" + beta);
-//            }
-
             if (value >= beta) {
-                bestMove = maxEvalMove;
-                pv[pv.length-depth] = bestMove;
+//                bestMove = maxEvalMove;
+//                pv[pv.length-depth] = bestMove;
                 transpositionTable.saveState(board.getHash(), depth, beta, bestMove, NodeType.BETA);
                 return beta;
-//                break;
             }
         }
 
         transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
         bestMove = maxEvalMove;
-        pv[pv.length-depth] = bestMove;
+//        pv[pv.length-depth] = bestMove;
         return maxValue;
     }
 

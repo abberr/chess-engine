@@ -1,6 +1,6 @@
-import game0x88.*;
+package game0x88;
+
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -27,6 +27,15 @@ public class MoveGenTest {
 //        board.printBoard();
 
         assertTrue(moves.size() == 2);
+    }
+
+    @Test
+    public void promotingMoveTest() {
+        board = new Board0x88("k7/4P3/8/8/8/8/8/K7 w - -");
+        List<Move> moves = board.getAvailableMoves(false);
+
+        assertTrue("All promoting moves generated", moves.size() == 7);
+//        moves.stream().forEach(System.out::println);
     }
 
 }

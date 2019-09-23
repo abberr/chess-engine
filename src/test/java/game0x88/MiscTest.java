@@ -1,6 +1,5 @@
-import game0x88.Board0x88;
-import game0x88.Evaluator;
-import game0x88.Move;
+package game0x88;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

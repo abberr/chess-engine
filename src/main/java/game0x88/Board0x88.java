@@ -105,6 +105,9 @@ public class Board0x88 {
         for(Move m : getMovesOfPiece(moveFrom, false)) {
             if (moveToIndex == m.getMoveTo()) {
                 executeMove(m);
+
+                Evaluator.findBestMove(this);
+
                 return true;
             }
         }
@@ -381,7 +384,7 @@ public class Board0x88 {
     }
 
     public void printBoard() {
-        System.out.println("--------------------------");
+        System.out.print("\n--------------------------");
         for (int i = 0; i < 8; i++) {
             System.out.println();
             for (int j = 0; j < 8; j++) {

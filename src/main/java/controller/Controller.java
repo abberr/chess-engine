@@ -22,6 +22,7 @@ public class Controller {
 	public Controller() {
 		moveList = new LinkedList<>();
         board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+//        board = new Board0x88("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
 //        board = new Board0x88("3kqb1r/1pp3pp/3p1n2/4pp2/rnPP4/4P3/PB3PPP/KBR1Q1NR b - -");      //Best move a4xa2 (only finds with depth 7?), also 2x slower when using quiescence
 //        board = new Board0x88("rn2kb1r/pppq1pp1/3p1n1p/1N2p3/4P3/3PBN2/PPP2PPP/R2QK2R w qkQK -");
 //		board = new Board0x88("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w "); //Castling
