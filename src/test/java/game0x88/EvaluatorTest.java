@@ -28,6 +28,7 @@ public class EvaluatorTest {
     }
 
     //Takes about 10s
+    //80% of time spent on sorting
     @Ignore
     @Test
     public void test2() {

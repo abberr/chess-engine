@@ -2,11 +2,10 @@ package game0x88;
 
 import util.Util;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static game0x88.Pieces.*;
-import static game0x88.Pieces.EMPTY_SQUARE;
 
 public class MoveGenerator {
 
@@ -33,8 +32,8 @@ public class MoveGenerator {
         SEARCH_MODE_QUIESCENCE = true;
     }
 
-    public static List<Move> generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
-        List<Move> moves = new ArrayList<>();
+    public static LinkedList<Move> generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
+        LinkedList<Move> moves = new LinkedList<>();
 
         for (int i = 0; i < 120; i++) {
             if (isOutOfBounds(i)) continue;
@@ -225,7 +224,7 @@ public class MoveGenerator {
     }
 
     private static List<Move> generatePawnMoves(byte[] squares, int index, byte piece, int enPassantIndex) {
-        List<Move> moves = new ArrayList<>();
+        List<Move> moves = new LinkedList<>();
 
         //Capturing moves
         int capturingMoveIndex1 = piece == WHITE_PAWN ? index + NORTH_WEST : index + SOUTH_WEST;
@@ -318,7 +317,7 @@ public class MoveGenerator {
     }
 
     private static List<Move> generatePromoMoves(int moveFrom, int moveTo, byte piece) {
-        List<Move> moves = new ArrayList<>(4);
+        List<Move> moves = new LinkedList<>();
         for (int i = 0; i < 4; i++) {
             moves.add(new Move(piece, moveFrom, moveTo));
         }
@@ -343,7 +342,7 @@ public class MoveGenerator {
 
     //Generate moves based on input directions, used for knight and king moves
     private static List<Move> generateMovesByDirections(byte[] squares, int index, byte piece, byte[] directions) {
-        List<Move> moves = new ArrayList<>();
+        List<Move> moves = new LinkedList<>();
 
         for (byte direction : directions) {
             int destinationIndex = index + direction;
@@ -441,7 +440,7 @@ public class MoveGenerator {
 
     //Raypiece == Rook, bishop & queen
     private static List<Move> generateRayPieceMoves(byte[] squares, int index, byte piece, byte[] directions) {
-        List<Move> moves = new ArrayList<>();
+        List<Move> moves = new LinkedList<>();
 
         //Traverse every direction
         for (byte direction : directions) {

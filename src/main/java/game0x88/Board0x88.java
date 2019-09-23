@@ -2,6 +2,7 @@ package game0x88;
 
 import util.Util;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -244,7 +245,7 @@ public class Board0x88 {
         return MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
     }
 
-    public List<Move> getAvailableMoves(boolean includePseudoLegal) {
+    public LinkedList<Move> getAvailableMoves(boolean includePseudoLegal) {
         return MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
     }
 

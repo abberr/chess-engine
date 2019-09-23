@@ -2,6 +2,7 @@ package game0x88;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Evaluator {
@@ -59,11 +60,11 @@ public class Evaluator {
         long totalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
 
-//        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
-//        System.out.println("Best move: " + bestMove + ", value: " + value);
-//        System.out.println("Sorting time: " + sortingTime);
-//        System.out.println("MoveGen time: " + moveGenTime);
-//        System.out.println("Eval time: " + evalTime);
+        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
+        System.out.println("Best move: " + bestMove + ", value: " + value);
+        System.out.println("Sorting time: " + sortingTime);
+        System.out.println("MoveGen time: " + moveGenTime);
+        System.out.println("Eval time: " + evalTime);
 
 //        System.out.println();
 //        for(Move m : pv) {
@@ -110,7 +111,7 @@ public class Evaluator {
 
         //Move generation
         long time = System.currentTimeMillis();
-        List<Move> moves = board.getAvailableMoves( false);
+        LinkedList<Move> moves = board.getAvailableMoves( false);
         moveGenTime += System.currentTimeMillis() - time;
 
         //Mate or stalemate if no moves
@@ -126,14 +127,17 @@ public class Evaluator {
         Move maxEvalMove = null;
 
         //Sort moves by heuristic value to increase pruning
-        time = System.currentTimeMillis();
-        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
-        sortingTime += System.currentTimeMillis() - time;
+//        time = System.currentTimeMillis();
+//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+//        sortingTime += System.currentTimeMillis() - time;
 
         int value = Integer.MIN_VALUE;
 
+        MoveOrderer mo = new MoveOrderer(moves, board);
+
         //Find best move
-        for(Move move : moves) {
+        while (!mo.isEmpty()){
+            Move move = mo.getNextMove();
 
             board.executeMove(move);
             value = Math.max(value, -minMax(-beta, -alpha, depth-1, board, player.getOpponent()));
@@ -155,15 +159,6 @@ public class Evaluator {
         bestMove = maxEvalMove;
         pv[pv.length-depth] = maxEvalMove;
         return value;
-    }
-
-    //Todo: Move ordering
-    private static void sortList(List<Move> moves) {
-        List<Move> promotingMoves = new ArrayList<>();
-        List<Move> capturingMoves = new ArrayList<>();
-        List<Move> quietMoves = new ArrayList<>();
-
-
     }
 
     private static int boardValueAfterMove(Move move, Board0x88 board) {
