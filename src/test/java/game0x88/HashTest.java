@@ -164,6 +164,14 @@ public class HashTest {
         assertTrue(hash == hash2);
     }
 
+    @Test
+    public void hashShouldChangeOnEvaluating() {
+        long hash = board.getHash();
+        Evaluator.findBestMove(board);
+
+        assertTrue("Hash hasnt changed after finding best move", hash == board.getHash());
+    }
+
     private boolean containsDuplicats(long [] array) {
         boolean duplicates=false;
         for (int j=0;j<array.length;j++)

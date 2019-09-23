@@ -1,13 +1,10 @@
 package game0x88;
 
-import game0x88.Board0x88;
-import game0x88.Evaluator;
-import game0x88.Move;
-import game0x88.Pieces;
 import org.junit.Before;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class QuiescenceTest {
 
@@ -21,6 +18,7 @@ public class QuiescenceTest {
     @Test
     public void quiescenceTest() {
         board = new Board0x88("4k3/8/4r3/4b3/4Q3/8/8/4K3 w - -");
+        board.printBoard();
         Evaluator.setSearchDepth(1);
         Move bestMove = Evaluator.findBestMove(board);
 
@@ -28,13 +26,25 @@ public class QuiescenceTest {
     }
 
     @Test
-    public void quiescenceTestTripleCapture() {
+    public void quiescenceTestTripleCaptureTest() {
         board = new Board0x88("4k3/8/4r3/4b3/4Q3/4R3/8/4K3 w - -");
-        board.printBoard();
         Evaluator.setSearchDepth(1);
+        board.printBoard();
         Move bestMove = Evaluator.findBestMove(board);
 
-        assertTrue (bestMove.getMoveTo() == 0x44);
+        //White shouldnt capture because white loses more material in the exchange
+        assertFalse(bestMove.toString().equals("e4xe5"));
+    }
+
+    @Test
+    public void quiescenceTestTripleCaptureTest2() {
+        board = new Board0x88("4k3/8/4r3/4b3/4R3/4Q3/8/4K3 w - -");
+        Evaluator.setSearchDepth(1);
+        board.printBoard();
+        Move bestMove = Evaluator.findBestMove(board);
+
+        //White should capture because black loses more material in the exchange
+        assertTrue(bestMove.toString().equals("e4xe5"));
     }
 
 }

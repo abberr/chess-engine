@@ -17,6 +17,7 @@ public class UciView {
     }
 
     public void startGame() {
+        System.out.println("Abberchess started");
         Scanner myObj = new Scanner(System.in);
         while (true) {
             String input = myObj.nextLine();
@@ -49,6 +50,11 @@ public class UciView {
 
             if (input.startsWith("go")) {
                 Move bestMove = contr.findBestMove();
+                if (bestMove == null) {
+                    System.out.println("bestmove 0000");
+                } else {
+                    System.out.println("bestmove " + bestMove);
+                }
             }
         }
     }

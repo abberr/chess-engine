@@ -34,7 +34,7 @@ public class Controller {
 //        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 
 //        System.out.println(board.getValue());
-        Move bestMove = Evaluator.findBestMove(board);
+//        Move bestMove = Evaluator.findBestMove(board);
 
 //		Evaluator.perft(board, 6);
 //		System.out.println("Hash: " + board.getHash());

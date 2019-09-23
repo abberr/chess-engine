@@ -21,7 +21,7 @@ public class Evaluator {
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
     //PV list
-    private static Move[] pv = new Move[SEARCH_DEPTH_DEFAULT + 2];
+    private static Move[] pv = new Move[SEARCH_DEPTH_DEFAULT ];
 
     public static Move findBestMove(Board0x88 board) {
 
@@ -59,14 +59,15 @@ public class Evaluator {
         long totalTime = System.currentTimeMillis() - time;
         float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
 
-        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
-        System.out.println("Best move: " + bestMove + ", value: " + value);
-        System.out.println("Sorting time: " + sortingTime);
-        System.out.println("MoveGen time: " + moveGenTime);
-        System.out.println("Eval time: " + evalTime);
+//        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
+//        System.out.println("Best move: " + bestMove + ", value: " + value);
+//        System.out.println("Sorting time: " + sortingTime);
+//        System.out.println("MoveGen time: " + moveGenTime);
+//        System.out.println("Eval time: " + evalTime);
 
+//        System.out.println();
 //        for(Move m : pv) {
-//            System.out.println(m);
+//            System.out.print(m + ", ");
 //        }
 
         return bestMove;
@@ -98,7 +99,6 @@ public class Evaluator {
         }
 
         if (depth <= 0) {
-
             MoveGenerator.setSearchModeQuiescence();
 //            int value = board.getValue() * player.getValue();
             int value = quisence(alpha, beta, board, player);
@@ -116,9 +116,9 @@ public class Evaluator {
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
             //Min value if check
-            int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 1 : 0;
+            int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 2 : 0;
             //TODO set depth to +infinity? Since it's a terminal node anyways
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
+            transpositionTable.saveState(board.getHash(), Integer.MAX_VALUE, value, null, NodeType.EXACT );
             return value;
         }
 
@@ -130,28 +130,22 @@ public class Evaluator {
         moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
         sortingTime += System.currentTimeMillis() - time;
 
+        int value = Integer.MIN_VALUE;
+
         //Find best move
         for(Move move : moves) {
 
             board.executeMove(move);
-            int value = -minMax(-beta, -alpha, depth-1, board, player.getOpponent());
+            value = Math.max(value, -minMax(-beta, -alpha, depth-1, board, player.getOpponent()));
             board.executeInvertedMove(move);
 
-
-
-            if (value > maxValue) {
-                maxValue = value;
+            if (value > alpha) {
+                alpha = value;
+                nodeType = NodeType.EXACT;
                 maxEvalMove = move;
             }
 
-            if (value > alpha) {
-                alpha = maxValue;
-                nodeType = NodeType.EXACT;
-            }
-
-            if (value >= beta) {
-//                bestMove = maxEvalMove;
-//                pv[pv.length-depth] = bestMove;
+            if (alpha >= beta) {
                 transpositionTable.saveState(board.getHash(), depth, beta, bestMove, NodeType.BETA);
                 return beta;
             }
@@ -159,15 +153,15 @@ public class Evaluator {
 
         transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
         bestMove = maxEvalMove;
-//        pv[pv.length-depth] = bestMove;
-        return maxValue;
+        pv[pv.length-depth] = maxEvalMove;
+        return value;
     }
 
     //Todo: Move ordering
     private static void sortList(List<Move> moves) {
         List<Move> promotingMoves = new ArrayList<>();
         List<Move> capturingMoves = new ArrayList<>();
-        List<Move> otherMoves = new ArrayList<>();
+        List<Move> quietMoves = new ArrayList<>();
 
 
     }

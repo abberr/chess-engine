@@ -42,6 +42,7 @@ public class PerftTest {
     }
 
     //Should take about 40s
+    @Ignore
     @Test
     public void perft6Test() {
         long calculations = Perft.perft(board, 6);
@@ -79,6 +80,7 @@ public class PerftTest {
     }
 
     @Test
+    @Ignore
     public void perft5Pos2Test() {
         board = new Board0x88("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         long nodes = Perft.perftDetailed(board, 5);

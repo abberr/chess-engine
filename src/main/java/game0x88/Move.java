@@ -83,13 +83,14 @@ public class Move {
 
     @Override
     public String toString() {
-        if (isKingSideCastle()) return "O-O";
-        if (isQueenSideCastle()) return "O-O-O";
+        //UCI want regular notation
+//        if (isKingSideCastle()) return "O-O";
+//        if (isQueenSideCastle()) return "O-O-O";
         String moveString = Util.indexToAlgebraicNotation(moveFrom);
         moveString = this.capturedPiece == 0 ? moveString : moveString + "x";
         moveString += Util.indexToAlgebraicNotation(moveTo);
         if(promotingPiece != EMPTY_SQUARE) {
-            moveString += Pieces.PIECE_CHAR[promotingPiece];
+            moveString += Character.toLowerCase(Pieces.PIECE_CHAR[promotingPiece]);
         }
         return  moveString;
     }

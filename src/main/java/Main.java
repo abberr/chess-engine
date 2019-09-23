@@ -1,6 +1,7 @@
 import controller.Controller;
 import view.BoardView;
 import view.ConsoleView;
+import view.UciView;
 
 import javax.swing.*;
 
@@ -18,8 +19,11 @@ public class Main {
 //		frame.setLocationRelativeTo(null);
 //		frame.setVisible(true);
 
-        ConsoleView view = new ConsoleView(contr);
-        view.startGame();
+//        ConsoleView view = new ConsoleView(contr);
+//        view.startGame();
+
+		UciView uciView = new UciView(contr);
+        uciView.startGame();
 
 	}
 }

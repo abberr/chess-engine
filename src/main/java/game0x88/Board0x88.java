@@ -105,9 +105,6 @@ public class Board0x88 {
         for(Move m : getMovesOfPiece(moveFrom, false)) {
             if (moveToIndex == m.getMoveTo()) {
                 executeMove(m);
-
-                Evaluator.findBestMove(this);
-
                 return true;
             }
         }
