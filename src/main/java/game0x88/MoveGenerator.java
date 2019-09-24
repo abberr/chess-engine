@@ -204,8 +204,8 @@ public class MoveGenerator {
                 List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex1, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece1);
+                    addMove(m, squares);
                 }
-                moves.addAll(promoMoves);
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex1);
                 move.setCapturedPiece(capturedPiece1);
@@ -221,8 +221,8 @@ public class MoveGenerator {
                 List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex2, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece2);
+                    addMove(m, squares);
                 }
-                moves.addAll(promoMoves);
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex2);
                 move.setCapturedPiece(capturedPiece2);
@@ -240,10 +240,9 @@ public class MoveGenerator {
         //Regular and promo moves
         if (squares[moveToIndex] == EMPTY_SQUARE) {
             //Promoting move if landing on last rank
-            if (piece == WHITE_PAWN && moveToIndex >> 4 == 7) {
-                moves.addAll(generatePromoMoves(index, moveToIndex, piece, squares));
-            } else if (piece == BLACK_PAWN && moveToIndex >> 4 == 0) {
-                moves.addAll(generatePromoMoves(index, moveToIndex, piece,squares));
+            if (piece == WHITE_PAWN && moveToIndex >> 4 == 7 ||
+                    piece == BLACK_PAWN && moveToIndex >> 4 == 0) {
+                generatePromoMoves(index, moveToIndex, piece, squares).forEach(m -> addMove(m, squares));
             }
             //Regular
             else {
@@ -289,7 +288,7 @@ public class MoveGenerator {
             else {
                 m.setPromotingPiece(PROMO_PIECES_BLACK[i]);
             }
-            addMove(m, squares);
+            moves.add(m);
         }
 
         return moves;

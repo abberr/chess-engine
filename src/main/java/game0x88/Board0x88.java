@@ -246,7 +246,7 @@ public class Board0x88 {
         //Generate all moves and pick the right ones
         //TODO cleaner solution
         List<Move> moves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false);
-        moves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
+//        moves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
 
         return moves.stream()
                 .filter(m -> m.toString().startsWith(position))

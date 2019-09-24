@@ -127,13 +127,14 @@ public class Evaluator {
         Move maxEvalMove = null;
 
         //Sort moves by heuristic value to increase pruning
-//        time = System.currentTimeMillis();
+        time = System.currentTimeMillis();
 //        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
-//        sortingTime += System.currentTimeMillis() - time;
+        MoveOrderer mo = new MoveOrderer(moves, board);
+        sortingTime += System.currentTimeMillis() - time;
 
         int value = Integer.MIN_VALUE;
 
-        MoveOrderer mo = new MoveOrderer(moves, board);
+
 
         //Find best move
         while (!mo.isEmpty()){
