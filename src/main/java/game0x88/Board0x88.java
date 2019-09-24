@@ -5,6 +5,7 @@ import util.Util;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static game0x88.Pieces.*;
 
@@ -242,7 +243,14 @@ public class Board0x88 {
             return null;
         }
 
-        return MoveGenerator.generateMovesOfPiece(squares, index, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
+        //Generate all moves and pick the right ones
+        //TODO cleaner solution
+        List<Move> moves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false);
+        moves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
+
+        return moves.stream()
+                .filter(m -> m.toString().startsWith(position))
+                .collect(Collectors.toList());
     }
 
     public LinkedList<Move> getAvailableMoves(boolean includePseudoLegal) {

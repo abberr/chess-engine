@@ -165,7 +165,7 @@ public class HashTest {
     }
 
     @Test
-    public void hashShouldChangeOnEvaluating() {
+    public void hashShouldNotChangeOnEvaluating() {
         long hash = board.getHash();
         Evaluator.findBestMove(board);
 

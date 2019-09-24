@@ -16,6 +16,9 @@ public class MoveGenerator {
     private static final byte[] QUEEN_DIRECTIONS = {NORTH, EAST, SOUTH, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
     private static final byte[] KING_DIRECTIONS = QUEEN_DIRECTIONS;
 
+    private static final byte[] PROMO_PIECES_WHITE = {WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT};
+    private static final byte[] PROMO_PIECES_BLACK = {BLACK_QUEEN, BLACK_ROOK, BLACK_BISHOP, BLACK_KNIGHT};
+
     private static final byte[] KNIGHT_DIRECTIONS = {
             NORTH + NORTH_EAST, NORTH + NORTH_WEST,
             EAST + NORTH_EAST, EAST + SOUTH_EAST,
@@ -23,6 +26,10 @@ public class MoveGenerator {
             WEST + SOUTH_WEST, WEST + NORTH_WEST};
 
     private static boolean SEARCH_MODE_QUIESCENCE = false;
+
+    private static boolean includePseudolegalMoves;
+
+    private static LinkedList<Move> moves;
 
     public static void setSearchModeNormal() {
         SEARCH_MODE_QUIESCENCE = false;
@@ -33,7 +40,8 @@ public class MoveGenerator {
     }
 
     public static LinkedList<Move> generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
-        LinkedList<Move> moves = new LinkedList<>();
+        includePseudolegalMoves = includePseudolegal;
+        moves = new LinkedList<>();
 
         for (int i = 0; i < 120; i++) {
             if (isOutOfBounds(i)) continue;
@@ -41,7 +49,7 @@ public class MoveGenerator {
             if (square == EMPTY_SQUARE) continue;
             if (player == Player.WHITE && isWhitePiece(square) ||
                     player == Player.BLACK && isBlackPiece(square)) {
-                moves.addAll(MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, enPassantIndex, includePseudolegal));
+                MoveGenerator.generateMovesOfPiece(squares,i,castlingRights, enPassantIndex);
             }
 
         }
@@ -51,64 +59,22 @@ public class MoveGenerator {
 
     //TODO use same instance of arrayList instead of creating new one for each piece
     //Maybe set initial size to
-    public static List<Move> generateMovesOfPiece(byte[] squares, int index, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
+    public static void generateMovesOfPiece(byte[] squares, int index, int castlingRights, int enPassantIndex) {
 
         byte piece = squares[index];
-        List<Move> moves = null;
         if (piece == WHITE_PAWN || piece == BLACK_PAWN) {
-            moves = generatePawnMoves(squares, index, piece, enPassantIndex);
+            generatePawnMoves(squares, index, piece, enPassantIndex);
         } else if (piece == WHITE_KNIGHT || piece == BLACK_KNIGHT) {
-            moves = generateKnightMoves(squares, index, piece);
+            generateKnightMoves(squares, index, piece);
         } else if (piece == WHITE_ROOK || piece == BLACK_ROOK) {
-            moves = generateRookMoves(squares, index, piece);
+            generateRookMoves(squares, index, piece);
         } else if (piece == WHITE_BISHOP || piece == BLACK_BISHOP) {
-            moves = generateBishopMoves(squares, index, piece);
+            generateBishopMoves(squares, index, piece);
         } else if (piece == WHITE_QUEEN || piece == BLACK_QUEEN) {
-            moves = generateQueenMoves(squares, index, piece);
+            generateQueenMoves(squares, index, piece);
         } else if (piece == WHITE_KING || piece == BLACK_KING) {
-            moves = generateKingMoves(squares, index, piece, castlingRights);
+            generateKingMoves(squares, index, piece, castlingRights);
         }
-
-        //Remove moves that causes check on self
-        if (!includePseudolegal) {
-            Player player = isWhitePiece(piece) ? Player.WHITE : Player.BLACK;
-
-            for (int i = 0; i < moves.size(); i++) {
-                Move move = moves.get(i);
-                byte[] copySquares = Util.copySquares(squares);
-                copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
-                copySquares[move.getMoveTo()] = move.getPiece();
-
-                if (move.isEnPassant()) {
-                    if (move.getPiece() == WHITE_PAWN) {
-                        copySquares[move.getMoveTo() + SOUTH] = EMPTY_SQUARE;
-                    } else {
-                        copySquares[move.getMoveTo() + NORTH] = EMPTY_SQUARE;
-                    }
-                }
-
-                if (isInCheck(copySquares, player)) {
-                    moves.remove(i);
-                    i--;
-                }
-
-                //If castling move
-                else if (move.isKingSideCastle()) {
-                    if (isSquareUnderAttack(squares, move.getMoveFrom()+1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
-                        moves.remove(i);
-                        i--;
-                    }
-                } else if (move.isQueenSideCastle()) {
-                    if (isSquareUnderAttack(squares, move.getMoveFrom()-1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
-                        moves.remove(i);
-                        i--;
-                    }
-                }
-            }
-        }
-
-
-        return moves;
     }
 
 
@@ -223,9 +189,7 @@ public class MoveGenerator {
         return false;
     }
 
-    private static List<Move> generatePawnMoves(byte[] squares, int index, byte piece, int enPassantIndex) {
-        List<Move> moves = new LinkedList<>();
-
+    private static void generatePawnMoves(byte[] squares, int index, byte piece, int enPassantIndex) {
         //Capturing moves
         int capturingMoveIndex1 = piece == WHITE_PAWN ? index + NORTH_WEST : index + SOUTH_WEST;
         int capturingMoveIndex2 = piece == WHITE_PAWN ? index + NORTH_EAST : index + SOUTH_EAST;
@@ -237,7 +201,7 @@ public class MoveGenerator {
             //Todo refactor
             //Promoting move if landing on last rank
             if ((piece == WHITE_PAWN && capturingMoveIndex1 >> 4 == 7) || (piece == BLACK_PAWN && capturingMoveIndex1 >> 4 == 0)) {
-                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex1, piece);
+                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex1, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece1);
                 }
@@ -245,7 +209,7 @@ public class MoveGenerator {
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex1);
                 move.setCapturedPiece(capturedPiece1);
-                moves.add(move);
+                addMove(move, squares);
             }
         }
 
@@ -254,7 +218,7 @@ public class MoveGenerator {
             //Todo refactor
             //Promoting move if landing on last rank
             if ((piece == WHITE_PAWN && capturingMoveIndex2 >> 4 == 7) || (piece == BLACK_PAWN && capturingMoveIndex2 >> 4 == 0)) {
-                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex2, piece);
+                List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex2, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece2);
                 }
@@ -262,13 +226,13 @@ public class MoveGenerator {
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex2);
                 move.setCapturedPiece(capturedPiece2);
-                moves.add(move);
+                addMove(move, squares);
             }
         }
 
         //All captures found
         if (SEARCH_MODE_QUIESCENCE) {
-            return moves;
+            return;
         }
 
         int moveToIndex = piece == WHITE_PAWN ? index + NORTH : index + SOUTH;
@@ -277,13 +241,13 @@ public class MoveGenerator {
         if (squares[moveToIndex] == EMPTY_SQUARE) {
             //Promoting move if landing on last rank
             if (piece == WHITE_PAWN && moveToIndex >> 4 == 7) {
-                moves.addAll(generatePromoMoves(index, moveToIndex, piece));
+                moves.addAll(generatePromoMoves(index, moveToIndex, piece, squares));
             } else if (piece == BLACK_PAWN && moveToIndex >> 4 == 0) {
-                moves.addAll(generatePromoMoves(index, moveToIndex, piece));
+                moves.addAll(generatePromoMoves(index, moveToIndex, piece,squares));
             }
             //Regular
             else {
-                moves.add(new Move(piece, index, moveToIndex));
+                addMove(new Move(piece, index, moveToIndex), squares);
             }
         }
 
@@ -291,11 +255,11 @@ public class MoveGenerator {
         if (piece == WHITE_PAWN && (index >> 4) == 1 && squares[index + NORTH] == EMPTY_SQUARE && squares[index + NORTH + NORTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + NORTH + NORTH);
             move.setPawnDoublePush(true);
-            moves.add(move);
+            addMove(move, squares);
         } else if (piece == BLACK_PAWN && (index >> 4) == 6 && squares[index + SOUTH] == EMPTY_SQUARE && squares[index + SOUTH + SOUTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + SOUTH + SOUTH);
             move.setPawnDoublePush(true);
-            moves.add(move);
+            addMove(move, squares);
         }
 
         //En passantMove
@@ -304,46 +268,39 @@ public class MoveGenerator {
             Move move = new Move(piece, index, 0x50+enPassantIndex);
             move.setEnPassant(true);
             move.setCapturedPiece(BLACK_PAWN);
-            moves.add(move);
+            addMove(move, squares);
         }
         else if (!isWhitePiece(piece) && (index>>4)== 3 &&
                 ((index&0b0111) == enPassantIndex - 1 || (index&0b0111) == enPassantIndex + 1)) {
             Move move = new Move(piece, index, 0x20+enPassantIndex);
             move.setEnPassant(true);
             move.setCapturedPiece(WHITE_PAWN);
-            moves.add(move);
+            addMove(move, squares);
         }
-        return moves;
     }
 
-    private static List<Move> generatePromoMoves(int moveFrom, int moveTo, byte piece) {
+    private static List<Move> generatePromoMoves(int moveFrom, int moveTo, byte piece, byte[] squares) {
         List<Move> moves = new LinkedList<>();
+
         for (int i = 0; i < 4; i++) {
-            moves.add(new Move(piece, moveFrom, moveTo));
-        }
-        if (piece == WHITE_PAWN) {
-            moves.get(0).setPromotingPiece(WHITE_QUEEN);
-            moves.get(1).setPromotingPiece(WHITE_ROOK);
-            moves.get(2).setPromotingPiece(WHITE_BISHOP);
-            moves.get(3).setPromotingPiece(WHITE_KNIGHT);
-        } else if (piece == BLACK_PAWN) {
-            moves.get(0).setPromotingPiece(BLACK_QUEEN);
-            moves.get(1).setPromotingPiece(BLACK_ROOK);
-            moves.get(2).setPromotingPiece(BLACK_BISHOP);
-            moves.get(3).setPromotingPiece(BLACK_KNIGHT);
+            Move m = new Move(piece, moveFrom, moveTo);
+            if (piece == WHITE_PAWN)
+                m.setPromotingPiece(PROMO_PIECES_WHITE[i]);
+            else {
+                m.setPromotingPiece(PROMO_PIECES_BLACK[i]);
+            }
+            addMove(m, squares);
         }
 
         return moves;
     }
 
-    private static List<Move> generateKnightMoves(byte[] squares, int index, byte piece) {
-        return generateMovesByDirections(squares, index, piece, KNIGHT_DIRECTIONS);
+    private static void generateKnightMoves(byte[] squares, int index, byte piece) {
+        generateMovesByDirections(squares, index, piece, KNIGHT_DIRECTIONS);
     }
 
     //Generate moves based on input directions, used for knight and king moves
-    private static List<Move> generateMovesByDirections(byte[] squares, int index, byte piece, byte[] directions) {
-        List<Move> moves = new LinkedList<>();
-
+    private static void generateMovesByDirections(byte[] squares, int index, byte piece, byte[] directions) {
         for (byte direction : directions) {
             int destinationIndex = index + direction;
             if (isOutOfBounds(destinationIndex)) {
@@ -355,27 +312,25 @@ public class MoveGenerator {
             //Non capturing moves
             if (destinationSquare == EMPTY_SQUARE) {
                 if (!SEARCH_MODE_QUIESCENCE) {
-                    moves.add(new Move(piece, index, destinationIndex));
+                    addMove(new Move(piece, index, destinationIndex), squares);
                 }
             }
             //capturing move
             else if (isOppositeTeams(piece, destinationSquare)) {
                 Move move = new Move(piece, index, destinationIndex);
                 move.setCapturedPiece(destinationSquare);
-                moves.add(move);
+                addMove(move, squares);
             }
         }
-
-        return moves;
     }
 
-    private static List<Move> generateKingMoves(byte[] squares, int index, byte piece, int castlingRights) {
+    private static void generateKingMoves(byte[] squares, int index, byte piece, int castlingRights) {
 
         //Start by adding standard moves
-        List<Move> moves = generateMovesByDirections(squares, index, piece, KING_DIRECTIONS);
+        generateMovesByDirections(squares, index, piece, KING_DIRECTIONS);
 
         if (SEARCH_MODE_QUIESCENCE) {
-            return moves;
+            return;
         }
 
 
@@ -386,9 +341,9 @@ public class MoveGenerator {
                     squares[0x07] == WHITE_ROOK &&
                     squares[0x06] == EMPTY_SQUARE &&
                     squares[0x05] == EMPTY_SQUARE) {
-                Move m = new Move(piece, index, 0x06);
-                m.setKingSideCastle(true);
-                moves.add(m);
+                Move move = new Move(piece, index, 0x06);
+                move.setKingSideCastle(true);
+                addMove(move, squares);
             }
             //Queenside white
             if ((castlingRights&0b0010) == 0b10 &&
@@ -396,9 +351,9 @@ public class MoveGenerator {
                     squares[0x03] == EMPTY_SQUARE &&
                     squares[0x02] == EMPTY_SQUARE &&
                     squares[0x01] == EMPTY_SQUARE) {
-                Move m = new Move(piece, index, 0x02);
-                m.setQueenSideCastle(true);
-                moves.add(m);
+                Move move = new Move(piece, index, 0x02);
+                move.setQueenSideCastle(true);
+                addMove(move, squares);
             }
         } else {
             //Kingside black
@@ -406,9 +361,9 @@ public class MoveGenerator {
                     squares[0x77] == BLACK_ROOK &&
                     squares[0x76] == EMPTY_SQUARE &&
                     squares[0x75] == EMPTY_SQUARE) {
-                Move m = new Move(piece, index, 0x76);
-                m.setKingSideCastle(true);
-                moves.add(m);
+                Move move = new Move(piece, index, 0x76);
+                move.setKingSideCastle(true);
+                addMove(move, squares);
             }
             //Queenside black
             if ((castlingRights&0b1000) == 0b1000 &&
@@ -416,31 +371,28 @@ public class MoveGenerator {
                     squares[0x73] == EMPTY_SQUARE &&
                     squares[0x72] == EMPTY_SQUARE &&
                     squares[0x71] == EMPTY_SQUARE) {
-                Move m = new Move(piece, index, 0x72);
-                m.setQueenSideCastle(true);
-                moves.add(m);
+                Move move = new Move(piece, index, 0x72);
+                move.setQueenSideCastle(true);
+                addMove(move, squares);
             }
         }
-
-        return moves;
     }
 
-    private static List<Move> generateRookMoves(byte[] squares, int index, byte piece) {
-        return generateRayPieceMoves(squares, index, piece, ROOK_DIRECTIONS);
+    private static void generateRookMoves(byte[] squares, int index, byte piece) {
+        generateRayPieceMoves(squares, index, piece, ROOK_DIRECTIONS);
     }
 
-    private static List<Move> generateBishopMoves(byte[] squares, int index, byte piece) {
-        return generateRayPieceMoves(squares, index, piece, BISHOP_DIRECTIONS);
+    private static void generateBishopMoves(byte[] squares, int index, byte piece) {
+        generateRayPieceMoves(squares, index, piece, BISHOP_DIRECTIONS);
     }
 
 
-    private static List<Move> generateQueenMoves(byte[] squares, int index, byte piece) {
-        return generateRayPieceMoves(squares, index, piece, QUEEN_DIRECTIONS);
+    private static void generateQueenMoves(byte[] squares, int index, byte piece) {
+        generateRayPieceMoves(squares, index, piece, QUEEN_DIRECTIONS);
     }
 
     //Raypiece == Rook, bishop & queen
-    private static List<Move> generateRayPieceMoves(byte[] squares, int index, byte piece, byte[] directions) {
-        List<Move> moves = new LinkedList<>();
+    private static void generateRayPieceMoves(byte[] squares, int index, byte piece, byte[] directions) {
 
         //Traverse every direction
         for (byte direction : directions) {
@@ -450,13 +402,13 @@ public class MoveGenerator {
                 byte pieceOnSquare = squares[desitnationIndex];
                 if (pieceOnSquare == EMPTY_SQUARE) {
                     if (!SEARCH_MODE_QUIESCENCE) {
-                        moves.add(move);
+                        addMove(move, squares);
                     }
                 }
                 //If capture
                 else if (isOppositeTeams(piece, pieceOnSquare)) {
                     move.setCapturedPiece(pieceOnSquare);
-                    moves.add(move);
+                    addMove(move, squares);
                     break;
                 }
                 //If blocked by piece of same color
@@ -467,9 +419,46 @@ public class MoveGenerator {
                 desitnationIndex += direction;
             }
         }
+    }
 
+    private static void addMove(Move move, byte[] squares) {
 
-        return moves;
+        //Remove moves that causes check on self
+        if (!includePseudolegalMoves) {
+            Player player = isWhitePiece(move.getPiece()) ? Player.WHITE : Player.BLACK;
+
+                byte[] copySquares = Util.copySquares(squares);
+                copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
+                copySquares[move.getMoveTo()] = move.getPiece();
+
+                if (move.isEnPassant()) {
+                    if (move.getPiece() == WHITE_PAWN) {
+                        copySquares[move.getMoveTo() + SOUTH] = EMPTY_SQUARE;
+                    } else {
+                        copySquares[move.getMoveTo() + NORTH] = EMPTY_SQUARE;
+                    }
+                }
+
+                if (isInCheck(copySquares, player)) {
+                    return;
+                }
+
+                //If castling move
+                else if (move.isKingSideCastle()) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()+1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
+                        return;
+                    }
+                } else if (move.isQueenSideCastle()) {
+                    if (isSquareUnderAttack(squares, move.getMoveFrom()-1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
+                        return;
+                    }
+                }
+
+                moves.add(move);
+        }
+        else {
+            moves.add(move);
+        }
     }
 
     private static boolean isOutOfBounds(int index) {
