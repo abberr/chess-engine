@@ -1,6 +1,5 @@
 package game0x88;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,7 +21,7 @@ public class Evaluator {
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
     //PV list
-    private static Move[] pv = new Move[SEARCH_DEPTH_DEFAULT ];
+    private static Move[] pv;
 
     public static Move findBestMove(Board0x88 board) {
 
@@ -33,6 +32,8 @@ public class Evaluator {
         sortingTime = 0;
         moveGenTime = 0;
         evalTime = 0;
+
+        pv = new Move[searchDepth];
 
         long time = System.currentTimeMillis();
 
@@ -111,7 +112,7 @@ public class Evaluator {
 
         //Move generation
         long time = System.currentTimeMillis();
-        LinkedList<Move> moves = board.getAvailableMoves( false);
+        MoveList moves = board.getAvailableMoves( false);
         moveGenTime += System.currentTimeMillis() - time;
 
         //Mate or stalemate if no moves
@@ -129,16 +130,14 @@ public class Evaluator {
         //Sort moves by heuristic value to increase pruning
         time = System.currentTimeMillis();
 //        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
-        MoveOrderer mo = new MoveOrderer(moves, board);
         sortingTime += System.currentTimeMillis() - time;
 
         int value = Integer.MIN_VALUE;
 
-
-
+        moves.prepare(board);
         //Find best move
-        while (!mo.isEmpty()){
-            Move move = mo.getNextMove();
+        while (!moves.isEmpty()){
+            Move move = moves.getNextMove();
 
             board.executeMove(move);
             value = Math.max(value, -minMax(-beta, -alpha, depth-1, board, player.getOpponent()));
@@ -162,6 +161,7 @@ public class Evaluator {
         return value;
     }
 
+    //Todo remove
     private static int boardValueAfterMove(Move move, Board0x88 board) {
         board.executeMove(move);
         int value = board.getValue();
@@ -186,14 +186,15 @@ public class Evaluator {
         }
 
         time = System.currentTimeMillis();
-        List<Move> moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves(false);
         moveGenTime += System.currentTimeMillis() - time;
 
 
         time = System.currentTimeMillis();
-        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
+//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
         sortingTime += System.currentTimeMillis() - time;
 
+        moves.prepare(board);
         for (Move m : moves) {
             board.executeMove(m);
             int score = -quisence(-beta, -alpha, board, player.getOpponent());

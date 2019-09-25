@@ -60,7 +60,7 @@ public class CastlingTest {
     @Test
     public void cantCastleWhenInCheckTest() {
         board = new Board0x88("r3k2r/8/8/1Q6/8/8/8/4K3 b qkQK - 0 0");
-        List<Move> moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves(false);
 
         assertTrue("", moves.size() == 4);
     }

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import controller.Controller;
 import game0x88.Board0x88;
 import game0x88.Move;
+import game0x88.MoveList;
 import game0x88.Pieces;
 import util.Util;
 
@@ -67,7 +68,7 @@ public class BoardView extends JPanel {
                     selectedSquare = null;
 				}
 				else if (selectedSquare == null) {
-					List<Move> moves = contr.getMovesFromSquare(clickedSquare);
+					MoveList moves = contr.getMovesFromSquare(clickedSquare);
 					if (moves != null) {
 						selectedSquare = clickedSquare;
 					}

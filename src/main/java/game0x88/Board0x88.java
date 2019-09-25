@@ -236,7 +236,7 @@ public class Board0x88 {
     
     
 
-    public List<Move> getMovesOfPiece(String position, boolean includePseudoLegal) {
+    public MoveList getMovesOfPiece(String position, boolean includePseudoLegal) {
         int index = Util.algebraicNotationToIndex(position);
 
         if (squares[index] == EMPTY_SQUARE) {
@@ -245,15 +245,24 @@ public class Board0x88 {
 
         //Generate all moves and pick the right ones
         //TODO cleaner solution
-        List<Move> moves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false);
-//        moves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
+        MoveList allMoves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false);
+        allMoves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
 
-        return moves.stream()
-                .filter(m -> m.toString().startsWith(position))
-                .collect(Collectors.toList());
+        MoveList desiredMoves = new MoveList();
+        desiredMoves.prepare(this);
+
+
+        for (Move move : allMoves) {
+            if (move.toString().startsWith(position)) {
+                desiredMoves.add(move, MoveType.QUIET);
+            }
+        }
+
+
+        return desiredMoves;
     }
 
-    public LinkedList<Move> getAvailableMoves(boolean includePseudoLegal) {
+    public MoveList getAvailableMoves(boolean includePseudoLegal) {
         return MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
     }
 
@@ -385,6 +394,14 @@ public class Board0x88 {
         return MoveGenerator.isInCheck(squares, playerToMove);
     }
 
+    public int boardValueAfterMove(Move move) {
+        executeMove(move);
+        int value = getValue();
+        executeInvertedMove(move);
+
+        return value;
+    }
+
     public byte[] getSquares() {
         return squares;
     }
@@ -471,40 +488,5 @@ public class Board0x88 {
         fen += " 0 0";
 
         return fen;
-    }
-
-    public static void main(String [] args) {
-        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b qkQK e3");
-
-
-//        board = new Board0x88("4r3/k1p2ppp/8/P7/6P1/3q4/1K6/8 b ");          //Mate in 2
-//        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
-//        Board0x88 board = new Board0x88("1nbqkbnr/Pppp0ppp/8/2ppp3/2PPP3/8/PPP1PPPP/RNBQKBNR w");   //Test pawn capture
-//        Board0x88 board = new Board0x88("rnbqkbnr/pppppppp/3p4/8/4N3/8/PPPPPPPP/RNBQKBNR w");       //Test rook moves
-//        Board0x88 board = new Board0x88("r3k2r/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w ");       //Castling
-//        List<Move> list = board.getMovesOfPiece("e8", false);
-//        for(Move m : list) {
-//            System.out.println(m);
-//        }
-
-//        board.getAvailableMoves(false).stream().forEach(System.out::println);
-//        Evaluator.perft(board, 5, Player.WHITE);
-
-//        board.getMovesOfPiece("b2", false).forEach(System.out::println);
-//        Evaluator.findBestMove(board);
-
-//        board.executeMove("e2e4");
-//        board.executeMove("a7a5");
-//        board.printBoard();
-//        board.revertLastMove();
-        board.printBoard();
-
-//        board.executeMove("e2e4");
-//        while (true) {
-//            board.executeMove(Evaluator.findBestMove(board));
-//            board.printBoard();
-//        }
-
-
     }
 }

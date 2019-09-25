@@ -5,6 +5,9 @@ import util.Util;
 import java.util.LinkedList;
 import java.util.List;
 
+import static game0x88.MoveType.CAPTURING;
+import static game0x88.MoveType.PROMOTING;
+import static game0x88.MoveType.QUIET;
 import static game0x88.Pieces.*;
 
 public class MoveGenerator {
@@ -29,7 +32,7 @@ public class MoveGenerator {
 
     private static boolean includePseudolegalMoves;
 
-    private static LinkedList<Move> moves;
+    private static MoveList moves;
 
     public static void setSearchModeNormal() {
         SEARCH_MODE_QUIESCENCE = false;
@@ -39,9 +42,9 @@ public class MoveGenerator {
         SEARCH_MODE_QUIESCENCE = true;
     }
 
-    public static LinkedList<Move> generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
+    public static MoveList generateMoves(byte[] squares, Player player, int castlingRights, int enPassantIndex, boolean includePseudolegal) {
         includePseudolegalMoves = includePseudolegal;
-        moves = new LinkedList<>();
+        moves = new MoveList();
 
         for (int i = 0; i < 120; i++) {
             if (isOutOfBounds(i)) continue;
@@ -204,12 +207,12 @@ public class MoveGenerator {
                 List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex1, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece1);
-                    addMove(m, squares);
+                    addMove(m, squares, PROMOTING);
                 }
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex1);
                 move.setCapturedPiece(capturedPiece1);
-                addMove(move, squares);
+                addMove(move, squares, CAPTURING);
             }
         }
 
@@ -221,12 +224,12 @@ public class MoveGenerator {
                 List<Move> promoMoves = generatePromoMoves(index, capturingMoveIndex2, piece, squares);
                 for (Move m : promoMoves) {
                     m.setCapturedPiece(capturedPiece2);
-                    addMove(m, squares);
+                    addMove(m, squares, PROMOTING);
                 }
             } else {
                 Move move = new Move(piece, index, capturingMoveIndex2);
                 move.setCapturedPiece(capturedPiece2);
-                addMove(move, squares);
+                addMove(move, squares, CAPTURING);
             }
         }
 
@@ -242,11 +245,11 @@ public class MoveGenerator {
             //Promoting move if landing on last rank
             if (piece == WHITE_PAWN && moveToIndex >> 4 == 7 ||
                     piece == BLACK_PAWN && moveToIndex >> 4 == 0) {
-                generatePromoMoves(index, moveToIndex, piece, squares).forEach(m -> addMove(m, squares));
+                generatePromoMoves(index, moveToIndex, piece, squares).forEach(m -> addMove(m, squares, PROMOTING));
             }
             //Regular
             else {
-                addMove(new Move(piece, index, moveToIndex), squares);
+                addMove(new Move(piece, index, moveToIndex), squares, QUIET);
             }
         }
 
@@ -254,11 +257,11 @@ public class MoveGenerator {
         if (piece == WHITE_PAWN && (index >> 4) == 1 && squares[index + NORTH] == EMPTY_SQUARE && squares[index + NORTH + NORTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + NORTH + NORTH);
             move.setPawnDoublePush(true);
-            addMove(move, squares);
+            addMove(move, squares, QUIET);
         } else if (piece == BLACK_PAWN && (index >> 4) == 6 && squares[index + SOUTH] == EMPTY_SQUARE && squares[index + SOUTH + SOUTH] == EMPTY_SQUARE) {
             Move move = new Move(piece, index, index + SOUTH + SOUTH);
             move.setPawnDoublePush(true);
-            addMove(move, squares);
+            addMove(move, squares, QUIET);
         }
 
         //En passantMove
@@ -267,14 +270,14 @@ public class MoveGenerator {
             Move move = new Move(piece, index, 0x50+enPassantIndex);
             move.setEnPassant(true);
             move.setCapturedPiece(BLACK_PAWN);
-            addMove(move, squares);
+            addMove(move, squares, QUIET);
         }
         else if (!isWhitePiece(piece) && (index>>4)== 3 &&
                 ((index&0b0111) == enPassantIndex - 1 || (index&0b0111) == enPassantIndex + 1)) {
             Move move = new Move(piece, index, 0x20+enPassantIndex);
             move.setEnPassant(true);
             move.setCapturedPiece(WHITE_PAWN);
-            addMove(move, squares);
+            addMove(move, squares, QUIET);
         }
     }
 
@@ -311,14 +314,14 @@ public class MoveGenerator {
             //Non capturing moves
             if (destinationSquare == EMPTY_SQUARE) {
                 if (!SEARCH_MODE_QUIESCENCE) {
-                    addMove(new Move(piece, index, destinationIndex), squares);
+                    addMove(new Move(piece, index, destinationIndex), squares, QUIET);
                 }
             }
             //capturing move
             else if (isOppositeTeams(piece, destinationSquare)) {
                 Move move = new Move(piece, index, destinationIndex);
                 move.setCapturedPiece(destinationSquare);
-                addMove(move, squares);
+                addMove(move, squares, CAPTURING);
             }
         }
     }
@@ -342,7 +345,7 @@ public class MoveGenerator {
                     squares[0x05] == EMPTY_SQUARE) {
                 Move move = new Move(piece, index, 0x06);
                 move.setKingSideCastle(true);
-                addMove(move, squares);
+                addMove(move, squares, QUIET);
             }
             //Queenside white
             if ((castlingRights&0b0010) == 0b10 &&
@@ -352,7 +355,7 @@ public class MoveGenerator {
                     squares[0x01] == EMPTY_SQUARE) {
                 Move move = new Move(piece, index, 0x02);
                 move.setQueenSideCastle(true);
-                addMove(move, squares);
+                addMove(move, squares, QUIET);
             }
         } else {
             //Kingside black
@@ -362,7 +365,7 @@ public class MoveGenerator {
                     squares[0x75] == EMPTY_SQUARE) {
                 Move move = new Move(piece, index, 0x76);
                 move.setKingSideCastle(true);
-                addMove(move, squares);
+                addMove(move, squares, QUIET);
             }
             //Queenside black
             if ((castlingRights&0b1000) == 0b1000 &&
@@ -372,7 +375,7 @@ public class MoveGenerator {
                     squares[0x71] == EMPTY_SQUARE) {
                 Move move = new Move(piece, index, 0x72);
                 move.setQueenSideCastle(true);
-                addMove(move, squares);
+                addMove(move, squares, QUIET);
             }
         }
     }
@@ -401,13 +404,13 @@ public class MoveGenerator {
                 byte pieceOnSquare = squares[desitnationIndex];
                 if (pieceOnSquare == EMPTY_SQUARE) {
                     if (!SEARCH_MODE_QUIESCENCE) {
-                        addMove(move, squares);
+                        addMove(move, squares, QUIET);
                     }
                 }
                 //If capture
                 else if (isOppositeTeams(piece, pieceOnSquare)) {
                     move.setCapturedPiece(pieceOnSquare);
-                    addMove(move, squares);
+                    addMove(move, squares, CAPTURING);
                     break;
                 }
                 //If blocked by piece of same color
@@ -420,7 +423,7 @@ public class MoveGenerator {
         }
     }
 
-    private static void addMove(Move move, byte[] squares) {
+    private static void addMove(Move move, byte[] squares, MoveType moveType) {
 
         //Remove moves that causes check on self
         if (!includePseudolegalMoves) {
@@ -453,10 +456,10 @@ public class MoveGenerator {
                     }
                 }
 
-                moves.add(move);
+                moves.add(move, moveType);
         }
         else {
-            moves.add(move);
+            moves.add(move, moveType);
         }
     }
 

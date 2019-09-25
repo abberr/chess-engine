@@ -22,7 +22,7 @@ public class Perft {
     private static long perftRecursive(Board0x88 board, int depth) {
         if (depth == 0) return 1;
         long nodes = 0;
-        List<Move> moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves(false);
         for (Move move : moves) {
             board.executeMove(move);
             nodes += perftRecursive(board, depth - 1);
@@ -59,7 +59,8 @@ public class Perft {
 
     private static void perftDetailedRecursive(Board0x88 board, int depth) {
         if (depth == 0) return;
-        List<Move> moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves(false);
+        moves.prepare(board);
         for (Move move : moves) {
 
             board.executeMove(move);

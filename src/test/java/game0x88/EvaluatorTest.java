@@ -29,7 +29,7 @@ public class EvaluatorTest {
 
     //Takes about 10s
     //80% of time spent on sorting
-    @Ignore
+    //With move ordering takes about 2.2s
     @Test
     public void test2() {
         board = new Board0x88("3kqb1r/1pp3pp/3p1n2/4pp2/rnPP4/4P3/PB3PPP/KBR1Q1NR b - -");
@@ -56,8 +56,10 @@ public class EvaluatorTest {
         assertTrue("Move is not null", bestMove != null);
     }
 
+    //2m49s with improved move ordering
     //3m 39s with hash (test fails)
     //4m 42s without
+    @Ignore
     @Test
     public void test5() {
         Evaluator.setSearchDepth(6);
