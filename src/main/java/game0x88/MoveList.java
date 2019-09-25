@@ -58,9 +58,7 @@ public class MoveList implements Iterable<Move> {
     public Move getNextMove() {
         if (promotingMoves.size() != 0) {
             if (!promotingMovesSorted) {
-                //Works becuase better piece have higher value
-                //TODO take captured piece into account
-                promotingMoves.sort(Comparator.comparing(m -> m.getPromotingPiece(), Comparator.reverseOrder()));
+                promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()]*board.getPlayerToMove().getValue() + (PIECE_VALUES[m.getCapturedPiece()]*board.getPlayerToMove().getValue()), Comparator.reverseOrder()));
                 promotingMovesSorted = true;
             }
             return promotingMoves.pop();

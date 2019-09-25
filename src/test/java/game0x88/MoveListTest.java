@@ -53,8 +53,9 @@ public class MoveListTest {
         String [] expectedMoves = {"e2e1q" , "e2e1r", "e2e1b", "e2e1n", "b7xc6", "d7xc6", "d7xe6"};
 
         for (String expectedMove : expectedMoves) {
-            System.out.println(expectedMove);
-            assertTrue(moves.getNextMove().toString().equals(expectedMove));
+            Move move = moves.getNextMove();
+            System.out.println(move);
+            assertTrue(move.toString().equals(expectedMove));
         }
 
 

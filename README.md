@@ -7,9 +7,9 @@
 - perft
 - Transposition table
 - Quiescence Search
+- Simple move ordering
 
 ## TODO
-- Better move ordering
 - Improve evaluation method with pawn structure
 - Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning)
 - Check extension (https://www.chessprogramming.org/Check_Extensions)

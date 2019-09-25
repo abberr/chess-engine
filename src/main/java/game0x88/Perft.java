@@ -60,7 +60,6 @@ public class Perft {
     private static void perftDetailedRecursive(Board0x88 board, int depth) {
         if (depth == 0) return;
         MoveList moves = board.getAvailableMoves(false);
-        moves.prepare(board);
         for (Move move : moves) {
 
             board.executeMove(move);
