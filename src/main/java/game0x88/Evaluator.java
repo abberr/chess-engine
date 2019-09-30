@@ -1,109 +1,133 @@
 package game0x88;
 
-import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Evaluator {
 
     private static final int SEARCH_DEPTH_DEFAULT = 6;
+    private static final int MATE_SCORE = Integer.MAX_VALUE - 1;
 
     private static long sortingTime;
     private static long moveGenTime;
     private static long evalTime;
+    private static long quiscenceTime;
 
     private static int searchDepth = SEARCH_DEPTH_DEFAULT;
 
     private static boolean useHash;
     private static long moveCounter;
-    private static Move bestMove;
+    private static long cacheHitCounter;
+//    private static Move bestMove;
 
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
-    //PV list
-    private static Move[] pv;
-
     public static Move findBestMove(Board0x88 board) {
+
+        transpositionTable.clear();
 
         useHash = true;
 
-        bestMove= null;
-        moveCounter = 0;
-        sortingTime = 0;
-        moveGenTime = 0;
-        evalTime = 0;
-
-        pv = new Move[searchDepth];
-
         long time = System.currentTimeMillis();
 
-        int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, searchDepth, board, board.getPlayerToMove());
+        int depth = 1;
+        int value = 0;
+        Move pvMove = null;
 
-        //If forced mate is found, try to find mate in less moves
-        if (value == Integer.MAX_VALUE - 1) {
-            System.out.println("MATE FOUND");
+//        while (System.currentTimeMillis() - time < 15000) {
+        while (depth <= 6) {
+            resetCounters();
+            long evalTime = System.currentTimeMillis();
+            moveCounter = 0;
+            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
+            pvMove = transpositionTable.lookup(board.getHash()).bestMove;
+            evalTime = System.currentTimeMillis() - evalTime;
 
-            int depth = searchDepth - 2;
-            Move shortestMateMove = bestMove;
-            useHash = false;
-            while (depth > 0 ) {
-                value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
-                if (value != Integer.MAX_VALUE - 1 ) {
-                    break;
-                }
-                shortestMateMove = bestMove;
-                depth -= 2;
+//            System.out.println("info currmove " + pvMove);
+            StringBuilder sb = new StringBuilder();
+            sb.append("info depth " + depth);
+            sb.append(" time " + evalTime);
+            sb.append(" nodes " + moveCounter);
+            sb.append(" cacheHit " + cacheHitCounter);
+            sb.append(" quiscenceTime " + quiscenceTime);
+            sb.append(" pv ");
+            getPvMoves(board).forEach(m -> sb.append(m + " "));
+            sb.append(" score cp " + value);
+            System.out.println(sb);
+
+            //Stop searching if check mate found
+            if (value == Integer.MAX_VALUE - 1) {
+                break;
             }
 
-            bestMove = shortestMateMove;
+            depth++;
         }
 
-        long totalTime = System.currentTimeMillis() - time;
-        float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
+//        long totalTime = System.currentTimeMillis() - time;
+//        float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
+//
+//        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
+//        System.out.println("Best move: " + pvMove + ", value: " + value);
+//        System.out.println("Sorting time: " + sortingTime);
+//        System.out.println("MoveGen time: " + moveGenTime);
+//        System.out.println("Eval time: " + evalTime);
 
-        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
-        System.out.println("Best move: " + bestMove + ", value: " + value);
-        System.out.println("Sorting time: " + sortingTime);
-        System.out.println("MoveGen time: " + moveGenTime);
-        System.out.println("Eval time: " + evalTime);
-
-//        System.out.println();
-//        for(Move m : pv) {
-//            System.out.print(m + ", ");
-//        }
-
-        return bestMove;
+        return pvMove;
     }
+
+//    private static void findMate(Board0x88 board, int depth) {
+//        depth = depth - 2;
+//        Move shortestMateMove = bestMove;
+//        useHash = false;
+//        while (depth > 0 ) {
+//            int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove(), null);
+//            if (value != Integer.MAX_VALUE - 1 ) {
+//                break;
+//            }
+//            shortestMateMove = bestMove;
+//            depth -= 2;
+//        }
+//        useHash = true;
+//        bestMove = shortestMateMove;
+//    }
 
     private static int minMax(int alpha, int beta, int depth,Board0x88 board, Player player) {
         moveCounter++;
 
-        NodeType nodeType = NodeType.ALPHA;
-
         //Cache lookup - has this position been evaluated before?
-        State lookUpState = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
-        if (useHash && lookUpState != null) {
-            bestMove = lookUpState.bestMove;        //TODO
+        State lookUpState = transpositionTable.lookup(board.getHash());
+        if (useHash && lookUpState != null && lookUpState.depth >= depth) {
+            cacheHitCounter++;
+
+//            bestMove = lookUpState.bestMove;        //TODO
             if (lookUpState.nodeType == NodeType.EXACT) {
                 return lookUpState.score;
             }
             else if (lookUpState.nodeType == NodeType.ALPHA) {
-                if (lookUpState.score <= alpha ) {
+                if (lookUpState.score < alpha ) {
+//                    alpha = lookUpState.score;
                     return alpha;
                 }
             }
 
             else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score >= beta) {
+                if (lookUpState.score > beta) {
+//                    beta = lookUpState.score;
                     return beta;
                 }
+            }
+
+            if (alpha >= beta) {
+                return lookUpState.score;
             }
         }
 
         if (depth <= 0) {
             MoveGenerator.setSearchModeQuiescence();
 //            int value = board.getValue() * player.getValue();
+            long time = System.currentTimeMillis();
             int value = quisence(alpha, beta, board, player);
+            quiscenceTime += System.currentTimeMillis() - time;
+
             MoveGenerator.setSearchModeNormal();
 
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT );
@@ -119,55 +143,48 @@ public class Evaluator {
         if (moves.isEmpty()) {
             //Min value if check
             int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 2 : 0;
-            //TODO set depth to +infinity? Since it's a terminal node anyways
+            //set depth to +infinity since it's a terminal node anyways
             transpositionTable.saveState(board.getHash(), Integer.MAX_VALUE, value, null, NodeType.EXACT );
             return value;
         }
 
-        int maxValue = Integer.MIN_VALUE;
-        Move maxEvalMove = null;
+        NodeType nodeType = NodeType.ALPHA;
+        Move bestMove = null;
+        int bestValue = Integer.MIN_VALUE;
 
-        //Sort moves by heuristic value to increase pruning
-        time = System.currentTimeMillis();
-//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
-        sortingTime += System.currentTimeMillis() - time;
+        moves.prepare(board, transpositionTable);
 
-        int value = Integer.MIN_VALUE;
-
-        moves.prepare(board);
         //Find best move
         while (!moves.isEmpty()){
             Move move = moves.getNextMove();
 
             board.executeMove(move);
-            value = Math.max(value, -minMax(-beta, -alpha, depth-1, board, player.getOpponent()));
+            bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth-1, board, player.getOpponent()));
             board.executeInvertedMove(move);
 
-            if (value > alpha) {
-                alpha = value;
+            if (bestValue > alpha) {
+                alpha = bestValue;
                 nodeType = NodeType.EXACT;
-                maxEvalMove = move;
+                bestMove = move;
             }
 
             if (alpha >= beta) {
-                transpositionTable.saveState(board.getHash(), depth, beta, bestMove, NodeType.BETA);
+                transpositionTable.saveState(board.getHash(), depth, beta, move, NodeType.BETA);
                 return beta;
             }
         }
-
-        transpositionTable.saveState(board.getHash(), depth, maxValue, maxEvalMove, nodeType);
-        bestMove = maxEvalMove;
-        pv[pv.length-depth] = maxEvalMove;
-        return value;
+        transpositionTable.saveState(board.getHash(), depth, bestValue, bestMove, nodeType);
+        return bestValue;
     }
 
-    //Todo remove
-    private static int boardValueAfterMove(Move move, Board0x88 board) {
-        board.executeMove(move);
-        int value = board.getValue();
-        board.executeInvertedMove(move);
-
-        return value;
+    private static void resetCounters() {
+//        bestMove= null;
+        moveCounter = 0;
+        sortingTime = 0;
+        moveGenTime = 0;
+        evalTime = 0;
+        cacheHitCounter = 0;
+        quiscenceTime = 0;
     }
 
     //https://www.chessprogramming.org/Quiescence_Search
@@ -175,24 +192,49 @@ public class Evaluator {
     //TODO needs to faster, maybe use hashing?
     private static int quisence(int alpha, int beta, Board0x88 board, Player player) {
         long time = System.currentTimeMillis();
-        int stand_pat = board.getValue() * player.getValue();
+        int boardValue = board.getValue() * player.getValue();
         evalTime += System.currentTimeMillis() - time;
 
-        if( stand_pat >= beta ) {
+        if( boardValue >= beta ) {
             return beta;
         }
-        if( alpha < stand_pat ) {
-            alpha = stand_pat;
+        if( alpha < boardValue ) {
+            alpha = boardValue;
         }
+
+
+        //Cache lookup - has this position been evaluated before?
+        //Dosnt effect perfomance?
+//        State lookUpState = transpositionTable.lookup(board.getHash(), 0);
+//        if (useHash && lookUpState != null) {
+//            cacheHitCounter++;
+//
+////            bestMove = lookUpState.bestMove;
+//            if (lookUpState.nodeType == NodeType.EXACT) {
+//                return lookUpState.score;
+//            }
+//
+//            else if (lookUpState.nodeType == NodeType.ALPHA) {
+//                if (lookUpState.score <= alpha ) {
+//                    alpha = lookUpState.score;
+//                }
+//            }
+//
+//            else if (lookUpState.nodeType == NodeType.BETA) {
+//                if (lookUpState.score >= beta) {
+//                    beta = lookUpState.score;
+//                }
+//            }
+//
+//            if (alpha >= beta) {
+//                return lookUpState.score;
+//            }
+//        }
+
 
         time = System.currentTimeMillis();
         MoveList moves = board.getAvailableMoves(false);
         moveGenTime += System.currentTimeMillis() - time;
-
-
-        time = System.currentTimeMillis();
-//        moves.sort(Comparator.comparing(m -> boardValueAfterMove(m, board)  * player.getValue(), Comparator.reverseOrder()));
-        sortingTime += System.currentTimeMillis() - time;
 
         moves.prepare(board);
         for (Move m : moves) {
@@ -206,7 +248,31 @@ public class Evaluator {
                 alpha = score;
         }
 
+        //TODO add to transposition
+
         return alpha;
+    }
+
+    public static LinkedList<Move> getPvMoves(Board0x88 board) {
+        State state = transpositionTable.lookup(board.getHash());
+        if (state == null || state.bestMove == null) {
+            return new LinkedList<>();
+        }
+        Move bestMove = state.bestMove;
+        board.executeMove(bestMove);
+        LinkedList<Move> pvMoves = getPvMoves(board);
+        board.executeInvertedMove(bestMove);
+        pvMoves.addFirst(bestMove);
+        return pvMoves;
+
+//        LinkedList<Move> moves = new LinkedList<>();
+//        State state = transpositionTable.lookup(board.getHash(), 0);
+//        while (state != null) {
+//
+//            state = transpositionTable.lookup(board.getHash(), 0);
+//        }
+//
+//        return moves;
     }
 
     public static void setSearchDepth(int depth) {

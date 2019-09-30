@@ -29,7 +29,7 @@ public class ConsoleView {
             else if (validInput(input)) {
                 if (contr.executeMove(input)) {
 //                    contr.getBoard().printBoard();
-//                    contr.computerMove();
+                    contr.computerMove();
                 }else {
                     System.out.println("Invalid move");
                 }

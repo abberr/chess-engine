@@ -10,6 +10,7 @@ public class MoveList implements Iterable<Move> {
     private LinkedList<Move> promotingMoves = new LinkedList<>();
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
+    private Move cacheMove;
 
     private Board0x88 board;
 
@@ -18,11 +19,22 @@ public class MoveList implements Iterable<Move> {
     public MoveList() {
     }
 
+    public void prepare(Board0x88 board, TranspositionTable transpositionTable) {
+        State cacheState = transpositionTable.lookup(board.getHash());
+        if (cacheState != null) {
+            this.cacheMove = cacheState.bestMove;
+            promotingMoves.remove(cacheMove);
+            capturingMoves.remove(cacheMove);
+            quietMoves.remove(cacheMove);
+        }
+        prepare(board);
+    }
+
     public void prepare(Board0x88 board) {
         this.board = board;
-        promotingMovesSorted = false;
-        capturingMovesSorted = false;
-        quietMovesSorted = false;
+        this.promotingMovesSorted = false;
+        this.capturingMovesSorted = false;
+        this.quietMovesSorted = false;
     }
 
     public void add(Move move, MoveType moveType) {
@@ -56,6 +68,12 @@ public class MoveList implements Iterable<Move> {
     }
 
     public Move getNextMove() {
+        if (cacheMove != null) {
+            Move cacheMoveTemp = cacheMove;
+            cacheMove = null;
+            return cacheMoveTemp;
+        }
+
         if (promotingMoves.size() != 0) {
             if (!promotingMovesSorted) {
                 promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()]*board.getPlayerToMove().getValue() + (PIECE_VALUES[m.getCapturedPiece()]*board.getPlayerToMove().getValue()), Comparator.reverseOrder()));
