@@ -94,4 +94,11 @@ public class Move {
         }
         return  moveString;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null) return false;
+        Move otherMove = (Move) object;
+        return this.moveFrom == otherMove.moveFrom && this.moveTo == otherMove.moveTo && this.piece == otherMove.piece;
+    }
 }

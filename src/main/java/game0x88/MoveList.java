@@ -3,13 +3,14 @@ package game0x88;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static game0x88.Pieces.PIECE_VALUES;
+import static game0x88.Pieces.*;
 
 public class MoveList implements Iterable<Move> {
 
     private LinkedList<Move> promotingMoves = new LinkedList<>();
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
+    private Move[][] killerMoves;
     private Move cacheMove;
 
     private Board0x88 board;
@@ -19,14 +20,15 @@ public class MoveList implements Iterable<Move> {
     public MoveList() {
     }
 
-    public void prepare(Board0x88 board, TranspositionTable transpositionTable) {
-        State cacheState = transpositionTable.lookup(board.getHash());
-        if (cacheState != null) {
-            this.cacheMove = cacheState.bestMove;
+    public void prepare(Board0x88 board, TranspositionTable transpositionTable, Move[][] killerMoves) {
+        State cachedState = transpositionTable.lookup(board.getHash());
+        if (cachedState != null) {
+            this.cacheMove = cachedState.bestMove;
             promotingMoves.remove(cacheMove);
             capturingMoves.remove(cacheMove);
             quietMoves.remove(cacheMove);
         }
+        this.killerMoves = killerMoves;
         prepare(board);
     }
 
@@ -77,22 +79,42 @@ public class MoveList implements Iterable<Move> {
         if (promotingMoves.size() != 0) {
             if (!promotingMovesSorted) {
                 promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()]*board.getPlayerToMove().getValue() + (PIECE_VALUES[m.getCapturedPiece()]*board.getPlayerToMove().getValue()), Comparator.reverseOrder()));
+//                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN);
                 promotingMovesSorted = true;
             }
             return promotingMoves.pop();
         } else if (capturingMoves.size() != 0) {
             if (!capturingMovesSorted) {
                 capturingMoves.sort(Comparator.comparing(m -> pieceAndCapturedPieceValueDif(m), Comparator.reverseOrder()));
-                capturingMovesSorted = false;
+                capturingMovesSorted = true;
             }
             return capturingMoves.pop();
         } else {
             if (!quietMovesSorted) {
-                quietMoves.sort(Comparator.comparing(m -> boardValueAfterMove(m)  * board.getPlayerToMove().getValue(), Comparator.reverseOrder()));
-                quietMovesSorted = false;
+                sortQuietMoves();
+                quietMovesSorted = true;
             }
             return quietMoves.pop();
         }
+    }
+
+    private void sortQuietMoves() {
+        quietMoves.sort(Comparator.comparing(m -> {
+            if (killerMoves != null && isKillerMove(m, board.getMoveNumber())) {
+                return Integer.MAX_VALUE;
+            } else {
+                return boardValueAfterMove(m)  * board.getPlayerToMove().getValue();
+            }
+        }, Comparator.reverseOrder()));
+    }
+
+    private boolean isKillerMove(Move move, int ply) {
+        for (int i = 0; i < killerMoves[ply].length; i++) {
+            if (move.equals(killerMoves[ply][i])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

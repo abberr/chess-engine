@@ -406,6 +406,10 @@ public class Board0x88 {
         return squares;
     }
 
+    public int getMoveNumber() {
+        return moveNumber;
+    }
+
     public void printBoard() {
         System.out.print("\n--------------------------");
         for (int i = 0; i < 8; i++) {

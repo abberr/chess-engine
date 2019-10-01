@@ -15,7 +15,8 @@ public class EvaluatorTest {
 
     @Before
     public void before() {
-        Evaluator.setSearchDepth(6);
+        Evaluator.setSearchDepth(7);
+        Evaluator.reset();
     }
 
     //Pv: a1b1, b2ax2, d1xd4
