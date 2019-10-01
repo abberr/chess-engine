@@ -11,6 +11,7 @@ public class MoveList implements Iterable<Move> {
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
     private Move[][] killerMoves;
+    private int[][] historyMoves;
     private Move cacheMove;
 
     private Board0x88 board;
@@ -20,7 +21,7 @@ public class MoveList implements Iterable<Move> {
     public MoveList() {
     }
 
-    public void prepare(Board0x88 board, TranspositionTable transpositionTable, Move[][] killerMoves) {
+    public void prepare(Board0x88 board, TranspositionTable transpositionTable, Move[][] killerMoves, int[][] historyMoves) {
         State cachedState = transpositionTable.lookup(board.getHash());
         if (cachedState != null) {
             this.cacheMove = cachedState.bestMove;
@@ -29,6 +30,7 @@ public class MoveList implements Iterable<Move> {
             quietMoves.remove(cacheMove);
         }
         this.killerMoves = killerMoves;
+        this.historyMoves = historyMoves;
         prepare(board);
     }
 

@@ -5,6 +5,9 @@ import util.Util;
 public final class Pieces {
     public static final byte EMPTY_SQUARE = 0;
 
+    static final byte PIECES_SIZE = 13;
+
+
     static final byte WHITE_PAWN = 1;
     static final byte WHITE_KNIGHT = 2;
     static final byte WHITE_BISHOP = 3;

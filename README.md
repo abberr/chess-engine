@@ -14,12 +14,16 @@ When searching, we usually encounter the same position multiple times. In to ord
 When generating possible moves to search, we want to order them from best to worst in order to prune as many moves as possible. Since we dont know what moves are best, we make educated guesses. For example, capturing a queen with a pawn is very likely to be a good move.
 #### Quiescence Search
 When the desired depth of the minimax search is reached, we continue searching, but only with capturing moves, until we reach a "quiet" position.
+#### Killer heuristic
+A technique used to improve alpha beta. When a cut-off happens, we save the move as a killer move and orders it above non-capture moves in sibling nodes.
+#### Histroy heuristic
+A more generalized variant of Killer heuristic. TODO
 #### Perft
 Perft is used to count all the leaf nodes of a position at a certain depth. When debugging, we can compare the number of nodes with predetermined values to check if all possible moves have been generated.
 #### UCI protocol
 UCI is a protocol used to communicate with other chess engines and frameworks. When testing a chess engine, it's important to compare it to other engines.
 #### Iterative deepening
-Instead of searching to a certain depth, start with a depth
+Instead of searching to a certain depth, start at depth 1 and increment the depth. 
 
 ## Improvements
 - Improve static evaluation method with pawn structure

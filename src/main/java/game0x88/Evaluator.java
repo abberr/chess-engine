@@ -3,6 +3,7 @@ package game0x88;
 import java.util.LinkedList;
 
 import static game0x88.Pieces.EMPTY_SQUARE;
+import static game0x88.Pieces.PIECES_SIZE;
 
 public class Evaluator {
 
@@ -27,6 +28,7 @@ public class Evaluator {
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
     private static Move[][] killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
+    private static int[][] historyMoves = new int[PIECES_SIZE][128];
 
     public static Move findBestMove(Board0x88 board) {
 
@@ -163,7 +165,7 @@ public class Evaluator {
         Move bestMove = null;
         int bestValue = Integer.MIN_VALUE;
 
-        moves.prepare(board, transpositionTable, killerMoves);
+        moves.prepare(board, transpositionTable, killerMoves, historyMoves);
 
         //Find best move
         while (!moves.isEmpty()) {
@@ -182,6 +184,7 @@ public class Evaluator {
             if (alpha >= beta) {
                 if (move.getCapturedPiece() == EMPTY_SQUARE) {
                     storeKillerMove(move, board.getMoveNumber());
+                    historyMoves[move.getPiece()][move.getMoveTo()] += depth*depth;
                 }
                 transpositionTable.saveState(board.getHash(), depth, beta, move, NodeType.BETA);
                 return beta;
@@ -208,6 +211,7 @@ public class Evaluator {
 
     public static void reset() {
         killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
+        historyMoves = new int[PIECES_SIZE][128];
     }
 
     private static void resetCounters() {
