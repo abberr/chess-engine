@@ -29,6 +29,8 @@ public class Board0x88 {
     private int moveNumber = 0;
     private int[] castlingRightsHistory = new int[MAXIMUM_NUMBER_OF_MOVES];     //MASK: qkQK
     private int[] enPassantHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
+    private int[] fiftyMoveHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
+    private long[] hashHistory = new long[MAXIMUM_NUMBER_OF_MOVES];
 
 
     Move lastMove;
@@ -87,7 +89,13 @@ public class Board0x88 {
             enPassantHistory[moveNumber] = NO_EN_PASSANT_AVAILABLE;
         }
 
+        //TODO fix this. Doesnt have half move clock history
+//        if (fields.length > 4) {
+//            fiftyMoveHistory[moveNumber] = Integer.parseInt(fields[4]);
+//        }
+
         hash = generateZobristHash();
+        hashHistory[moveNumber] = hash;
     }
 
     public Player getPlayerToMove() {
@@ -160,7 +168,13 @@ public class Board0x88 {
         int newAvailableEnPassant = enPassantHistory[moveNumber];
 
         updateHash(move, oldCastlingRights, newCastlingRights, oldAvailableEnPassant, newAvailableEnPassant);
+        hashHistory[moveNumber] = hash;
 
+        if (move.getCapturedPiece() != EMPTY_SQUARE || move.getPiece() == WHITE_PAWN || move.getPiece() == BLACK_PAWN) {
+            fiftyMoveHistory[moveNumber] = 0;
+        } else {
+            fiftyMoveHistory[moveNumber] = fiftyMoveHistory[moveNumber - 1] + 1;
+        }
 
         playerToMove = playerToMove.getOpponent();
         lastMove = move;
@@ -227,6 +241,9 @@ public class Board0x88 {
         int newAvailableEnPassant = enPassantHistory[moveNumber];
 
         updateHash(move, oldCastlingRights, newCastlingRights, oldAvailableEnPassant, newAvailableEnPassant);   //Has to be after player change to work
+
+//        fiftyMoveHistory[moveNumber] = 0;
+
         moveNumber--;
     }
 
@@ -267,6 +284,7 @@ public class Board0x88 {
     }
 
     public int getValue() {
+
         int value = 0;
 
         for (int i = 0; i < 120; i++) {
@@ -410,6 +428,20 @@ public class Board0x88 {
         return moveNumber;
     }
 
+    public int getHalfMoveClock() {
+        return fiftyMoveHistory[moveNumber];
+    }
+
+    public boolean isRepetition() {
+        int halfMoveClock = getHalfMoveClock();
+        for (int i = moveNumber - halfMoveClock; i < moveNumber; i++) {
+            if (hashHistory[i] == hash) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void printBoard() {
         System.out.print("\n--------------------------");
         for (int i = 0; i < 8; i++) {
@@ -489,7 +521,8 @@ public class Board0x88 {
         }
 
         //Todo half move counter
-        fen += " 0 0";
+        fen += " " + fiftyMoveHistory[moveNumber];
+        fen += " 0 ";
 
         return fen;
     }

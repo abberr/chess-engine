@@ -15,7 +15,7 @@ public class EvaluatorTest {
 
     @Before
     public void before() {
-        Evaluator.setSearchDepth(7);
+        Evaluator.setSearchDepth(6);
         Evaluator.reset();
     }
 
@@ -81,12 +81,11 @@ public class EvaluatorTest {
     //Pv: e3c6, d7f7, c6xf8
     @Test
     public void test7() {
-        board = new Board0x88("r1b2rk1/ppp2pp1/2nq3p/7Q/5P2/3BB3/PPP3PP/R4RK1 w Qq - 1 1");
+        board = new Board0x88("r1b2rk1/ppp2pp1/2nq3p/7Q/5P2/3BB3/PPP3PP/R4RK1 w Qq - 0 1");
         Move bestMove = Evaluator.findBestMove(board);
 
         assertTrue(bestMove.toString().equals("e3c5"));
     }
-
 
     //2m49s with improved move ordering
     //3m 39s with hash (test fails)
@@ -111,13 +110,22 @@ public class EvaluatorTest {
         assertTrue("Move is not null", bestMove != null);
     }
 
+    @Ignore
+    @Test
+    public void bugTest() {
+        board = new Board0x88("r1bQk2r/ppp2ppp/2p2n2/8/4P3/2P5/P1P2PPP/R1B1KB1R b KQkq - 0 8");
 
+        Evaluator.setSearchDepth(6);
+        Move bestMove = Evaluator.findBestMove(board);
 
+//        assertTrue(bestMove.toString().equals("e8xd8"));
+        assertTrue(bestMove != null);
+    }
 
 
 
     @After
     public void tearDown() {
-//        board.printBoard();
+        board.printBoard();
     }
 }

@@ -11,8 +11,9 @@ public class Evaluator {
 
     private static final int SEARCH_DEPTH_DEFAULT = 6;
     private static final int MATE_SCORE = Integer.MAX_VALUE - 1;
+    private final static int DRAW_SCORE = 0;
 
-    private static final int KILLER_MOVES_TO_STORE = 2;
+    private static final int KILLER_MOVES_TO_STORE = 6;
 
     private static long sortingTime;
     private static long moveGenTime;
@@ -127,6 +128,11 @@ public class Evaluator {
 //            if (alpha >= beta) {
 //                return lookUpState.score;
 //            }
+        }
+
+        //Repetition check
+        if (board.isRepetition()) {
+            return DRAW_SCORE;
         }
 
         if (depth <= 0) {

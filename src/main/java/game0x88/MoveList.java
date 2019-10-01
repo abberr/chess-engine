@@ -64,7 +64,9 @@ public class MoveList implements Iterable<Move> {
     }
 
     public int size() {
-        return promotingMoves.size() + capturingMoves.size() + quietMoves.size();
+        int size = promotingMoves.size() + capturingMoves.size() + quietMoves.size();
+        size = size + (cacheMove == null ? 0 : 1);
+        return size;
     }
 
     public boolean isEmpty() {

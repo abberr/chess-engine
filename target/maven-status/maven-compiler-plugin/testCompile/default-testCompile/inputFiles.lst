@@ -1,8 +1,11 @@
 E:\Albin\git\chess-engine\src\test\java\game0x88\MoveListTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\QuiescenceTest.java
+E:\Albin\git\chess-engine\src\test\java\game0x88\FifttyMoveRuleTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\HashTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\PerftTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\FindMateTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\CastlingTest.java
+E:\Albin\git\chess-engine\src\test\java\game0x88\RepetitionTest.java
+E:\Albin\git\chess-engine\src\test\java\game0x88\CheckExtenstionTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\MoveGenTest.java
 E:\Albin\git\chess-engine\src\test\java\game0x88\EvaluatorTest.java
