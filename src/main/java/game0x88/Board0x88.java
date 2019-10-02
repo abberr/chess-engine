@@ -313,13 +313,28 @@ public class Board0x88 {
                 value -= BLACK_QUEEN_VALUE_TABLE[i];
             } else if (piece == WHITE_KING) {
                 value += WHITE_KING_VALUE_TABLE[i];
+//                value += 2*countAdjacentOpenSquares(i);
             } else if (piece == BLACK_KING) {
                 value -= BLACK_KING_VALUE_TABLE[i];
+//                value -= 2*countAdjacentOpenSquares(i);
             }
         }
 
         return value;
     }
+
+    public int countAdjacentOpenSquares(int index) {
+        int counter = 0;
+        for (byte direction : MoveGenerator.QUEEN_DIRECTIONS) {
+            int squareToExamine = index + direction;
+            if ((squareToExamine&0x88) == 0 && squares[squareToExamine] == EMPTY_SQUARE) {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
+
 
     private void updateHash(Move move, int oldCastlingRights, int newCastlingRights, int oldAvailableEnPassant, int newAvailableEnPassant) {
         int moveFromindex = move.getMoveFrom();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="14" failures="0" name="game0x88.PerftTest" time="345.61" errors="0" skipped="3">
+<testsuite tests="14" failures="0" name="game0x88.PerftTest" time="14.928" errors="0" skipped="3">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="11.0.3+12-LTS"/>
@@ -65,24 +65,24 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="game0x88.PerftTest" name="perftPos3Depth2Test" time="0.001"/>
-  <testcase classname="game0x88.PerftTest" name="perftPos3Depth5Test" time="3.004"/>
-  <testcase classname="game0x88.PerftTest" name="perftPos3Depth6Test" time="51.583"/>
-  <testcase classname="game0x88.PerftTest" name="perftPromotionBugTest" time="0.497"/>
-  <testcase classname="game0x88.PerftTest" name="perftPos2Depth3Test" time="1.508"/>
-  <testcase classname="game0x88.PerftTest" name="perftPos2Depth4Test" time="54.195"/>
-  <testcase classname="game0x88.PerftTest" name="perftPos2Depth5Test" time="54.195">
+  <testcase classname="game0x88.PerftTest" name="perftPos3Depth2Test" time="0"/>
+  <testcase classname="game0x88.PerftTest" name="perftPos3Depth5Test" time="0.294"/>
+  <testcase classname="game0x88.PerftTest" name="perftPos3Depth6Test" time="4.889"/>
+  <testcase classname="game0x88.PerftTest" name="perftPromotionBugTest" time="0.088"/>
+  <testcase classname="game0x88.PerftTest" name="perftPos2Depth3Test" time="0.078"/>
+  <testcase classname="game0x88.PerftTest" name="perftPos2Depth4Test" time="1.706"/>
+  <testcase classname="game0x88.PerftTest" name="perftPos2Depth5Test" time="1.706">
     <skipped/>
   </testcase>
-  <testcase classname="game0x88.PerftTest" name="perftPos4Depth2Test" time="3.678"/>
-  <testcase classname="game0x88.PerftTest" name="perft2Test" time="0.006"/>
-  <testcase classname="game0x88.PerftTest" name="perft3Test" time="0.101"/>
-  <testcase classname="game0x88.PerftTest" name="perft4Test" time="2.188"/>
-  <testcase classname="game0x88.PerftTest" name="perft5Test" time="58.218"/>
-  <testcase classname="game0x88.PerftTest" name="perft6Test" time="58.218">
+  <testcase classname="game0x88.PerftTest" name="perftPos4Depth2Test" time="0.183"/>
+  <testcase classname="game0x88.PerftTest" name="perft2Test" time="0.003"/>
+  <testcase classname="game0x88.PerftTest" name="perft3Test" time="0.006"/>
+  <testcase classname="game0x88.PerftTest" name="perft4Test" time="0.083"/>
+  <testcase classname="game0x88.PerftTest" name="perft5Test" time="1.964"/>
+  <testcase classname="game0x88.PerftTest" name="perft6Test" time="1.964">
     <skipped/>
   </testcase>
-  <testcase classname="game0x88.PerftTest" name="perft7Test" time="58.218">
+  <testcase classname="game0x88.PerftTest" name="perft7Test" time="1.964">
     <skipped/>
   </testcase>
 </testsuite>

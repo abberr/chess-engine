@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="5" failures="0" name="game0x88.EvaluatorTest" time="6.025" errors="0" skipped="2">
+<testsuite tests="10" failures="0" name="game0x88.EvaluatorTest" time="21.328" errors="0" skipped="3">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="java.vm.version" value="11.0.3+12-LTS"/>
@@ -65,13 +65,20 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase classname="game0x88.EvaluatorTest" name="test1" time="0">
+  <testcase classname="game0x88.EvaluatorTest" name="shouldReturnNegativeScoreWhenBlackIsWinning" time="0">
     <skipped/>
   </testcase>
-  <testcase classname="game0x88.EvaluatorTest" name="test2" time="2.488"/>
-  <testcase classname="game0x88.EvaluatorTest" name="test3" time="0.347"/>
-  <testcase classname="game0x88.EvaluatorTest" name="test4" time="1.595"/>
-  <testcase classname="game0x88.EvaluatorTest" name="test5" time="1.595">
+  <testcase classname="game0x88.EvaluatorTest" name="testWholeGame" time="0">
+    <skipped/>
+  </testcase>
+  <testcase classname="game0x88.EvaluatorTest" name="test1" time="1.477"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test2" time="2.587"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test3" time="0.98"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test4" time="0.441"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test5" time="1.967"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test6" time="0.15"/>
+  <testcase classname="game0x88.EvaluatorTest" name="test7" time="6.863"/>
+  <testcase classname="game0x88.EvaluatorTest" name="bugTest" time="6.863">
     <skipped/>
   </testcase>
 </testsuite>

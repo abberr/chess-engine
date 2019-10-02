@@ -16,7 +16,7 @@ public class MoveGenerator {
 
     private static final byte[] ROOK_DIRECTIONS = {NORTH, EAST, SOUTH, WEST};
     private static final byte[] BISHOP_DIRECTIONS = {NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
-    private static final byte[] QUEEN_DIRECTIONS = {NORTH, EAST, SOUTH, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
+    protected static final byte[] QUEEN_DIRECTIONS = {NORTH, EAST, SOUTH, WEST, NORTH_EAST, NORTH_WEST, SOUTH_EAST, SOUTH_WEST};
     private static final byte[] KING_DIRECTIONS = QUEEN_DIRECTIONS;
 
     private static final byte[] PROMO_PIECES_WHITE = {WHITE_QUEEN, WHITE_ROOK, WHITE_BISHOP, WHITE_KNIGHT};

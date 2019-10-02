@@ -9,15 +9,12 @@ public class Controller {
 
 	private Board0x88 board;
 
-	private LinkedList<Move> moveList;
 
 	public Controller(String fen) {
-		moveList = new LinkedList<>();
 		board = new Board0x88(fen);
 	}
 
 	public Controller() {
-		moveList = new LinkedList<>();
         board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
 //        board = new Board0x88("3kqb1r/1pp3pp/3p1n2/4pp2/rnPP4/4P3/PB3PPP/KBR1Q1NR b - -");      //Best move a4xa2 (only finds with depth 7?), also 2x slower when using quiescence
 //        board = new Board0x88("rn2kb1r/pppq1pp1/3p1n1p/1N2p3/4P3/3PBN2/PPP2PPP/R2QK2R w qkQK -");
@@ -30,7 +27,7 @@ public class Controller {
 //        board = new Board0x88("8/k1p2ppp/8/P7/6P1/3q4/4r3/K7 b ");          //Mate in 1
 
 //        System.out.println(board.getValue());
-        Move bestMove = Evaluator.findBestMove(board);
+//        Move bestMove = Evaluator.findBestMove(board);
 
 //		Evaluator.perft(board, 6);
 //		System.out.println("Hash: " + board.getHash());
@@ -52,15 +49,10 @@ public class Controller {
 	public void computerMove() {
         Move move = Evaluator.findBestMove(board);
         board.executeMove(move);
-//		moveList.add(move);
-
-        board.printBoard();
-
-//        computerMove();
     }
 
-    public Move findBestMove() {
-		return Evaluator.findBestMove(board);
+    public Move findBestMove(long searchTime) {
+		return Evaluator.findBestMove(board, searchTime);
 	}
 
 	public void revertLastMove() {
@@ -73,6 +65,10 @@ public class Controller {
 
 	public MoveList getMovesFromSquare(String square) {
 		return board.getMovesOfPiece(square, false);
+	}
+
+	public Player getPlayerToMove() {
+		return board.getPlayerToMove();
 	}
 
 	public void restart() {

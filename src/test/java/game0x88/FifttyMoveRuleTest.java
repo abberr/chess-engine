@@ -1,6 +1,5 @@
 package game0x88;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -8,13 +7,6 @@ import static org.junit.Assert.assertTrue;
 public class FifttyMoveRuleTest {
 
     private Board0x88 board;
-
-    @Before
-    public void before() {
-        Evaluator.setSearchDepth(4);
-        Evaluator.reset();
-    }
-
 
     @Test
     public void clockResetsOnPawnMove() {

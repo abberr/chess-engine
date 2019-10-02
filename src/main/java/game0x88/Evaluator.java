@@ -21,6 +21,7 @@ public class Evaluator {
     private static long quiscenceTime;
 
     private static int searchDepth = SEARCH_DEPTH_DEFAULT;
+    private static long endTime;
 
     private static boolean useHash;
     private static long moveCounter;
@@ -30,6 +31,18 @@ public class Evaluator {
 
     private static Move[][] killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
     private static int[][][] historyMoves = new int[2][PIECES_SIZE][128];
+
+    public static Move findBestMove(Board0x88 board, long timeToSearch) {
+        endTime = System.currentTimeMillis() + timeToSearch - 50;
+        searchDepth = Integer.MAX_VALUE;
+        return findBestMove(board);
+    }
+
+    public static Move findBestMove(Board0x88 board, int depth) {
+        searchDepth = depth;
+        endTime = Long.MAX_VALUE;
+        return findBestMove(board);
+    }
 
     public static Move findBestMove(Board0x88 board) {
 
@@ -41,13 +54,15 @@ public class Evaluator {
         int value = 0;
         Move pvMove = null;
 
-//        while (System.currentTimeMillis() - time < 15000) {
-        while (depth <= searchDepth) {
+        while (System.currentTimeMillis() < endTime && depth <= searchDepth) {
             resetCounters();
             long time = System.currentTimeMillis();
             value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
-            value *= board.getPlayerToMove().getValue();
+//            value *= board.getPlayerToMove().getValue();
             long searchTime = System.currentTimeMillis() - time;
+
+            if (System.currentTimeMillis() > endTime)
+                break;
 
             pvMove = transpositionTable.lookup(board.getHash()).bestMove;
 
@@ -106,9 +121,9 @@ public class Evaluator {
         moveCounter++;
 
         //Repetition check
-        if (board.isRepetition()) {
-            return DRAW_SCORE;
-        }
+//        if (board.isRepetition()) {
+//            return DRAW_SCORE;
+//        }
 
         //Cache lookup - has this position been evaluated before?
         State lookUpState = transpositionTable.lookup(board.getHash());
@@ -183,23 +198,31 @@ public class Evaluator {
 
 
             board.executeMove(move);
-            bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, player.getOpponent()));
+            if (board.isRepetition()) {
+                bestValue = DRAW_SCORE;
+            } else {
+                bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, player.getOpponent()));
+                if (System.currentTimeMillis() > endTime)
+                    return bestValue;
+            }
             board.executeInvertedMove(move);
 
             if (bestValue > alpha) {
                 alpha = bestValue;
                 nodeType = NodeType.EXACT;
                 bestMove = move;
+
+                if (alpha >= beta) {
+                    if (move.getCapturedPiece() == EMPTY_SQUARE) {
+                        storeKillerMove(move, board.getMoveNumber());
+                        historyMoves[board.getPlayerToMove().getHashValue()][move.getPiece()][move.getMoveTo()] += depth*depth;
+                    }
+                    transpositionTable.saveState(board.getHash(), depth, beta, move, NodeType.BETA);
+                    return beta;
+                }
             }
 
-            if (alpha >= beta) {
-                if (move.getCapturedPiece() == EMPTY_SQUARE) {
-                    storeKillerMove(move, board.getMoveNumber());
-                    historyMoves[board.getPlayerToMove().getHashValue()][move.getPiece()][move.getMoveTo()] += depth*depth;
-                }
-                transpositionTable.saveState(board.getHash(), depth, beta, move, NodeType.BETA);
-                return beta;
-            }
+
         }
         transpositionTable.saveState(board.getHash(), depth, bestValue, bestMove, nodeType);
         return bestValue;
@@ -207,7 +230,7 @@ public class Evaluator {
 
     //TODO optimize
     private static void storeKillerMove(Move move, int ply) {
-        //check if already exists
+        //check if move already is killer move
         for (int i = 0; i < KILLER_MOVES_TO_STORE; i++) {
             if (move.equals(killerMoves[ply][i])) {
                 return;
@@ -226,7 +249,6 @@ public class Evaluator {
     }
 
     private static void resetCounters() {
-//        bestMove= null;
         moveCounter = 0;
         sortingTime = 0;
         moveGenTime = 0;
@@ -281,9 +303,4 @@ public class Evaluator {
         pvMoves.addFirst(bestMove);
 
         return pvMoves;
-    }
-
-    public static void setSearchDepth(int depth) {
-        searchDepth = depth;
-    }
-}
+    }}

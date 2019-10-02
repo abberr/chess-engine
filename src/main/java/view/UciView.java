@@ -3,6 +3,7 @@ package view;
 import controller.Controller;
 import game0x88.Evaluator;
 import game0x88.Move;
+import game0x88.Player;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -46,10 +47,33 @@ public class UciView {
             if (input.startsWith("position startpos moves")) {
                 contr.restart();
                 Arrays.stream(input.split(" ")).skip(3).forEach(contr::executeMove);
+                contr.getBoard().printBoard();
             }
 
+            //go wtime 299990 btime 295521 winc 0 binc 0 movestogo 49
             if (input.startsWith("go")) {
-                Move bestMove = contr.findBestMove();
+
+                long wtime = Long.parseLong(getParameterFromString(input, "wtime"));
+                long btime = Long.parseLong(getParameterFromString(input, "btime"));
+                long movesToGo = -1;
+                String movesToGoString = getParameterFromString(input, "movestogo");
+                if (movesToGoString != null) {
+                    movesToGo = Long.parseLong(movesToGoString);
+                }
+
+                long timeRemaining = contr.getPlayerToMove() == Player.WHITE ? wtime : btime;
+
+                long searchTime;
+
+                if (movesToGo == -1) {
+                    searchTime = timeRemaining/30;
+                } else {
+                    searchTime = timeRemaining/movesToGo;
+                }
+
+                System.out.println(String.format("searching for %s ms", searchTime));
+
+                Move bestMove = contr.findBestMove(searchTime);
                 if (bestMove == null) {
                     System.out.println("bestmove 0000");
                 } else {
@@ -59,5 +83,16 @@ public class UciView {
         }
     }
 
+
+    private String getParameterFromString(String string, String parameterName) {
+        String [] parts = string.split(" ");
+        for (int i = 0; i < parts.length; i++) {
+            if (parts[i].equals(parameterName)) {
+                return parts[i+1];
+            }
+        }
+
+        return null;
+    }
 
 }
