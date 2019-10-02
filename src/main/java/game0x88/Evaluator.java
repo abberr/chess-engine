@@ -13,7 +13,7 @@ public class Evaluator {
     private static final int MATE_SCORE = Integer.MAX_VALUE - 1;
     private final static int DRAW_SCORE = 0;
 
-    private static final int KILLER_MOVES_TO_STORE = 6;
+    private static final int KILLER_MOVES_TO_STORE = 2;
 
     private static long sortingTime;
     private static long moveGenTime;
@@ -29,11 +29,11 @@ public class Evaluator {
     private static TranspositionTable transpositionTable = new TranspositionTable();
 
     private static Move[][] killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
-    private static int[][] historyMoves = new int[PIECES_SIZE][128];
+    private static int[][][] historyMoves = new int[2][PIECES_SIZE][128];
 
     public static Move findBestMove(Board0x88 board) {
 
-        transpositionTable.clear();
+//        transpositionTable.clear();
 
         useHash = true;
 
@@ -59,6 +59,7 @@ public class Evaluator {
             sb.append(" cacheHit " + cacheHitCounter);
             sb.append(" quiscenceTime " + quiscenceTime);
             sb.append(" movegenTime " + moveGenTime);
+            sb.append(" sortingTime " + sortingTime);
             sb.append(" evalTime " + evalTime);
             sb.append(" pv ");
             getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
@@ -176,7 +177,10 @@ public class Evaluator {
 
         //Find best move
         while (!moves.isEmpty()) {
+            time = System.currentTimeMillis();
             Move move = moves.getNextMove();
+            sortingTime += System.currentTimeMillis() - time;
+
 
             board.executeMove(move);
             bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, player.getOpponent()));
@@ -191,7 +195,7 @@ public class Evaluator {
             if (alpha >= beta) {
                 if (move.getCapturedPiece() == EMPTY_SQUARE) {
                     storeKillerMove(move, board.getMoveNumber());
-                    historyMoves[move.getPiece()][move.getMoveTo()] += depth*depth;
+                    historyMoves[board.getPlayerToMove().getHashValue()][move.getPiece()][move.getMoveTo()] += depth*depth;
                 }
                 transpositionTable.saveState(board.getHash(), depth, beta, move, NodeType.BETA);
                 return beta;
@@ -218,7 +222,7 @@ public class Evaluator {
 
     public static void reset() {
         killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
-        historyMoves = new int[PIECES_SIZE][128];
+        historyMoves = new int[2][PIECES_SIZE][128];
     }
 
     private static void resetCounters() {

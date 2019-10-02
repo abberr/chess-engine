@@ -87,13 +87,15 @@ public class EvaluatorTest {
         assertTrue(bestMove.toString().equals("e3c5"));
     }
 
+    //1m15s depth 6
+    //8m2s depth 7
     //2m49s with improved move ordering
     //3m 39s with hash (test fails)
     //4m 42s without
     @Ignore
     @Test
     public void testWholeGame() {
-        Evaluator.setSearchDepth(6);
+        Evaluator.setSearchDepth(7);
         String [] moves = "g1f3 g8f6 e2e3 d7d5 f1e2 b8c6 e1g1 e7e5 d2d4 f8d6 d4e5 c6e5 f3e5 d6e5 c2c4 e8g8 f2f4 e5d6 c4d5 c8f5 d1b3 d8d7 b3b7 f5b1 a1b1 d7f5 c1d2 f6d5 e2f3 d5b6 b7a6 a8d8 b1d1 d6c5 g1h1 f5c2 d1c1 c2b2 c1c5 d8d2 a6a7 d2f2 f1c1 f2f3 g2f3 b6d5 c5c2 b2b6 a7b6 c7b6 c1e1 f8e8 e1d1 d5e3 c2e2 g7g5 f4g5 e3d1 e2e8 g8g7 e8b8 d1c3 b8b6 c3a2 h2h4 a2c3 h4h5 c3d5 h5h6 g7f8 b6b8 f8e7 b8h8 d5f4 h8h7 f4g6 h1g2 g6f4 g2g3 f4g6 f3f4 e7f8 f4f5 g6e5 h7g7 e5c4 f5f6 c4e3 h6h7 f8e8 h7h8q e8d7 g7f7 d7d6 h8d8 d6c5 f7c7 c5b6 d8b8".split(" ");
         board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
 

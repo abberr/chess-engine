@@ -27,8 +27,8 @@ Instead of searching to a certain depth, start at depth 1 and increment the dept
 
 ## Improvements
 - Improve static evaluation method with pawn structure
-- Killer heuristic
-- Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning)
+- Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning) (https://www.stmintz.com/ccc/index.php?id=68877)
+- History heuristics
 - Check extension (https://www.chessprogramming.org/Check_Extensions)
 
 ## Stats
