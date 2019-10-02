@@ -28,6 +28,7 @@ public class RepetitionTest {
     @Test
     public void test1() {
         board = new Board0x88("k1K5/8/8/8/8/NQ5n/8/8 w - - ");
+        Evaluator.findBestMove(board);
         board.printBoard();
         board.executeMove("a3b1");
         board.executeMove("h3g1");

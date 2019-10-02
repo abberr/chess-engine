@@ -122,6 +122,13 @@ public class EvaluatorTest {
         assertTrue(bestMove != null);
     }
 
+    @Ignore
+    @Test
+    public void shouldReturnNegativeScoreWhenBlackIsWinning() {
+        board = new Board0x88("kqbr4/8/8/8/8/8/5PPP/6PK b - -");
+        Evaluator.findBestMove(board);
+    }
+
 
 
     @After

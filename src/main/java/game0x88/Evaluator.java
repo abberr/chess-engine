@@ -46,6 +46,7 @@ public class Evaluator {
             resetCounters();
             long time = System.currentTimeMillis();
             value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
+            value *= board.getPlayerToMove().getValue();
             long searchTime = System.currentTimeMillis() - time;
 
             pvMove = transpositionTable.lookup(board.getHash()).bestMove;
@@ -60,7 +61,7 @@ public class Evaluator {
             sb.append(" movegenTime " + moveGenTime);
             sb.append(" evalTime " + evalTime);
             sb.append(" pv ");
-            getPvMoves(board).forEach(m -> sb.append(m + " "));
+            getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
             sb.append(" score cp " + value);
             System.out.println(sb);
 
@@ -103,12 +104,16 @@ public class Evaluator {
     private static int minMax(int alpha, int beta, int depth, Board0x88 board, Player player) {
         moveCounter++;
 
+        //Repetition check
+        if (board.isRepetition()) {
+            return DRAW_SCORE;
+        }
+
         //Cache lookup - has this position been evaluated before?
         State lookUpState = transpositionTable.lookup(board.getHash());
         if (useHash && lookUpState != null && lookUpState.depth >= depth) {
             cacheHitCounter++;
 
-//            bestMove = lookUpState.bestMove;        //TODO
             if (lookUpState.nodeType == NodeType.EXACT) {
                 return lookUpState.score;
             } else if (lookUpState.nodeType == NodeType.ALPHA) {
@@ -130,11 +135,7 @@ public class Evaluator {
 //            }
         }
 
-        //Repetition check
-        if (board.isRepetition()) {
-            return DRAW_SCORE;
-        }
-
+        // Quiscence search when reaching a leaf node
         if (depth <= 0) {
             //Check cache
             if (lookUpState != null && lookUpState.nodeType == NodeType.EXACT) {
@@ -264,14 +265,14 @@ public class Evaluator {
     }
 
     //Recursive
-    public static LinkedList<Move> getPvMoves(Board0x88 board) {
+    public static LinkedList<Move> getPvMoves(Board0x88 board, int depth) {
         State state = transpositionTable.lookup(board.getHash());
-        if (state == null || state.bestMove == null) {
+        if (state == null || state.bestMove == null || depth == 0) {
             return new LinkedList<>();
         }
         Move bestMove = state.bestMove;
         board.executeMove(bestMove);
-        LinkedList<Move> pvMoves = getPvMoves(board);
+        LinkedList<Move> pvMoves = getPvMoves(board, depth - 1);
         board.executeInvertedMove(bestMove);
         pvMoves.addFirst(bestMove);
 
