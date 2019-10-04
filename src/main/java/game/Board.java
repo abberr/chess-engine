@@ -1,15 +1,12 @@
-package game0x88;
+package game;
 
 import util.Util;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
-import static game0x88.Pieces.*;
+import static game.Pieces.*;
 
-public class Board0x88 {
+public class Board {
 
     private final static int BOARD_SIZE = 128;
     private final static int PIECES_SIZE = 12;
@@ -37,7 +34,7 @@ public class Board0x88 {
 
     private long hash;
 
-    public Board0x88(String fen) {
+    public Board(String fen) {
 
         String [] fields = fen.split(" ");
 
@@ -64,7 +61,6 @@ public class Board0x88 {
                 x = 0;
                 continue;
             }
-//            squares[y * 16 + x] = piece;
             squares[x + (7*16 - y*16)] = piece;
 
             x++;
@@ -170,10 +166,10 @@ public class Board0x88 {
         updateHash(move, oldCastlingRights, newCastlingRights, oldAvailableEnPassant, newAvailableEnPassant);
         hashHistory[moveNumber] = hash;
 
-        if (move.getCapturedPiece() != EMPTY_SQUARE || move.getPiece() == WHITE_PAWN || move.getPiece() == BLACK_PAWN) {
-            fiftyMoveHistory[moveNumber] = 0;
-        } else {
+        if (move.isReversibleMove()) {
             fiftyMoveHistory[moveNumber] = fiftyMoveHistory[moveNumber - 1] + 1;
+        } else {
+            fiftyMoveHistory[moveNumber] = 0;
         }
 
         playerToMove = playerToMove.getOpponent();

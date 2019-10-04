@@ -1,9 +1,9 @@
-package game0x88;
+package game;
 
 import java.util.LinkedList;
 
-import static game0x88.Pieces.EMPTY_SQUARE;
-import static game0x88.Pieces.PIECES_SIZE;
+import static game.Pieces.EMPTY_SQUARE;
+import static game.Pieces.PIECES_SIZE;
 
 public class Evaluator {
 
@@ -32,19 +32,19 @@ public class Evaluator {
     private static Move[][] killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
     private static int[][][] historyMoves = new int[2][PIECES_SIZE][128];
 
-    public static Move findBestMove(Board0x88 board, long timeToSearch) {
+    public static Move findBestMove(Board board, long timeToSearch) {
         endTime = System.currentTimeMillis() + timeToSearch - 50;
         searchDepth = Integer.MAX_VALUE;
         return findBestMove(board);
     }
 
-    public static Move findBestMove(Board0x88 board, int depth) {
+    public static Move findBestMove(Board board, int depth) {
         searchDepth = depth;
         endTime = Long.MAX_VALUE;
         return findBestMove(board);
     }
 
-    public static Move findBestMove(Board0x88 board) {
+    public static Move findBestMove(Board board) {
 
 //        transpositionTable.clear();
 
@@ -101,7 +101,7 @@ public class Evaluator {
         return pvMove;
     }
 
-//    private static void findMate(Board0x88 board, int depth) {
+//    private static void findMate(Board board, int depth) {
 //        depth = depth - 2;
 //        Move shortestMateMove = bestMove;
 //        useHash = false;
@@ -117,13 +117,7 @@ public class Evaluator {
 //        bestMove = shortestMateMove;
 //    }
 
-    private static int minMax(int alpha, int beta, int depth, Board0x88 board, Player player) {
-        moveCounter++;
-
-        //Repetition check
-//        if (board.isRepetition()) {
-//            return DRAW_SCORE;
-//        }
+    private static int minMax(int alpha, int beta, int depth, Board board, Player player) {
 
         //Cache lookup - has this position been evaluated before?
         State lookUpState = transpositionTable.lookup(board.getHash());
@@ -151,16 +145,14 @@ public class Evaluator {
 //            }
         }
 
+        moveCounter++;
+
         // Quiscence search when reaching a leaf node
         if (depth <= 0) {
-            //Check cache
-            if (lookUpState != null && lookUpState.nodeType == NodeType.EXACT) {
-                return lookUpState.score;
-            }
 
             MoveGenerator.setSearchModeQuiescence();
-//            int value = board.getValue() * player.getValue();
             long time = System.currentTimeMillis();
+//            int value = board.getValue() * player.getValue();
             int value = quisence(alpha, beta, board, player);
             quiscenceTime += System.currentTimeMillis() - time;
 
@@ -221,9 +213,8 @@ public class Evaluator {
                     return beta;
                 }
             }
-
-
         }
+
         transpositionTable.saveState(board.getHash(), depth, bestValue, bestMove, nodeType);
         return bestValue;
     }
@@ -259,7 +250,7 @@ public class Evaluator {
 
     //https://www.chessprogramming.org/Quiescence_Search
     //Find a quiet position to evaluate
-    private static int quisence(int alpha, int beta, Board0x88 board, Player player) {
+    private static int quisence(int alpha, int beta, Board board, Player player) {
         long time = System.currentTimeMillis();
         int boardValue = board.getValue() * player.getValue();
         evalTime += System.currentTimeMillis() - time;
@@ -291,7 +282,7 @@ public class Evaluator {
     }
 
     //Recursive
-    public static LinkedList<Move> getPvMoves(Board0x88 board, int depth) {
+    public static LinkedList<Move> getPvMoves(Board board, int depth) {
         State state = transpositionTable.lookup(board.getHash());
         if (state == null || state.bestMove == null || depth == 0) {
             return new LinkedList<>();

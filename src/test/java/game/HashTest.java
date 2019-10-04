@@ -1,4 +1,4 @@
-package game0x88;
+package game;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,11 +8,11 @@ import static junit.framework.TestCase.assertTrue;
 
 public class HashTest {
 
-    private Board0x88 board;
+    private Board board;
 
     @Before
     public void before() {
-        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
     }
 
     @Test
@@ -78,7 +78,7 @@ public class HashTest {
 
     @Test
     public void hashShouldBeSameAfterRevertCastle() {
-        board = new Board0x88("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
+        board = new Board("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
 
         long hash = board.getHash();
         board.executeMove("e1g1");
@@ -90,7 +90,7 @@ public class HashTest {
 
     @Test
     public void hashShouldBeSameAfterRevertEnPassant() {
-        board = new Board0x88("rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b qkQK -");
+        board = new Board("rnbqkbnr/1ppppppp/p7/4P3/8/8/PPPP1PPP/RNBQKBNR b qkQK -");
 
         board.executeMove("d7d5");
         long hash = board.getHash();
@@ -103,7 +103,7 @@ public class HashTest {
 
     @Test
     public void hashShouldTakeInAccountCastling() {
-        board = new Board0x88("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
+        board = new Board("rn1qkbnr/pppppppp/8/8/3PPPP1/N2Q1b1N/PPPB2BP/R3K2R w qkQK -");
 
         long hash = board.getHash();
         board.executeMove("e1g1");
@@ -127,7 +127,7 @@ public class HashTest {
 
         for (int i = 0; i < castlingRights.length; i++) {
             String castlingRight = castlingRights[i];
-            board = new Board0x88(("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w " + castlingRight + " -"));
+            board = new Board(("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w " + castlingRight + " -"));
             hashes[i] = board.getHash();
         }
 
@@ -142,7 +142,7 @@ public class HashTest {
         board.executeMove("e7e5");
         long hash = board.getHash();
 
-        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
         board.executeMove("e2e3");
         board.executeMove("e7e6");
         board.executeMove("e3e4");

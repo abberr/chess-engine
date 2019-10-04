@@ -1,9 +1,8 @@
 package view;
 
 import controller.Controller;
-import game0x88.Evaluator;
-import game0x88.Move;
-import game0x88.Player;
+import game.Move;
+import game.Player;
 
 import java.util.Arrays;
 import java.util.Scanner;

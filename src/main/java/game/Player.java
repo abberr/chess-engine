@@ -1,4 +1,4 @@
-package game0x88;
+package game;
 
 public enum Player {
 	WHITE,

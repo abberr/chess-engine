@@ -8,16 +8,14 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import controller.Controller;
-import game0x88.Board0x88;
-import game0x88.Move;
-import game0x88.MoveList;
-import game0x88.Pieces;
+import game.Board;
+import game.MoveList;
+import game.Pieces;
 import util.Util;
 
 public class BoardView extends JPanel {
@@ -98,7 +96,7 @@ public class BoardView extends JPanel {
 		}
 
 		// Paint pieces
-		Board0x88 board = contr.getBoard();
+		Board board = contr.getBoard();
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j++) {
                 byte piece = board.getSquares()[((7*16) - 16*j) + i];

@@ -1,4 +1,4 @@
-package game0x88;
+package game;
 
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class MoveListTest {
 
         assertFalse(moves.isEmpty());
 
-        moves.prepare(new Board0x88("k6K/4P3/8/8/8/1p1q4/2Q1P3/8 w - - "));
+        moves.prepare(new Board("k6K/4P3/8/8/8/1p1q4/2Q1P3/8 w - - "));
         for (Move move : moves) {
             assertTrue("move not null", move != null);
         }
@@ -27,7 +27,7 @@ public class MoveListTest {
 
     @Test
     public void moveOrderingTestWhite() {
-        Board0x88 board = new Board0x88("k6K/4P3/8/8/8/1p1q4/2Q1P3/8 w - - ");
+        Board board = new Board("k6K/4P3/8/8/8/1p1q4/2Q1P3/8 w - - ");
 
         MoveList moves = board.getAvailableMoves(false);
         moves.prepare(board);
@@ -45,7 +45,7 @@ public class MoveListTest {
 
     @Test
     public void moveOrderingTestBlack() {
-        Board0x88 board = new Board0x88("8/1p1q4/2Q1P3/8/8/8/4p3/k6K b - - ");
+        Board board = new Board("8/1p1q4/2Q1P3/8/8/8/4p3/k6K b - - ");
         board.printBoard();
         MoveList moves = board.getAvailableMoves(false);
         moves.prepare(board);

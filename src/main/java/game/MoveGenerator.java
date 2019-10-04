@@ -1,14 +1,14 @@
-package game0x88;
+package game;
 
 import util.Util;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static game0x88.MoveType.CAPTURING;
-import static game0x88.MoveType.PROMOTING;
-import static game0x88.MoveType.QUIET;
-import static game0x88.Pieces.*;
+import static game.MoveType.CAPTURING;
+import static game.MoveType.PROMOTING;
+import static game.MoveType.QUIET;
+import static game.Pieces.*;
 
 public class MoveGenerator {
 

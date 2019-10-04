@@ -1,13 +1,11 @@
-package game0x88;
+package game;
 
-import java.util.List;
-
-import static game0x88.Pieces.EMPTY_SQUARE;
+import static game.Pieces.EMPTY_SQUARE;
 
 public class Perft {
     static long epCounter, checkCounter, promotionsCounter, nodesCounter, capturesCounter, castlingCounter;
 
-    public static long perft(Board0x88 board, int searchDepth) {
+    public static long perft(Board board, int searchDepth) {
         long time = System.currentTimeMillis();
         long calculations = perftRecursive(board, searchDepth);
 
@@ -19,7 +17,7 @@ public class Perft {
         return calculations;
     }
 
-    private static long perftRecursive(Board0x88 board, int depth) {
+    private static long perftRecursive(Board board, int depth) {
         if (depth == 0) return 1;
         long nodes = 0;
         MoveList moves = board.getAvailableMoves(false);
@@ -32,7 +30,7 @@ public class Perft {
         return nodes;
     }
 
-    public static long perftDetailed(Board0x88 board, int searchDepth) {
+    public static long perftDetailed(Board board, int searchDepth) {
         capturesCounter = 0;
         nodesCounter = 0;
         promotionsCounter = 0;
@@ -57,7 +55,7 @@ public class Perft {
     }
 
 
-    private static void perftDetailedRecursive(Board0x88 board, int depth) {
+    private static void perftDetailedRecursive(Board board, int depth) {
         if (depth == 0) return;
         MoveList moves = board.getAvailableMoves(false);
         for (Move move : moves) {

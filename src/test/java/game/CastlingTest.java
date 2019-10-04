@@ -1,19 +1,17 @@
-package game0x88;
+package game;
 
 import org.junit.After;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
 public class CastlingTest {
 
-    private Board0x88 board;
+    private Board board;
 
     @Test
     public void castlingRightsTest() {
-        board = new Board0x88("r1b1k2r/8/8/8/8/8/8/R3K2R b qkQK - 0 0");
+        board = new Board("r1b1k2r/8/8/8/8/8/8/R3K2R b qkQK - 0 0");
 
         //Black
         board.executeMove("e8g8");
@@ -59,7 +57,7 @@ public class CastlingTest {
 
     @Test
     public void cantCastleWhenInCheckTest() {
-        board = new Board0x88("r3k2r/8/8/1Q6/8/8/8/4K3 b qkQK - 0 0");
+        board = new Board("r3k2r/8/8/1Q6/8/8/8/4K3 b qkQK - 0 0");
         MoveList moves = board.getAvailableMoves(false);
 
         assertTrue("", moves.size() == 4);

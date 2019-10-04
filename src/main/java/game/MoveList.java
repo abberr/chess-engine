@@ -1,9 +1,9 @@
-package game0x88;
+package game;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-import static game0x88.Pieces.*;
+import static game.Pieces.*;
 
 public class MoveList implements Iterable<Move> {
 
@@ -14,14 +14,14 @@ public class MoveList implements Iterable<Move> {
     private int[][][] historyMoves;
     private Move cacheMove;
 
-    private Board0x88 board;
+    private Board board;
 
     boolean promotingMovesSorted = true, capturingMovesSorted = true, quietMovesSorted = true;
 
     public MoveList() {
     }
 
-    public void prepare(Board0x88 board, TranspositionTable transpositionTable, Move[][] killerMoves, int[][][] historyMoves) {
+    public void prepare(Board board, TranspositionTable transpositionTable, Move[][] killerMoves, int[][][] historyMoves) {
         State cachedState = transpositionTable.lookup(board.getHash());
         if (cachedState != null) {
             this.cacheMove = cachedState.bestMove;
@@ -34,7 +34,7 @@ public class MoveList implements Iterable<Move> {
         prepare(board);
     }
 
-    public void prepare(Board0x88 board) {
+    public void prepare(Board board) {
         this.board = board;
         this.promotingMovesSorted = false;
         this.capturingMovesSorted = false;

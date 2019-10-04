@@ -1,8 +1,8 @@
-package game0x88;
+package game;
 
 import util.Util;
 
-import static game0x88.Pieces.EMPTY_SQUARE;
+import static game.Pieces.*;
 
 public class Move {
 
@@ -19,6 +19,11 @@ public class Move {
         this.piece = piece;
         this.moveFrom = moveFrom;
         this.moveTo = moveTo;
+    }
+
+    //Used for the 50 move rule
+    public boolean isReversibleMove() {
+        return capturedPiece == EMPTY_SQUARE && piece != WHITE_PAWN && piece != BLACK_PAWN;
     }
 
     public byte getPiece() {

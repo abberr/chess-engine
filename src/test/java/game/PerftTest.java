@@ -1,4 +1,4 @@
-package game0x88;
+package game;
 
 import org.junit.After;
 import org.junit.Before;
@@ -8,11 +8,11 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class PerftTest {
-    private Board0x88 board;
+    private Board board;
 
     @Before
     public void before() {
-        board = new Board0x88("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
     }
 
 
@@ -59,7 +59,7 @@ public class PerftTest {
 
     @Test
     public void perftPos2Depth3Test() {
-        board = new Board0x88("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+        board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         long nodes = Perft.perftDetailed(board, 3);
         assertTrue("captures", Perft.capturesCounter == 17102);
         assertTrue("EPs", Perft.epCounter == 45);
@@ -71,7 +71,7 @@ public class PerftTest {
 
     @Test
     public void perftPos2Depth4Test() {
-        board = new Board0x88("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+        board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         long nodes = Perft.perftDetailed(board, 4);
         assertTrue("EPs", Perft.epCounter == 1929);
         assertTrue("castling", Perft.castlingCounter == 128013);
@@ -83,7 +83,7 @@ public class PerftTest {
     @Test
     @Ignore
     public void perftPos2Depth5Test() {
-        board = new Board0x88("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
+        board = new Board("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ");
         long nodes = Perft.perftDetailed(board, 5);
         assertTrue("EPs", Perft.epCounter == 73365);
         assertTrue("captures", Perft.capturesCounter == 35043416);
@@ -95,7 +95,7 @@ public class PerftTest {
 
     @Test
     public void perftPos3Depth2Test() {
-        board = new Board0x88("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+        board = new Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
         long nodes = Perft.perftDetailed(board, 2);
         assertTrue("EPs", Perft.epCounter == 0);
         assertTrue("captures", Perft.capturesCounter == 14);
@@ -107,7 +107,7 @@ public class PerftTest {
 
     @Test
     public void perftPos3Depth5Test() {
-        board = new Board0x88("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+        board = new Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
         long nodes = Perft.perftDetailed(board, 5);
         assertTrue("EPs", Perft.epCounter == 1165);
         assertTrue("captures", Perft.capturesCounter == 52051);
@@ -119,7 +119,7 @@ public class PerftTest {
 
     @Test
     public void perftPos3Depth6Test() {
-        board = new Board0x88("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
+        board = new Board("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ");
         Perft.perftDetailed(board, 6);
         assertTrue("EPs", Perft.epCounter == 33325);
         assertTrue("captures", Perft.capturesCounter == 940350);
@@ -131,7 +131,7 @@ public class PerftTest {
 
     @Test
     public void perftPos4Depth2Test() {
-        board = new Board0x88("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
+        board = new Board("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1");
         Perft.perftDetailed(board, 4);
 //        assertTrue("EPs", Perft.epCounter == 33325);
 //        assertTrue("captures", Perft.capturesCounter == 940350);
@@ -145,7 +145,7 @@ public class PerftTest {
     //http://www.rocechess.ch/perft.html
     @Test
     public void perftPromotionBugTest() {
-      board = new Board0x88("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1");
+      board = new Board("n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1");
       Perft.perftDetailed(board, 4);
 
       assertTrue(Perft.nodesCounter == 182838);
