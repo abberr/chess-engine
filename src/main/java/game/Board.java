@@ -16,6 +16,8 @@ public class Board {
 
     private final static int NO_EN_PASSANT_AVAILABLE = 15;
 
+    private static final int ENDAGE_VALUE_THRESHOLD = 1300;
+
     private Player playerToMove;
     private byte[] squares = new byte[BOARD_SIZE];
 
@@ -33,6 +35,10 @@ public class Board {
     Move lastMove;
 
     private long hash;
+
+    public Board() {
+        this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+    }
 
     public Board(String fen) {
 
@@ -280,43 +286,52 @@ public class Board {
     }
 
     public int getValue() {
-
-        int value = 0;
-
-        for (int i = 0; i < 120; i++) {
-            if ((i&0x88) != 0) continue;
-            byte piece = squares[i];
-            value += PIECE_VALUES[piece];
-            if (piece == WHITE_PAWN ) {
-                value += WHITE_PAWN_VALUE_TABLE[i];
-            } else if (piece == BLACK_PAWN) {
-                value -= BLACK_PAWN_VALUE_TABLE[i];
-            } else if (piece == WHITE_KNIGHT ) {
-                value += WHITE_KNIGHT_VALUE_TABLE[i];
-            } else if (piece == BLACK_KNIGHT) {
-                value -= BLACK_KNIGHT_VALUE_TABLE[i];
-            } else if (piece == WHITE_BISHOP ) {
-                value += WHITE_BISHOP_VALUE_TABLE[i];
-            } else if (piece == BLACK_BISHOP) {
-                value -= BLACK_BISHOP_VALUE_TABLE[i];
-            } else if (piece == WHITE_ROOK) {
-                value += WHITE_ROOK_VALUE_TABLE[i];
-            } else if (piece == BLACK_ROOK) {
-                value -= BLACK_ROOK_VALUE_TABLE[i];
-            } else if (piece == WHITE_QUEEN) {
-                value += WHITE_QUEEN_VALUE_TABLE[i];
-            } else if (piece == BLACK_QUEEN) {
-                value -= BLACK_QUEEN_VALUE_TABLE[i];
-            } else if (piece == WHITE_KING) {
-                value += WHITE_KING_VALUE_TABLE[i];
-//                value += 2*countAdjacentOpenSquares(i);
-            } else if (piece == BLACK_KING) {
-                value -= BLACK_KING_VALUE_TABLE[i];
-//                value -= 2*countAdjacentOpenSquares(i);
-            }
-        }
-
-        return value;
+        return StaticEvaluator.getValue(squares);
+//
+//        int value = 0;
+//
+//        boolean isEndgame = false;
+//        int blackMaterial = 0, whiteMaterial = 0;
+//        int pieceSquareTableSumBlack = 0;
+//        int pieceSquareTableSumWhite = 0;
+//        int wkIndex, bkIndex;
+//
+//        for (int i = 0; i < 120; i++) {
+//            if ((i&0x88) != 0) continue;
+//            byte piece = squares[i];
+//            value += PIECE_VALUES[piece];
+//            if (piece == WHITE_PAWN ) {
+//                whiteMaterial += PIECE_VALUES[piece];
+//                value += WHITE_PAWN_VALUE_TABLE[i];
+//            } else if (piece == BLACK_PAWN) {
+//                blackMaterial += BLACK_PAWN_VALUE_TABLE[i];
+//                value -= BLACK_PAWN_VALUE_TABLE[i];
+//            } else if (piece == WHITE_KNIGHT ) {
+//                value += WHITE_KNIGHT_VALUE_TABLE[i];
+//            } else if (piece == BLACK_KNIGHT) {
+//                value -= BLACK_KNIGHT_VALUE_TABLE[i];
+//            } else if (piece == WHITE_BISHOP ) {
+//                value += WHITE_BISHOP_VALUE_TABLE[i];
+//            } else if (piece == BLACK_BISHOP) {
+//                value -= BLACK_BISHOP_VALUE_TABLE[i];
+//            } else if (piece == WHITE_ROOK) {
+//                value += WHITE_ROOK_VALUE_TABLE[i];
+//            } else if (piece == BLACK_ROOK) {
+//                value -= BLACK_ROOK_VALUE_TABLE[i];
+//            } else if (piece == WHITE_QUEEN) {
+//                value += WHITE_QUEEN_VALUE_TABLE[i];
+//            } else if (piece == BLACK_QUEEN) {
+//                value -= BLACK_QUEEN_VALUE_TABLE[i];
+//            } else if (piece == WHITE_KING) {
+//                value += WHITE_KING_VALUE_TABLE[i];
+//                wkIndex = i;
+//            } else if (piece == BLACK_KING) {
+//                value -= BLACK_KING_VALUE_TABLE[i];
+//                bkIndex = i;
+//            }
+//        }
+//
+//        return value;
     }
 
     public int countAdjacentOpenSquares(int index) {

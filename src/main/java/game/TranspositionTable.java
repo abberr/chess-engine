@@ -4,15 +4,17 @@ import java.util.HashMap;
 
 public class TranspositionTable {
 
+    private static final int TABLE_SIZE = 0xFFFF;
+
     HashMap<Long, State> hashMap;
 
     public TranspositionTable() {
-        hashMap = new HashMap<>();
+        hashMap = new HashMap<>(TABLE_SIZE);
     }
 
 
     public State lookup(long hash) {
-        State state = hashMap.get(hash & 0xFFFF);
+        State state = hashMap.get(hash % TABLE_SIZE);
         if (state != null && state.hash == hash) {
             return state;
         }
@@ -20,27 +22,20 @@ public class TranspositionTable {
         return null;
     }
 
-    public boolean exists(long hash) {
-        return hashMap.containsValue(hash & 0xFFFF) && hashMap.get(hash & 0xFFFF).hash == hash;
-    }
-
     //TODO add replacement scheme
     public void saveState(long hash, int depth, int value, Move bestMove, NodeType nodeType) {
-//        if (!exists(hash) || depth >= lookup(hash).depth) {
-            State state = new State(hash, depth, value, bestMove, nodeType);
-            hashMap.put((hash & 0xFFFF), state);
-//        }
-    }
 
-    public void clear() {
-        hashMap = new HashMap<>();
+//        State existingEntry = hashMap.get(hash % TABLE_SIZE);
+
+        State state = new State(hash, depth, value, bestMove, nodeType);
+        hashMap.put((hash % TABLE_SIZE), state);
     }
 }
 
 enum NodeType {
     EXACT,     //Exact score
     ALPHA,    //Score is lower bound
-    BETA;    //Score is upper boumd
+    BETA    //Score is upper bound
 }
 
 class State {

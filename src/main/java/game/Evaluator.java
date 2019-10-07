@@ -127,13 +127,13 @@ public class Evaluator {
             if (lookUpState.nodeType == NodeType.EXACT) {
                 return lookUpState.score;
             } else if (lookUpState.nodeType == NodeType.ALPHA) {
-                if (lookUpState.score < alpha) {
+                if (lookUpState.score <= alpha) {
                     return alpha;
                 } else {
 //                    alpha = lookUpState.score;
                 }
             } else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score > beta) {
+                if (lookUpState.score >= beta) {
                     return beta;
                 } else {
 //                    beta = lookUpState.score;
