@@ -15,6 +15,8 @@ public class Evaluator {
 
     private static final int KILLER_MOVES_TO_STORE = 2;
 
+    private static final int NULL_MOVE_DEPTH_REDUCE = 3;
+
     private static long sortingTime;
     private static long moveGenTime;
     private static long evalTime;
@@ -57,7 +59,7 @@ public class Evaluator {
         while (System.currentTimeMillis() < endTime && depth <= searchDepth) {
             resetCounters();
             long time = System.currentTimeMillis();
-            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove());
+            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, false);
 //            value *= board.getPlayerToMove().getValue();
             long searchTime = System.currentTimeMillis() - time;
 
@@ -117,7 +119,7 @@ public class Evaluator {
 //        bestMove = shortestMateMove;
 //    }
 
-    private static int minMax(int alpha, int beta, int depth, Board board, Player player) {
+    private static int minMax(int alpha, int beta, int depth, Board board, boolean makeNullMove) {
 
         //Cache lookup - has this position been evaluated before?
         State lookUpState = transpositionTable.lookup(board.getHash());
@@ -153,7 +155,7 @@ public class Evaluator {
             MoveGenerator.setSearchModeQuiescence();
             long time = System.currentTimeMillis();
 //            int value = board.getValue() * player.getValue();
-            int value = quisence(alpha, beta, board, player);
+            int value = quisence(alpha, beta, board);
             quiscenceTime += System.currentTimeMillis() - time;
 
             MoveGenerator.setSearchModeNormal();
@@ -161,6 +163,18 @@ public class Evaluator {
             transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
             return value;
         }
+
+        //Null move
+        if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove())) {
+            board.executeNullMove();
+            int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, board,false);
+            board.executeInvertedNullMove();
+
+            if (value >= beta) {
+                return beta;
+            }
+        }
+
 
         //Move generation
         long time = System.currentTimeMillis();
@@ -170,7 +184,7 @@ public class Evaluator {
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
             //Min value if in check (check mate)
-            int value = MoveGenerator.isInCheck(board.getSquares(), player) ? Integer.MIN_VALUE + 2 : 0;
+            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove()) ? Integer.MIN_VALUE + 2 : 0;
             //set depth to +infinity since it's a terminal node anyways
             transpositionTable.saveState(board.getHash(), Integer.MAX_VALUE, value, null, NodeType.EXACT);
             return value;
@@ -193,7 +207,7 @@ public class Evaluator {
             if (board.isRepetition()) {
                 bestValue = DRAW_SCORE;
             } else {
-                bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, player.getOpponent()));
+                bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, true));
                 if (System.currentTimeMillis() > endTime)
                     return bestValue;
             }
@@ -250,9 +264,9 @@ public class Evaluator {
 
     //https://www.chessprogramming.org/Quiescence_Search
     //Find a quiet position to evaluate
-    private static int quisence(int alpha, int beta, Board board, Player player) {
+    private static int quisence(int alpha, int beta, Board board) {
         long time = System.currentTimeMillis();
-        int boardValue = board.getValue() * player.getValue();
+        int boardValue = board.getValue() * board.getPlayerToMove().getValue();
         evalTime += System.currentTimeMillis() - time;
 
         if (boardValue >= beta) {
@@ -269,7 +283,7 @@ public class Evaluator {
         moves.prepare(board);
         for (Move m : moves) {
             board.executeMove(m);
-            int score = -quisence(-beta, -alpha, board, player.getOpponent());
+            int score = -quisence(-beta, -alpha, board);
             board.executeInvertedMove(m);
 
             if (score >= beta)

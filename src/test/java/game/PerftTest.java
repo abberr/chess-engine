@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class PerftTest {
     private Board board;
 

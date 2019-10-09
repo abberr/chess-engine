@@ -1,6 +1,7 @@
 package game;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertFalse;
@@ -44,9 +45,14 @@ public class HashTest {
 
     @Test
     public void hashShouldTakeTurnIntoAccount() {
+        board = new Board("5k1K/8/8/8/8/8/8/rR6 w - -");
         long hash = board.getHash();
-        board.executeMove("b1c3");
-        board.executeMove("c3b1");
+        //Do moves that result i same position but different turns
+        board.executeMove("a1a2");
+        board.executeMove("b1b2");
+        board.executeMove("a2a3");
+        board.executeMove("b2b1");
+        board.executeMove("a3a1");
         long hash2 = board.getHash();
 
         assertTrue(hash != hash2);
@@ -171,6 +177,28 @@ public class HashTest {
 
         assertTrue("Hash hasnt changed after finding best move", hash == board.getHash());
     }
+
+    @Test
+    public void hashShouldChangeOnNullMove() {
+        board.executeMove("e2e4");
+        long hash = board.getHash();
+        board.executeNullMove();
+
+        assertTrue(hash != board.getHash());
+    }
+
+    @Test
+    public void hashShouldNotChangeOnNullMoveReverted() {
+        board.executeMove("e2e4");
+        long hash = board.getHash();
+
+        board.executeNullMove();
+        board.executeInvertedNullMove();
+
+        assertTrue(hash == board.getHash());
+    }
+
+
 
     private boolean containsDuplicats(long [] array) {
         boolean duplicates=false;

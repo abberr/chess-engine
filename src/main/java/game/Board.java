@@ -16,12 +16,11 @@ public class Board {
 
     private final static int NO_EN_PASSANT_AVAILABLE = 15;
 
-    private static final int ENDAGE_VALUE_THRESHOLD = 1300;
-
     private Player playerToMove;
     private byte[] squares = new byte[BOARD_SIZE];
 
-    private long [][][] zobristTable = new long[BOARD_SIZE][COLORS_SIZE][PIECES_SIZE];
+    private long [][] zobristTable = new long[BOARD_SIZE][PIECES_SIZE];
+    private long zobristTurn;
     private long [] zobristCastlingRights = new long[16];
     private long [] zobristEnPassant = new long[8];
 
@@ -249,6 +248,38 @@ public class Board {
         moveNumber--;
     }
 
+    public void executeNullMove() {
+        int oldAvailableEnPassant = enPassantHistory[moveNumber];
+        moveNumber++;
+        enPassantHistory[moveNumber] = NO_EN_PASSANT_AVAILABLE;
+
+        //Copy history
+        castlingRightsHistory[moveNumber] = castlingRightsHistory[moveNumber - 1];
+        fiftyMoveHistory[moveNumber] = fiftyMoveHistory[moveNumber - 1];
+
+        //Update turn hash
+        hash ^= zobristTurn;
+
+        //Update en passant hash
+        if (oldAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[oldAvailableEnPassant];
+
+        hashHistory[moveNumber] = hash;
+        playerToMove = playerToMove.getOpponent();
+    }
+
+    public void executeInvertedNullMove() {
+        moveNumber--;
+        int oldAvailableEnPassant = enPassantHistory[moveNumber];
+
+        //Update turn hash
+        hash ^= zobristTurn;
+
+        //Update en passant hash
+        if (oldAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[oldAvailableEnPassant];
+
+        playerToMove = playerToMove.getOpponent();
+    }
+
     public void revertLastMove() {
         executeInvertedMove(lastMove);
     }
@@ -351,19 +382,19 @@ public class Board {
         int moveFromindex = move.getMoveFrom();
         int moveToindex = move.getMoveTo();
 
-        hash ^= zobristTable[moveFromindex][playerToMove.getHashValue()][move.getPiece() - 1];             //Remove piece from origin
+        hash ^= zobristTable[moveFromindex][move.getPiece() - 1];             //Remove piece from origin
         //If promoting move
         if (move.getPromotingPiece() != EMPTY_SQUARE) {
-            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getPromotingPiece() - 1];  //Add promoting piece to new square
+            hash ^= zobristTable[moveToindex][move.getPromotingPiece() - 1];  //Add promoting piece to new square
         }
         //If regular move
         else {
-            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getPiece() - 1];           //Add origin piece to new square
+            hash ^= zobristTable[moveToindex][move.getPiece() - 1];           //Add origin piece to new square
         }
 
         //If capturing move
         if (move.getCapturedPiece() != EMPTY_SQUARE) {
-            hash ^= zobristTable[moveToindex][playerToMove.getHashValue()][move.getCapturedPiece() - 1];   //Remove captured piece from new square
+            hash ^= zobristTable[moveToindex][move.getCapturedPiece() - 1];   //Remove captured piece from new square
         }
 
         //If castling move
@@ -377,8 +408,8 @@ public class Board {
 
             byte rook = playerToMove == Player.WHITE ? WHITE_ROOK : BLACK_ROOK;
 
-            hash ^= zobristTable[rookMoveFromindex][playerToMove.getHashValue()][rook - 1];           //Remove rook from corner
-            hash ^= zobristTable[rookMoveToIndex][playerToMove.getHashValue()][rook - 1];             //Add rook to new location
+            hash ^= zobristTable[rookMoveFromindex][rook - 1];           //Remove rook from corner
+            hash ^= zobristTable[rookMoveToIndex][rook - 1];             //Add rook to new location
         }
 
         //Update castlingRights hash
@@ -388,6 +419,9 @@ public class Board {
         if (oldAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[oldAvailableEnPassant];
         if (newAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[newAvailableEnPassant];
 
+        //Update turn hash
+        hash ^= zobristTurn;
+
     }
 
 
@@ -396,9 +430,7 @@ public class Board {
         Random rnd = new Random(1);
         for (int i = 0; i < zobristTable.length; i++) {
             for (int j = 0; j < zobristTable[0].length; j++) {
-                for (int k = 0; k < zobristTable[0][0].length; k++) {
-                    zobristTable[i][j][k] = rnd.nextLong();
-                }
+                zobristTable[i][j] = rnd.nextLong();
             }
         }
 
@@ -409,6 +441,8 @@ public class Board {
         for (int i = 0; i < zobristEnPassant.length; i++) {
             zobristEnPassant[i] = rnd.nextLong();
         }
+
+        zobristTurn = rnd.nextLong();
     }
 
     private long generateZobristHash() {
@@ -417,7 +451,7 @@ public class Board {
         for (int i = 0; i < 128; i++) {
                 byte piece = squares[i];
                 if (piece != 0) {
-                    hash ^= zobristTable[i][playerToMove.getHashValue()][piece - 1];
+                    hash ^= zobristTable[i][piece - 1];
                 }
         }
 

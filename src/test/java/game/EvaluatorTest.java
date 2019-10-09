@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class EvaluatorTest {
 
     private Board board;
-    private static int SEARCH_DEPTH = 6;
+    private static int SEARCH_DEPTH = 8;
 
     @Before
     public void before() {
@@ -27,9 +27,7 @@ public class EvaluatorTest {
         assertTrue(bestMove.toString().equals("a1b1"));
     }
 
-    //Takes about 10s
-    //80% of time spent on sorting
-    //With move ordering takes about 2.2s
+    //Should work on at least depth 6, needs depth 8 since null move was implemented
     @Test
     public void test2() {
         board = new Board("3kqb1r/1pp3pp/3p1n2/4pp2/rnPP4/4P3/PB3PPP/KBR1Q1NR b - -");
