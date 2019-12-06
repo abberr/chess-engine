@@ -1,6 +1,7 @@
 package view;
 
 import controller.Controller;
+import game.Evaluator;
 import game.Move;
 import game.Player;
 
@@ -41,6 +42,7 @@ public class UciView {
 
             if (input.equals("ucinewgame")) {
                 contr.restart();
+                Evaluator.reset();
             }
 
             if (input.startsWith("position startpos moves")) {

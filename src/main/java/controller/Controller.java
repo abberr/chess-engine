@@ -44,7 +44,7 @@ public class Controller {
 	}
 
 	public void computerMove() {
-        Move move = Evaluator.findBestMove(board);
+        Move move = Evaluator.findBestMove(board, 1000000l);
         board.executeMove(move);
     }
 

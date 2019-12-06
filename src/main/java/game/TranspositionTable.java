@@ -25,7 +25,13 @@ public class TranspositionTable {
     //TODO add replacement scheme
     public void saveState(long hash, int depth, int value, Move bestMove, NodeType nodeType) {
 
-//        State existingEntry = hashMap.get(hash % TABLE_SIZE);
+        State existingEntry = hashMap.get(hash % TABLE_SIZE);
+        if (existingEntry != null) {
+            //TODO >= or > ?
+            if (existingEntry.depth > depth) {
+                return;
+            }
+        }
 
         State state = new State(hash, depth, value, bestMove, nodeType);
         hashMap.put((hash % TABLE_SIZE), state);

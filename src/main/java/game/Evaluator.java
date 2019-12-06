@@ -208,8 +208,10 @@ public class Evaluator {
                 bestValue = DRAW_SCORE;
             } else {
                 bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, true));
-                if (System.currentTimeMillis() > endTime)
+                if (System.currentTimeMillis() > endTime) {
+                    board.executeInvertedMove(move);
                     return bestValue;
+                }
             }
             board.executeInvertedMove(move);
 
@@ -251,6 +253,7 @@ public class Evaluator {
     public static void reset() {
         killerMoves = new Move[MAX_PLY][KILLER_MOVES_TO_STORE];
         historyMoves = new int[2][PIECES_SIZE][128];
+        transpositionTable = new TranspositionTable();
     }
 
     private static void resetCounters() {
