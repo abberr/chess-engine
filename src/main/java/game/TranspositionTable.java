@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class TranspositionTable {
 
-    private static final int TABLE_SIZE = 0xFFFF;
+    private static final int TABLE_SIZE = 0xFFFFFFF;
 
     HashMap<Long, State> hashMap;
 
@@ -27,6 +27,7 @@ public class TranspositionTable {
 
         State existingEntry = hashMap.get(hash % TABLE_SIZE);
         if (existingEntry != null) {
+
             //TODO >= or > ?
             if (existingEntry.depth > depth) {
                 return;
