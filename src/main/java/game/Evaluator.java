@@ -91,15 +91,6 @@ public class Evaluator {
             depth++;
         }
 
-//        long totalTime = System.currentTimeMillis() - time;
-//        float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
-//
-//        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
-//        System.out.println("Best move: " + pvMove + ", value: " + value);
-//        System.out.println("Sorting time: " + sortingTime);
-//        System.out.println("MoveGen time: " + moveGenTime);
-//        System.out.println("Eval time: " + evalTime);
-
         return pvMove;
     }
 
@@ -121,24 +112,26 @@ public class Evaluator {
 
     private static int minMax(int alpha, int beta, int depth, Board board, boolean makeNullMove) {
 
-        //Cache lookup - has this position been evaluated before?
-        State lookUpState = transpositionTable.lookup(board.getHash());
-        if (useHash && lookUpState != null && lookUpState.depth >= depth) {
-            cacheHitCounter++;
+        if (depth != 0) {
+            //Cache lookup - has this position been evaluated before?
+            State lookUpState = transpositionTable.lookup(board.getHash());
+            if (useHash && lookUpState != null && lookUpState.depth >= depth) {
+                cacheHitCounter++;
 
-            if (lookUpState.nodeType == NodeType.EXACT) {
-                return lookUpState.score;
-            } else if (lookUpState.nodeType == NodeType.ALPHA) {
-                if (lookUpState.score <= alpha) {
-                    return alpha;
-                } else {
-//                    alpha = lookUpState.score;
-                }
-            } else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score >= beta) {
-                    return beta;
-                } else {
-//                    beta = lookUpState.score;
+                if (lookUpState.nodeType == NodeType.EXACT) {
+                    return lookUpState.score;
+                } else if (lookUpState.nodeType == NodeType.ALPHA) {
+                    if (lookUpState.score <= alpha) {
+                        return alpha;
+                    } else {
+        //                    alpha = lookUpState.score;
+                    }
+                } else if (lookUpState.nodeType == NodeType.BETA) {
+                    if (lookUpState.score >= beta) {
+                        return beta;
+                    } else {
+        //                    beta = lookUpState.score;
+                    }
                 }
             }
 
@@ -160,7 +153,8 @@ public class Evaluator {
 
             MoveGenerator.setSearchModeNormal();
 
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
+            //Dont need to save state since we wont lookup at depth 0 anyways
+//            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
             return value;
         }
 
@@ -302,6 +296,9 @@ public class Evaluator {
     public static LinkedList<Move> getPvMoves(Board board, int depth) {
         State state = transpositionTable.lookup(board.getHash());
         if (state == null || state.bestMove == null || depth == 0) {
+            if (state != null && depth != 0) {
+                System.out.println(state.score + " " + state.nodeType + " " + state.depth + " " + state.bestMove);
+            }
             return new LinkedList<>();
         }
         Move bestMove = state.bestMove;

@@ -173,7 +173,7 @@ public class HashTest {
     @Test
     public void hashShouldNotChangeOnEvaluating() {
         long hash = board.getHash();
-        Evaluator.findBestMove(board);
+        Evaluator.findBestMove(board, 3);
 
         assertTrue("Hash hasnt changed after finding best move", hash == board.getHash());
     }

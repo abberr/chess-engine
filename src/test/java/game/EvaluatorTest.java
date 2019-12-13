@@ -113,11 +113,9 @@ public class EvaluatorTest {
         assertTrue(bestMove.toString().equals("c6e5"));
     }
 
-    //1m15s depth 6
-    //8m2s depth 7
-    //2m49s with improved move ordering
-    //3m 39s with hash (test fails)
-    //4m 42s without
+    //52s depth 7
+    //2m19s depth 8 cache size 0xFFFFFFF
+    //2m19s depth 8 cache size 0xFFFFFF
     @Ignore
     @Test
     public void testWholeGame() {
@@ -125,9 +123,11 @@ public class EvaluatorTest {
         board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
 
         for (int i = 0; i < moves.length; i++) {
+            System.out.println("Executing move " + moves[i]);
             board.executeMove(moves[i]);
             if (i%2 == 0) {
-                System.out.println(Evaluator.findBestMove(board, SEARCH_DEPTH));
+                Move bestMove = Evaluator.findBestMove(board, 6);
+                assertTrue(bestMove != null);
             }
         }
 
@@ -140,9 +140,10 @@ public class EvaluatorTest {
     @Ignore
     @Test
     public void bugTest() {
-        board = new Board("rk1b4/ppp2Npp/4pn2/8/1P6/P3P3/1B3PPP/2R3K1 b - - 5 23 ");
+        board = new Board("2k1r3/pp4pp/1n5b/B1p2P2/2P1p3/PP1r1BP1/4K2P/1R5R w - - 2 22");
+        board.executeMove("a5b6");
 
-        Move bestMove = Evaluator.findBestMove(board, SEARCH_DEPTH);
+        Move bestMove = Evaluator.findBestMove(board, 15);
 
         assertTrue(bestMove != null);
     }
