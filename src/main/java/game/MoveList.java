@@ -7,6 +7,25 @@ import static game.Pieces.*;
 
 public class MoveList implements Iterable<Move> {
 
+
+    private static int MVV_LVA_SCORES[][] = {
+        //      E, P, N, B, R, Q, K, p, n, b, r, q, k
+        /*E*/ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        /*P*/ { 0, 0, 0, 0, 0, 0, 0,30,24,18,12, 6, 0},
+        /*N*/ { 0, 0, 0, 0, 0, 0, 0,31,25,19,13, 7, 1},
+        /*B*/ { 0, 0, 0, 0, 0, 0, 0,32,26,20,14, 8, 2},
+        /*R*/ { 0, 0, 0, 0, 0, 0, 0,33,27,21,15, 9, 3},
+        /*Q*/ { 0, 0, 0, 0, 0, 0, 0,34,28,22,16, 10,4},
+        /*K*/ { 0, 0, 0, 0, 0, 0, 0,35,29,23,17, 11,5},
+        /*p*/ { 0,30,24,18,12, 6, 0, 0, 0, 0, 0, 0, 0},
+        /*n*/ { 0,31,25,19,13, 7, 1, 0, 0, 0, 0, 0, 0},
+        /*b*/ { 0,32,26,20,14, 8, 2, 0, 0, 0, 0, 0, 0},
+        /*r*/ { 0,33,27,21,15, 9, 3, 0, 0, 0, 0, 0, 0},
+        /*q*/ { 0,34,28,22,16, 10,4, 0, 0, 0, 0, 0, 0},
+        /*k*/ { 0,35,29,23,17, 11,5, 0, 0, 0, 0, 0, 0},
+    };
+
+
     private LinkedList<Move> promotingMoves = new LinkedList<>();
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
@@ -164,8 +183,15 @@ public class MoveList implements Iterable<Move> {
         return value;
     }
 
+    //TODO: MVV/LVA
     private int pieceAndCapturedPieceValueDif(Move move) {
-        return (-PIECE_VALUES[move.getPiece()] - PIECE_VALUES[move.getCapturedPiece()]) * board.getPlayerToMove().getValue();
+
+        byte attacker = move.getPiece();
+        byte captured = move.getCapturedPiece();
+
+        return MVV_LVA_SCORES[captured][attacker];
+
+//        return (-PIECE_VALUES[move.getPiece()] - PIECE_VALUES[move.getCapturedPiece()]) * board.getPlayerToMove().getValue();
     }
 
     public void addAll(MoveList moves) {

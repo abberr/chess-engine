@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 public class TranspositionTable {
 
+    //0xFFFFFF = 2MB
     private static final int TABLE_SIZE = 0xFFFFFF;
 
     HashMap<Long, State> hashMap;
