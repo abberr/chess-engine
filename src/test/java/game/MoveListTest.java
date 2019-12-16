@@ -51,14 +51,15 @@ public class MoveListTest {
 
     @Test
     public void mvvLvaTest() {
-        Board board = new Board("7k/6p1/8/1pq5/1PP5/8/6P1/7K w - - ");
+        Board board = new Board("7k/8/8/1pr3q1/1PP3Q/8/8/7K w - - ");
         board.printBoard();
 
         MoveGenerator.setSearchModeQuiescence();
         MoveList moves = board.getAvailableMoves(false);
+        MoveGenerator.setSearchModeNormal();
         moves.prepare(board);
 
-        String [] expectedMoves = {"b4xc5", "c4xb5"};
+        String [] expectedMoves = {"g4xg5", "b4xc5", "c4xb5"};
 
         assertMoves(expectedMoves, moves);
     }

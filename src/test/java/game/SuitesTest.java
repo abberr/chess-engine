@@ -1,5 +1,6 @@
 package game;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,6 +17,7 @@ public class SuitesTest {
 
     //175 passed, 1 sec limit
     //343 passed, 20 sec limit
+    @Ignore
     @Test
     public void ECM() throws IOException {
         Files.readAllLines(Path.of("src/test/resources/ECM.EPD")).stream().forEach(this::testPos);

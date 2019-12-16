@@ -296,9 +296,6 @@ public class Evaluator {
     public static LinkedList<Move> getPvMoves(Board board, int depth) {
         State state = transpositionTable.lookup(board.getHash());
         if (state == null || state.bestMove == null || depth == 0) {
-            if (state != null && depth != 0) {
-                System.out.println(state.score + " " + state.nodeType + " " + state.depth + " " + state.bestMove);
-            }
             return new LinkedList<>();
         }
         Move bestMove = state.bestMove;

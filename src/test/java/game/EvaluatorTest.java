@@ -126,7 +126,7 @@ public class EvaluatorTest {
             System.out.println("Executing move " + moves[i]);
             board.executeMove(moves[i]);
             if (i%2 == 0) {
-                Move bestMove = Evaluator.findBestMove(board, 6);
+                Move bestMove = Evaluator.findBestMove(board, 8);
                 assertTrue(bestMove != null);
             }
         }
