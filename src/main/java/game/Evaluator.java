@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import static game.Pieces.EMPTY_SQUARE;
 import static game.Pieces.PIECES_SIZE;
+import static game.TranspositionTable.NO_HIT;
 
 public class Evaluator {
 
@@ -94,50 +95,12 @@ public class Evaluator {
         return pvMove;
     }
 
-//    private static void findMate(Board board, int depth) {
-//        depth = depth - 2;
-//        Move shortestMateMove = bestMove;
-//        useHash = false;
-//        while (depth > 0 ) {
-//            int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove(), null);
-//            if (value != Integer.MAX_VALUE - 1 ) {
-//                break;
-//            }
-//            shortestMateMove = bestMove;
-//            depth -= 2;
-//        }
-//        useHash = true;
-//        bestMove = shortestMateMove;
-//    }
-
     private static int minMax(int alpha, int beta, int depth, Board board, boolean makeNullMove) {
 
-        if (depth != 0) {
-            //Cache lookup - has this position been evaluated before?
-            State lookUpState = transpositionTable.lookup(board.getHash());
-            if (useHash && lookUpState != null && lookUpState.depth >= depth) {
-                cacheHitCounter++;
-
-                if (lookUpState.nodeType == NodeType.EXACT) {
-                    return lookUpState.score;
-                } else if (lookUpState.nodeType == NodeType.ALPHA) {
-                    if (lookUpState.score <= alpha) {
-                        return alpha;
-                    } else {
-        //                    alpha = lookUpState.score;
-                    }
-                } else if (lookUpState.nodeType == NodeType.BETA) {
-                    if (lookUpState.score >= beta) {
-                        return beta;
-                    } else {
-        //                    beta = lookUpState.score;
-                    }
-                }
-            }
-
-//            if (alpha >= beta) {
-//                return lookUpState.score;
-//            }
+        int cacheScore = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
+        if (cacheScore != NO_HIT) {
+            cacheHitCounter++;
+            return cacheScore;
         }
 
         moveCounter++;
@@ -159,6 +122,7 @@ public class Evaluator {
         }
 
         //Null move
+        //TODO dont do null moves in endgame
         if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove())) {
             board.executeNullMove();
             int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, board,false);

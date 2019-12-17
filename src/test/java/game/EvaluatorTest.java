@@ -18,6 +18,14 @@ public class EvaluatorTest {
         Evaluator.reset();
     }
 
+    @Ignore
+    @Test
+    public void startingPos() {
+        board = new Board();
+
+        Evaluator.findBestMove(board, 10);
+    }
+
     //Pv: a1b1, b2ax2, d1xd4
     @Test
     public void test1() {

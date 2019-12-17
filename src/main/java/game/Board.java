@@ -25,9 +25,12 @@ public class Board {
     private long [] zobristEnPassant = new long[8];
 
     private int moveNumber = 0;
+
+    //Store all theses 3 in one array instead (less than 32 bits needed)
     private int[] castlingRightsHistory = new int[MAXIMUM_NUMBER_OF_MOVES];     //MASK: qkQK
     private int[] enPassantHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
     private int[] fiftyMoveHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
+
     private long[] hashHistory = new long[MAXIMUM_NUMBER_OF_MOVES];
 
 
