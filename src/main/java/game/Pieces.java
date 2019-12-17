@@ -38,6 +38,16 @@ public final class Pieces {
 					5,	10,	10,	-20,-20,10,	10,	5,	0,	0,	0,	0,	0,	0,	0,	0,
 					0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0};
 
+    static final int[] BLACK_PAWN_VALUE_TABLE_LATE =
+                    {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+                    100,100,100,100,100,100,100,100,0,	0,	0,	0,	0,	0,	0,	0,
+                    50,	50,	50,	50,	50,	50,	50,	50,	0,	0,	0,	0,	0,	0,	0,	0,
+                    25,	25,	25,	25,	25,	25,	25,	25,	0,	0,	0,	0,	0,	0,	0,	0,
+                    12,	12,	12,	12,	12,	12,	12,	12,	0,	0,	0,	0,	0,	0,	0,	0,
+                    5 ,	 5,	 5,  5,  5,	5,   5,	 5,	0,	0,	0,	0,	0,	0,	0,	0,
+                    -10 ,-10,-10,-10,-10,-10,-10,-10,0,	0,	0,	0,	0,	0,	0,	0,
+                    0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0};
+
     static final int[] BLACK_KNIGHT_VALUE_TABLE =
                             {-50,-40,-30,-30,-30,-30,-40,-50, 0,0,	0,	0,	0,	0,	0,	0,
                             -40,-20,  0,  0,  0,  0,-20,-40, 0,	0,	0,	0,	0,	0,	0,	0,
@@ -100,6 +110,7 @@ public final class Pieces {
             -50,-30,-30,-30,-30,-30,-30,-50,  0,	0,	0,	0,	0,	0,	0,	0};
 
     static final int [] WHITE_PAWN_VALUE_TABLE;
+    static final int [] WHITE_PAWN_VALUE_TABLE_LATE;
     static final int [] WHITE_KNIGHT_VALUE_TABLE;
     static final int [] WHITE_BISHOP_VALUE_TABLE;
     static final int [] WHITE_ROOK_VALUE_TABLE;
@@ -109,6 +120,7 @@ public final class Pieces {
 
     static {
         WHITE_PAWN_VALUE_TABLE = Util.invertSquareValueTable(BLACK_PAWN_VALUE_TABLE);
+        WHITE_PAWN_VALUE_TABLE_LATE = Util.invertSquareValueTable(BLACK_PAWN_VALUE_TABLE_LATE);
         WHITE_KNIGHT_VALUE_TABLE= Util.invertSquareValueTable(BLACK_KNIGHT_VALUE_TABLE);
         WHITE_BISHOP_VALUE_TABLE= Util.invertSquareValueTable(BLACK_BISHOP_VALUE_TABLE);
         WHITE_ROOK_VALUE_TABLE= Util.invertSquareValueTable(BLACK_ROOK_VALUE_TABLE);
