@@ -4,6 +4,8 @@ import util.Util;
 
 import static game.Pieces.*;
 
+//TODO make static instead
+//http://mediocrechess.blogspot.com/2007/02/plan-changing-moves-and-general.html
 public class Move {
 
     private byte piece;

@@ -34,13 +34,7 @@ public class MoveListTest {
 
         String [] expectedMoves = {"e7e8q" , "e7e8r", "e7e8b", "e7e8n", "e2xd3", "c2xd3", "c2xb3"};
 
-
-        for (String expectedMove : expectedMoves) {
-            System.out.println(expectedMove);
-            assertTrue(moves.getNextMove().toString().equals(expectedMove));
-        }
-
-        board.printBoard();
+        assertMoves(expectedMoves, moves);
     }
 
     @Test
@@ -52,12 +46,30 @@ public class MoveListTest {
 
         String [] expectedMoves = {"e2e1q" , "e2e1r", "e2e1b", "e2e1n", "b7xc6", "d7xc6", "d7xe6"};
 
+        assertMoves(expectedMoves, moves);
+    }
+
+    @Test
+    public void mvvLvaTest() {
+        Board board = new Board("7k/8/8/1pr3q1/1PP3Q/8/8/7K w - - ");
+        board.printBoard();
+
+        MoveGenerator.setSearchModeQuiescence();
+        MoveList moves = board.getAvailableMoves(false);
+        MoveGenerator.setSearchModeNormal();
+        moves.prepare(board);
+
+        String [] expectedMoves = {"g4xg5", "b4xc5", "c4xb5"};
+
+        assertMoves(expectedMoves, moves);
+    }
+
+
+    private void assertMoves(String [] expectedMoves, MoveList moves) {
         for (String expectedMove : expectedMoves) {
             Move move = moves.getNextMove();
-            System.out.println(move);
+            System.out.println("Move: " + move + ", Expected: " + expectedMove);
             assertTrue(move.toString().equals(expectedMove));
         }
-
-
     }
 }

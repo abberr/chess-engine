@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import static game.Pieces.EMPTY_SQUARE;
 import static game.Pieces.PIECES_SIZE;
+import static game.TranspositionTable.NO_HIT;
 
 public class Evaluator {
 
@@ -91,60 +92,15 @@ public class Evaluator {
             depth++;
         }
 
-//        long totalTime = System.currentTimeMillis() - time;
-//        float evalsPerSecond = ((float) moveCounter /totalTime) * 1000;
-//
-//        System.out.println(moveCounter + " moves calculated in " + totalTime + "ms. Evaluations per second: " + evalsPerSecond);
-//        System.out.println("Best move: " + pvMove + ", value: " + value);
-//        System.out.println("Sorting time: " + sortingTime);
-//        System.out.println("MoveGen time: " + moveGenTime);
-//        System.out.println("Eval time: " + evalTime);
-
         return pvMove;
     }
 
-//    private static void findMate(Board board, int depth) {
-//        depth = depth - 2;
-//        Move shortestMateMove = bestMove;
-//        useHash = false;
-//        while (depth > 0 ) {
-//            int value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, board.getPlayerToMove(), null);
-//            if (value != Integer.MAX_VALUE - 1 ) {
-//                break;
-//            }
-//            shortestMateMove = bestMove;
-//            depth -= 2;
-//        }
-//        useHash = true;
-//        bestMove = shortestMateMove;
-//    }
-
     private static int minMax(int alpha, int beta, int depth, Board board, boolean makeNullMove) {
 
-        //Cache lookup - has this position been evaluated before?
-        State lookUpState = transpositionTable.lookup(board.getHash());
-        if (useHash && lookUpState != null && lookUpState.depth >= depth) {
+        int cacheScore = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
+        if (cacheScore != NO_HIT) {
             cacheHitCounter++;
-
-            if (lookUpState.nodeType == NodeType.EXACT) {
-                return lookUpState.score;
-            } else if (lookUpState.nodeType == NodeType.ALPHA) {
-                if (lookUpState.score <= alpha) {
-                    return alpha;
-                } else {
-//                    alpha = lookUpState.score;
-                }
-            } else if (lookUpState.nodeType == NodeType.BETA) {
-                if (lookUpState.score >= beta) {
-                    return beta;
-                } else {
-//                    beta = lookUpState.score;
-                }
-            }
-
-//            if (alpha >= beta) {
-//                return lookUpState.score;
-//            }
+            return cacheScore;
         }
 
         moveCounter++;
@@ -160,11 +116,13 @@ public class Evaluator {
 
             MoveGenerator.setSearchModeNormal();
 
-            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
+            //Dont need to save state since we wont lookup at depth 0 anyways
+//            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
             return value;
         }
 
         //Null move
+        //TODO dont do null moves in endgame
         if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove())) {
             board.executeNullMove();
             int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, board,false);

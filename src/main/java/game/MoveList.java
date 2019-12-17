@@ -7,6 +7,26 @@ import static game.Pieces.*;
 
 public class MoveList implements Iterable<Move> {
 
+
+    private static int MVV_LVA_SCORES[][] = {
+            // x=Attacker y=Victim
+        //      E, P, N, B, R, Q, K, p, n, b, r, q, k
+        /*E*/ { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        /*P*/ { 0, 0, 0, 0, 0, 0, 0, 5, 4, 3, 2, 1, 0},
+        /*N*/ { 0, 0, 0, 0, 0, 0, 0,11,10, 9, 8, 7, 6},
+        /*B*/ { 0, 0, 0, 0, 0, 0, 0,17,16,15,14,13,12},
+        /*R*/ { 0, 0, 0, 0, 0, 0, 0,23,22,21,20,19,18},
+        /*Q*/ { 0, 0, 0, 0, 0, 0, 0,29,28,27,26,25,24},
+        /*K*/ { 0, 0, 0, 0, 0, 0, 0,35,34,33,32,31,30},
+        /*p*/ { 0, 5, 4, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0},
+        /*n*/ { 0,11,10, 9, 8, 7, 6, 0, 0, 0, 0, 0, 0},
+        /*b*/ { 0,17,16,15,14,13,12, 0, 0, 0, 0, 0, 0},
+        /*r*/ { 0,23,22,21,20,19,18, 0, 0, 0, 0, 0, 0},
+        /*q*/ { 0,29,28,27,26,25,24, 0, 0, 0, 0, 0, 0},
+        /*k*/ { 0,35,34,33,32,31,30, 0, 0, 0, 0, 0, 0},
+    };
+
+
     private LinkedList<Move> promotingMoves = new LinkedList<>();
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
@@ -89,7 +109,7 @@ public class MoveList implements Iterable<Move> {
             return promotingMoves.pop();
         } else if (capturingMoves.size() != 0) {
             if (!capturingMovesSorted) {
-                capturingMoves.sort(Comparator.comparing(m -> pieceAndCapturedPieceValueDif(m), Comparator.reverseOrder()));
+                capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
                 capturingMovesSorted = true;
             }
             return capturingMoves.pop();
@@ -164,8 +184,12 @@ public class MoveList implements Iterable<Move> {
         return value;
     }
 
-    private int pieceAndCapturedPieceValueDif(Move move) {
-        return (-PIECE_VALUES[move.getPiece()] - PIECE_VALUES[move.getCapturedPiece()]) * board.getPlayerToMove().getValue();
+    private int mvvLva(Move move) {
+
+        byte attacker = move.getPiece();
+        byte captured = move.getCapturedPiece();
+
+        return MVV_LVA_SCORES[captured][attacker];
     }
 
     public void addAll(MoveList moves) {
