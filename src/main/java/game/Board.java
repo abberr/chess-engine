@@ -36,7 +36,7 @@ public class Board {
 
     Move lastMove;
 
-    private long hash;
+    private long hash, pawnHash;
 
     public Board() {
         this("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
@@ -98,7 +98,7 @@ public class Board {
 //            fiftyMoveHistory[moveNumber] = Integer.parseInt(fields[4]);
 //        }
 
-        hash = generateZobristHash();
+        generateZobristHash();
         hashHistory[moveNumber] = hash;
     }
 
@@ -109,6 +109,10 @@ public class Board {
 
     public long getHash() {
         return hash;
+    }
+
+    public long getPawnHash() {
+        return pawnHash;
     }
 
 
@@ -321,87 +325,23 @@ public class Board {
 
     public int getValue() {
         return StaticEvaluator.getValue(squares);
-//
-//        int value = 0;
-//
-//        boolean isEndgame = false;
-//        int blackMaterial = 0, whiteMaterial = 0;
-//        int pieceSquareTableSumBlack = 0;
-//        int pieceSquareTableSumWhite = 0;
-//        int wkIndex, bkIndex;
-//
-//        for (int i = 0; i < 120; i++) {
-//            if ((i&0x88) != 0) continue;
-//            byte piece = squares[i];
-//            value += PIECE_VALUES[piece];
-//            if (piece == WHITE_PAWN ) {
-//                whiteMaterial += PIECE_VALUES[piece];
-//                value += WHITE_PAWN_VALUE_TABLE[i];
-//            } else if (piece == BLACK_PAWN) {
-//                blackMaterial += BLACK_PAWN_VALUE_TABLE[i];
-//                value -= BLACK_PAWN_VALUE_TABLE[i];
-//            } else if (piece == WHITE_KNIGHT ) {
-//                value += WHITE_KNIGHT_VALUE_TABLE[i];
-//            } else if (piece == BLACK_KNIGHT) {
-//                value -= BLACK_KNIGHT_VALUE_TABLE[i];
-//            } else if (piece == WHITE_BISHOP ) {
-//                value += WHITE_BISHOP_VALUE_TABLE[i];
-//            } else if (piece == BLACK_BISHOP) {
-//                value -= BLACK_BISHOP_VALUE_TABLE[i];
-//            } else if (piece == WHITE_ROOK) {
-//                value += WHITE_ROOK_VALUE_TABLE[i];
-//            } else if (piece == BLACK_ROOK) {
-//                value -= BLACK_ROOK_VALUE_TABLE[i];
-//            } else if (piece == WHITE_QUEEN) {
-//                value += WHITE_QUEEN_VALUE_TABLE[i];
-//            } else if (piece == BLACK_QUEEN) {
-//                value -= BLACK_QUEEN_VALUE_TABLE[i];
-//            } else if (piece == WHITE_KING) {
-//                value += WHITE_KING_VALUE_TABLE[i];
-//                wkIndex = i;
-//            } else if (piece == BLACK_KING) {
-//                value -= BLACK_KING_VALUE_TABLE[i];
-//                bkIndex = i;
-//            }
-//        }
-//
-//        return value;
     }
-
-    public int countAdjacentOpenSquares(int index) {
-        int counter = 0;
-        for (byte direction : MoveGenerator.QUEEN_DIRECTIONS) {
-            int squareToExamine = index + direction;
-            if ((squareToExamine&0x88) == 0 && squares[squareToExamine] == EMPTY_SQUARE) {
-                counter++;
-            }
-        }
-
-        return counter;
-    }
-
 
     private void updateHash(Move move, int oldCastlingRights, int newCastlingRights, int oldAvailableEnPassant, int newAvailableEnPassant) {
         int moveFromindex = move.getMoveFrom();
         int moveToindex = move.getMoveTo();
 
         hash ^= zobristTable[moveFromindex][move.getPiece() - 1];             //Remove piece from origin
+        if (move.getPiece() == WHITE_PAWN || move.getPiece() == BLACK_PAWN) {
+            pawnHash ^= zobristTable[moveFromindex][move.getPiece() - 1];
+        }
+
         //If promoting move
         if (move.getPromotingPiece() != EMPTY_SQUARE) {
             hash ^= zobristTable[moveToindex][move.getPromotingPiece() - 1];  //Add promoting piece to new square
         }
-        //If regular move
-        else {
-            hash ^= zobristTable[moveToindex][move.getPiece() - 1];           //Add origin piece to new square
-        }
-
-        //If capturing move
-        if (move.getCapturedPiece() != EMPTY_SQUARE) {
-            hash ^= zobristTable[moveToindex][move.getCapturedPiece() - 1];   //Remove captured piece from new square
-        }
-
         //If castling move
-        if (move.isKingSideCastle() || move.isQueenSideCastle()) {
+        else if (move.isKingSideCastle() || move.isQueenSideCastle()) {
             int rookFromX = move.isKingSideCastle() ? 7 : 0;
             int rookToX = move.isKingSideCastle() ? 5 : 3;
             int rookY = move.getMoveFrom() >> 4;
@@ -413,6 +353,31 @@ public class Board {
 
             hash ^= zobristTable[rookMoveFromindex][rook - 1];           //Remove rook from corner
             hash ^= zobristTable[rookMoveToIndex][rook - 1];             //Add rook to new location
+        }
+        //If regular move
+        else {
+            hash ^= zobristTable[moveToindex][move.getPiece() - 1];           //Add origin piece to new square
+            if (move.getPiece() == WHITE_PAWN || move.getPiece() == BLACK_PAWN) {
+                pawnHash ^= zobristTable[moveToindex][move.getPiece() - 1];
+            }
+        }
+
+        //If capturing move
+        if (move.getCapturedPiece() != EMPTY_SQUARE) {
+            int moveToIndexTemp = moveToindex;
+            //If en passant
+            if (move.isEnPassant()) {
+                if (move.getPiece() == WHITE_PAWN) {
+                    moveToIndexTemp = move.getMoveTo() + MoveGenerator.SOUTH;
+                } else {
+                    moveToIndexTemp = move.getMoveTo() + MoveGenerator.NORTH;
+                }
+            }
+
+            hash ^= zobristTable[moveToIndexTemp][move.getCapturedPiece() - 1];   //Remove captured piece from new square
+            if (move.getCapturedPiece() == WHITE_PAWN || move.getCapturedPiece() == BLACK_PAWN) {
+                pawnHash ^= zobristTable[moveToIndexTemp][move.getCapturedPiece() - 1];
+            }
         }
 
         //Update castlingRights hash
@@ -448,13 +413,17 @@ public class Board {
         zobristTurn = rnd.nextLong();
     }
 
-    private long generateZobristHash() {
+    private void generateZobristHash() {
         //Pieces
-        long hash = 0;
+        hash = 0;
+        pawnHash = 0;
         for (int i = 0; i < 128; i++) {
                 byte piece = squares[i];
                 if (piece != 0) {
                     hash ^= zobristTable[i][piece - 1];
+                    if (piece == WHITE_PAWN || piece == BLACK_PAWN) {
+                        pawnHash ^= zobristTable[i][piece - 1];
+                    }
                 }
         }
 
@@ -467,8 +436,6 @@ public class Board {
         if (enPassantSquare != NO_EN_PASSANT_AVAILABLE) {
             hash ^= zobristEnPassant[enPassantSquare];
         }
-
-        return hash;
     }
 
     public boolean isInCheck() {

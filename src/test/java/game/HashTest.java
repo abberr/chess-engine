@@ -171,6 +171,27 @@ public class HashTest {
     }
 
     @Test
+    public void enPassantCorrectHash() {
+        board.executeMove("e2e4");
+        board.executeMove("b8a6");
+        board.executeMove("e4e5");
+        board.executeMove("d7d5");
+        board.executeMove("e5d6");
+        long hash = board.getHash();
+
+        //Same position but without capturing e.p
+        board = new Board();
+        board.executeMove("e2e4");
+        board.executeMove("d7d5");
+        board.executeMove("e4d5");
+        board.executeMove("b8a6");
+        board.executeMove("d5d6");
+
+        assertTrue(hash == board.getHash());
+
+    }
+
+    @Test
     public void hashShouldNotChangeOnEvaluating() {
         long hash = board.getHash();
         Evaluator.findBestMove(board, 3);
