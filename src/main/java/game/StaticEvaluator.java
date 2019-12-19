@@ -4,6 +4,7 @@ import static game.MoveGenerator.QUEEN_DIRECTIONS;
 import static game.Pieces.*;
 import static game.Pieces.BLACK_KING_VALUE_TABLE;
 
+//https://github.com/vinc/purplehaze/blob/master/src/eval.cpp
 public class StaticEvaluator {
 
     private static final int ENDAGE_VALUE_THRESHOLD_WHITE = 21300;
@@ -75,14 +76,12 @@ public class StaticEvaluator {
 
         if (whiteMaterial < ENDAGE_VALUE_THRESHOLD_WHITE) {
             pieceSquareTableSumWhite += WHITE_KING_VALUE_TABLE_LATE[wkIndex];
-//            pieceSquareTableSumWhite += WHITE_KING_VALUE_TABLE[wkIndex];
         } else {
             wKingSecurity = kingSecurity(Player.WHITE, squares, wkIndex);
             pieceSquareTableSumWhite += WHITE_KING_VALUE_TABLE[wkIndex];
         }
         if (blackMaterial > ENDAGE_VALUE_THRESHOLD_BLACK) {
             pieceSquareTableSumBlack -= BLACK_KING_VALUE_TABLE_LATE[bkIndex];
-//            pieceSquareTableSumBlack += BLACK_KING_VALUE_TABLE[bkIndex];
         } else {
             bKingSecurity = -kingSecurity(Player.BLACK, squares, bkIndex);
             pieceSquareTableSumBlack -= BLACK_KING_VALUE_TABLE[bkIndex];
