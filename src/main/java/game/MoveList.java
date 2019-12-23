@@ -127,7 +127,8 @@ public class MoveList implements Iterable<Move> {
             if (killerMoves != null && isKillerMove(m, board.getMoveNumber())) {
                 return Integer.MAX_VALUE;
             } else {
-                return boardValueAfterMove(m)  * board.getPlayerToMove().getValue();
+                return 0;
+//                return boardValueAfterMove(m)  * board.getPlayerToMove().getValue();
             }
         }, Comparator.reverseOrder()));
     }
