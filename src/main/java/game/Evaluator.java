@@ -11,7 +11,7 @@ public class Evaluator {
     private static final int MAX_PLY = 4096;
 
     private static final int SEARCH_DEPTH_DEFAULT = 6;
-    private static final int MATE_SCORE = Integer.MAX_VALUE - 1;
+    private static final int MATE_SCORE = 10000;
     private final static int DRAW_SCORE = 0;
 
     private static final int KILLER_MOVES_TO_STORE = 2;
@@ -60,7 +60,7 @@ public class Evaluator {
         while (System.currentTimeMillis() < endTime && depth <= searchDepth) {
             resetCounters();
             long time = System.currentTimeMillis();
-            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, board, false);
+            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);
 //            value *= board.getPlayerToMove().getValue();
             long searchTime = System.currentTimeMillis() - time;
 
@@ -82,20 +82,22 @@ public class Evaluator {
             sb.append(" pv ");
             getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
             sb.append(" score cp " + value);
-            System.out.println(sb);
+
 
             //Stop searching if check mate found
-            if (value == Integer.MAX_VALUE - 1) {
+            if (value >= MATE_SCORE - MAX_PLY) {
+                sb.append(" mate " + (10000-value)/2);
+                System.out.println(sb);
                 break;
             }
-
+            System.out.println(sb);
             depth++;
         }
 
         return pvMove;
     }
 
-    private static int minMax(int alpha, int beta, int depth, Board board, boolean makeNullMove) {
+    private static int minMax(int alpha, int beta, int depth, int ply, Board board, boolean makeNullMove) {
 
         int cacheScore = transpositionTable.lookup(board.getHash(), depth, alpha, beta);
         if (cacheScore != NO_HIT) {
@@ -125,7 +127,7 @@ public class Evaluator {
         //TODO dont do null moves in endgame
         if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove())) {
             board.executeNullMove();
-            int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, board,false);
+            int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, ply + 1, board,false);
             board.executeInvertedNullMove();
 
             if (value >= beta) {
@@ -142,9 +144,9 @@ public class Evaluator {
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
             //Min value if in check (check mate)
-            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove()) ? Integer.MIN_VALUE + 2 : 0;
-            //set depth to +infinity since it's a terminal node anyways
-            transpositionTable.saveState(board.getHash(), Integer.MAX_VALUE, value, null, NodeType.EXACT);
+            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove()) ? -(MATE_SCORE - ply) : 0;
+            //set depth to MAX_PLY since it's a terminal node anyways
+            transpositionTable.saveState(board.getHash(), MAX_PLY, value, null, NodeType.EXACT);
             return value;
         }
 
@@ -165,7 +167,7 @@ public class Evaluator {
             if (board.isRepetition()) {
                 bestValue = DRAW_SCORE;
             } else {
-                bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, board, true));
+                bestValue = Math.max(bestValue, -minMax(-beta, -alpha, depth - 1, ply + 1, board, true));
                 if (System.currentTimeMillis() > endTime) {
                     board.executeInvertedMove(move);
                     return bestValue;
