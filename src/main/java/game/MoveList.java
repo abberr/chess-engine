@@ -102,7 +102,7 @@ public class MoveList implements Iterable<Move> {
 
         if (promotingMoves.size() != 0) {
             if (!promotingMovesSorted) {
-                promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()]*board.getPlayerToMove().getValue() + (PIECE_VALUES[m.getCapturedPiece()]*board.getPlayerToMove().getValue()), Comparator.reverseOrder()));
+                promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()] + PIECE_VALUES[m.getCapturedPiece()], Comparator.reverseOrder()));
 //                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN);
                 promotingMovesSorted = true;
             }

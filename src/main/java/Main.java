@@ -23,7 +23,7 @@ public class Main {
 //        view.startGame();
 
 		UciView uciView = new UciView(contr);
-        uciView.startGame();
+		new Thread(uciView).start();
 
 	}
 }

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 //https://www.stmintz.com/ccc/index.php?id=141612
-public class UciView {
+public class UciView implements Runnable{
 
     private Controller contr;
 
@@ -17,7 +17,8 @@ public class UciView {
         this.contr = contr;
     }
 
-    public void startGame() {
+    @Override
+    public void run() {
         System.out.println("Abberchess started");
         Scanner myObj = new Scanner(System.in);
         while (true) {

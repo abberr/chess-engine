@@ -467,6 +467,7 @@ public class MoveGenerator {
         return (index & 0x88) != 0;
     }
 
+    //TODO use method in Pieces.java
     private static boolean isWhitePiece(byte piece) {
         return piece != 0 && piece <= 6;
     }

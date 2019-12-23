@@ -5,6 +5,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Scanner;
+
 @Ignore
 public class UciTest {
 
@@ -14,11 +20,7 @@ public class UciTest {
     public void before() {
         Controller contr = new Controller();
         uciView = new UciView(contr);
-        uciView.startGame();
-    }
-
-    @Test
-    public void test1() {
-
+        Thread t = new Thread(uciView);
+        t.start();
     }
 }
