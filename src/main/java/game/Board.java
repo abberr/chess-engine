@@ -302,8 +302,8 @@ public class Board {
 
         //Generate all moves and pick the right ones
         //TODO cleaner solution
-        MoveList allMoves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false);
-        allMoves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], false));
+        MoveList allMoves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
+        allMoves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal));
 
         MoveList desiredMoves = new MoveList();
         desiredMoves.prepare(this);

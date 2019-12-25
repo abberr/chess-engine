@@ -16,7 +16,7 @@ When generating possible moves to search, we want to order them from best to wor
 When the desired depth of the minimax search is reached, we continue searching, but only with capturing moves, until we reach a "quiet" position.
 #### Killer heuristic
 A technique used to improve alpha beta. When a cut-off happens, we save the move as a killer move and order it above non-capture moves in sibling nodes.
-#### Histroy heuristic
+#### History heuristic
 A more generalized variant of Killer heuristic. TODO
 #### Perft
 Perft is used to count all the leaf nodes of a position at a certain depth. When debugging, we can compare the number of nodes with predetermined values to check if all possible moves have been generated.
@@ -27,9 +27,8 @@ Instead of searching to a certain depth, we begin searching at depth 1 and then 
 
 ## Improvements
 - Improve static evaluation method with pawn structure
-- Null move pruning (https://www.chessprogramming.org/Null_Move_Pruning) (https://www.stmintz.com/ccc/index.php?id=68877)
-- History heuristics
 - Check extension (https://www.chessprogramming.org/Check_Extensions)
+- Eval and pawn cache
 
 ## Stats
 

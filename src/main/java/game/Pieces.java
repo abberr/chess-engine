@@ -24,7 +24,7 @@ public final class Pieces {
 
     static final int[] PIECE_VALUES = {0, 100, 320, 330, 500, 900, 20000, 100, 320, 330, 500, 900, 20000};
 
-    static final char[] PIECE_CHAR = {' ', 'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k'};
+    public static final char[] PIECE_CHAR = {' ', 'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 'k'};
     static final char[] PIECE_UNICODE = {' ', '♟', '♞', '♝', '♜', '♛', '♚', '♙', '♘', '♗', '♖', '♕', '♔'};
 
 

@@ -1,5 +1,8 @@
 package util;
 
+import game.Move;
+import game.Pieces;
+
 public class Util {
 
 
@@ -51,4 +54,36 @@ public class Util {
 
         return file + 16*rank;
     }
+
+    public static boolean isSameMove(String moveInDescriptiveNotation, Move move) {
+
+        moveInDescriptiveNotation = moveInDescriptiveNotation.replace("+", "");
+
+        char firstChar = moveInDescriptiveNotation.charAt(0);
+        if (Character.isUpperCase(firstChar)) {
+
+            //Nfxe4, N5f6+
+            String temp = moveInDescriptiveNotation.substring(0, moveInDescriptiveNotation.length()-2);
+            temp = temp.replace("x","");
+            temp = temp.substring(1);
+            if (temp.length() == 1 && !temp.equals(move.toString().substring(0,1))) {
+                return false;
+            }
+
+            if (Character.toUpperCase(Pieces.PIECE_CHAR[move.getPiece()]) != firstChar) {
+                return false;
+            }
+        }
+
+        if (!lastTwo(moveInDescriptiveNotation).equals(lastTwo(move.toString()))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static String lastTwo(String string) {
+        return string.substring(string.length() - 2);
+    }
+
 }
