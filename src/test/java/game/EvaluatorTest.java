@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-//All 10 puzzles: 20s
+//All 10 puzzles: 6.8s
 public class EvaluatorTest {
 
     private Board board;
@@ -121,9 +121,7 @@ public class EvaluatorTest {
         assertTrue(bestMove.toString().equals("c6e5"));
     }
 
-    //52s depth 7
-    //2m19s depth 8 cache size 0xFFFFFFF
-    //2m19s depth 8 cache size 0xFFFFFF
+    //1m depth 8
     @Ignore
     @Test
     public void testWholeGame() {

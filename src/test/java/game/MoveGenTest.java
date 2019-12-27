@@ -54,14 +54,10 @@ public class MoveGenTest {
         MoveList moves = board.getAvailableMoves(false);
         board.printBoard();
 
-//        List<Move> promoAndCaptures = moves.stream().filter(m -> m.toString().startsWith("e2xd1")).collect(Collectors.toList());
-
-//        for (Move move : moves) {
+        assertTrue("All moves generated", moves.size() == 11);
         for (Move move : moves) {
-            if (move.toString().startsWith("ex2d1")) {
-                assertTrue("All moves generated", moves.size() == 11);
-                assertTrue("Promoting moves with captures generated", move.getCapturedPiece() != EMPTY_SQUARE);
-                return;
+            if (move.getCapturedPiece() != EMPTY_SQUARE) {
+                assertTrue(move.getPromotingPiece() != EMPTY_SQUARE);
             }
         }
 

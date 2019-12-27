@@ -42,12 +42,14 @@ public class PerftTest {
         assertTrue(calculations == 4865609);
     }
 
-    //Should take about 40s
+    //Should take about 24s
     @Ignore
     @Test
     public void perft6Test() {
         long calculations = Perft.perft(board, 6);
         System.out.println("isInCheck() time: " + MoveGenerator.isInCheckTime);
+        System.out.println("addMove() time: " + MoveGenerator.addMoveTime);
+        System.out.println("copySquares time: " + MoveGenerator.copySquaresTime);
         assertTrue(calculations == 119060324);
     }
 
@@ -82,6 +84,7 @@ public class PerftTest {
         assertTrue("nodes" ,Perft.nodesCounter == 4085603);
     }
 
+    //50s 2019-12-27
     @Test
     @Ignore
     public void perftPos2Depth5Test() {

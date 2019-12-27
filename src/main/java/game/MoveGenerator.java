@@ -13,6 +13,8 @@ import static game.Pieces.*;
 public class MoveGenerator {
 
     public static long isInCheckTime = 0;
+    public static long addMoveTime = 0;
+    public static long copySquaresTime = 0;
 
     public static final byte NORTH = 0x10, NORTH_EAST = 0x11, EAST = 0x01, SOUTH_EAST = 0x01 - 0x10, SOUTH = -0x10, SOUTH_WEST = -0x11, WEST = -0x01, NORTH_WEST = 0x10 - 0x01;
 
@@ -427,11 +429,13 @@ public class MoveGenerator {
     }
 
     private static void addMove(Move move, byte[] squares, MoveType moveType) {
-
+        long time = System.currentTimeMillis();
         //Remove moves that causes check on self
         Player player = isWhitePiece(move.getPiece()) ? Player.WHITE : Player.BLACK;
 
+        long time2 = System.currentTimeMillis();
         byte[] copySquares = Util.copySquares(squares);
+        copySquaresTime += System.currentTimeMillis() - time;
         copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
         copySquares[move.getMoveTo()] = move.getPiece();
 
@@ -452,21 +456,25 @@ public class MoveGenerator {
         }
 
         if (isInCheck(copySquares, player, newWKingIndex, newBKingIndex)) {
+            addMoveTime += System.currentTimeMillis() - time;
             return;
         }
 
         //If castling move
         else if (move.isKingSideCastle()) {
             if (isSquareUnderAttack(squares, move.getMoveFrom() + 1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
+                addMoveTime += System.currentTimeMillis() - time;
                 return;
             }
         } else if (move.isQueenSideCastle()) {
             if (isSquareUnderAttack(squares, move.getMoveFrom() - 1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
+                addMoveTime += System.currentTimeMillis() - time;
                 return;
             }
         }
 
         moves.add(move, moveType);
+        addMoveTime += System.currentTimeMillis() - time;
     }
 
     private static boolean isOutOfBounds(int index) {
