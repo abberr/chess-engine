@@ -125,7 +125,7 @@ public class Evaluator {
 
         //Null move
         //TODO dont do null moves in endgame
-        if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove())) {
+        if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove(), board.getWKingIndex(), board.getBKingIndex())) {
             board.executeNullMove();
             int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, ply + 1, board,false);
             board.executeInvertedNullMove();
@@ -144,7 +144,7 @@ public class Evaluator {
         //Mate or stalemate if no moves
         if (moves.isEmpty()) {
             //Min value if in check (check mate)
-            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove()) ? -(MATE_SCORE - ply) : 0;
+            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove(), board.getWKingIndex(), board.getBKingIndex()) ? -(MATE_SCORE - ply) : 0;
             //set depth to MAX_PLY since it's a terminal node anyways
             transpositionTable.saveState(board.getHash(), MAX_PLY, value, null, NodeType.EXACT);
             return value;

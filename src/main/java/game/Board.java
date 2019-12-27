@@ -10,7 +10,6 @@ public class Board {
 
     private final static int BOARD_SIZE = 128;
     private final static int PIECES_SIZE = 12;
-    private final static int COLORS_SIZE = 2;
 
     private final static int MAXIMUM_NUMBER_OF_MOVES = 4096;
 
@@ -33,6 +32,7 @@ public class Board {
 
     private long[] hashHistory = new long[MAXIMUM_NUMBER_OF_MOVES];
 
+    private int wKingIndex, bKingIndex;
 
     Move lastMove;
 
@@ -70,14 +70,13 @@ public class Board {
                 continue;
             }
             squares[x + (7*16 - y*16)] = piece;
+            if (piece == WHITE_KING) wKingIndex = x + (7*16 - y*16);
+            if (piece == BLACK_KING) bKingIndex = x + (7*16 - y*16);
 
             x++;
         }
 
-        playerToMove = Player.WHITE;
-        if (fields[1].charAt(0) == 'b') {
-            playerToMove = Player.BLACK;
-        }
+        playerToMove = fields[1].charAt(0) == 'b' ? Player.BLACK : Player.WHITE;
 
         castlingRightsHistory[moveNumber] = 0b0000;
         if (fields[2].charAt(0) != '-') {
@@ -106,7 +105,6 @@ public class Board {
         return playerToMove;
     }
 
-
     public long getHash() {
         return hash;
     }
@@ -114,7 +112,6 @@ public class Board {
     public long getPawnHash() {
         return pawnHash;
     }
-
 
     public boolean executeMove(String move){
         String moveFrom = move.substring(0,2);
@@ -184,6 +181,9 @@ public class Board {
             fiftyMoveHistory[moveNumber] = 0;
         }
 
+        if (move.getPiece() == WHITE_KING) wKingIndex = move.getMoveTo();
+        if (move.getPiece() == BLACK_KING) bKingIndex = move.getMoveTo();
+
         playerToMove = playerToMove.getOpponent();
         lastMove = move;
     }
@@ -252,6 +252,9 @@ public class Board {
 
 //        fiftyMoveHistory[moveNumber] = 0;
 
+        if (move.getPiece() == WHITE_KING) wKingIndex = move.getMoveFrom();
+        if (move.getPiece() == BLACK_KING) bKingIndex = move.getMoveFrom();
+
         moveNumber--;
     }
 
@@ -302,8 +305,8 @@ public class Board {
 
         //Generate all moves and pick the right ones
         //TODO cleaner solution
-        MoveList allMoves = MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
-        allMoves.addAll(MoveGenerator.generateMoves(squares, playerToMove.getOpponent(), castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal));
+        MoveList allMoves = MoveGenerator.generateMoves(this, playerToMove);
+        allMoves.addAll(MoveGenerator.generateMoves(this, playerToMove.getOpponent()));
 
         MoveList desiredMoves = new MoveList();
         desiredMoves.prepare(this);
@@ -320,7 +323,7 @@ public class Board {
     }
 
     public MoveList getAvailableMoves(boolean includePseudoLegal) {
-        return MoveGenerator.generateMoves(squares, playerToMove, castlingRightsHistory[moveNumber], enPassantHistory[moveNumber], includePseudoLegal);
+        return MoveGenerator.generateMoves(this, playerToMove);
     }
 
     public int getValue() {
@@ -439,7 +442,7 @@ public class Board {
     }
 
     public boolean isInCheck() {
-        return MoveGenerator.isInCheck(squares, playerToMove);
+        return MoveGenerator.isInCheck(squares, playerToMove, wKingIndex, bKingIndex);
     }
 
     public int boardValueAfterMove(Move move) {
@@ -460,6 +463,22 @@ public class Board {
 
     public int getHalfMoveClock() {
         return fiftyMoveHistory[moveNumber];
+    }
+
+    public int getEnPassantIndex() {
+        return enPassantHistory[moveNumber];
+    }
+
+    public int getCastlingRights() {
+        return castlingRightsHistory[moveNumber];
+    }
+
+    public int getWKingIndex() {
+        return this.wKingIndex;
+    }
+
+    public int getBKingIndex() {
+        return this.bKingIndex;
     }
 
     public boolean isRepetition() {
@@ -490,12 +509,12 @@ public class Board {
         System.out.println("\nhash: [" + hash + "]");
         System.out.println("fen: [" + generateFen() + "]");
         System.out.println("value: [" + getValue() + "]");
-        System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove));
+        System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove, wKingIndex, bKingIndex));
 
         System.out.println("--------------------------");
     }
 
-    public String getCastlingRights() {
+    public String getCastlingRightsString() {
         String castlingRights = "";
         int currentCastlingRights = castlingRightsHistory[moveNumber];
         if (currentCastlingRights != 0b0000) {
@@ -536,7 +555,7 @@ public class Board {
 
         fen = playerToMove == Player.WHITE ? fen + " w " : fen + " b ";
 
-        fen += getCastlingRights() + " ";
+        fen += getCastlingRightsString() + " ";
 
         int currentEnPassantPossibility = enPassantHistory[moveNumber];
         if (currentEnPassantPossibility != NO_EN_PASSANT_AVAILABLE) {

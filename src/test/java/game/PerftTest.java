@@ -47,6 +47,7 @@ public class PerftTest {
     @Test
     public void perft6Test() {
         long calculations = Perft.perft(board, 6);
+        System.out.println("isInCheck() time: " + MoveGenerator.isInCheckTime);
         assertTrue(calculations == 119060324);
     }
 

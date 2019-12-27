@@ -15,44 +15,44 @@ public class CastlingTest {
 
         //Black
         board.executeMove("e8g8");
-        assertTrue(board.getCastlingRights().equals("QK"));
+        assertTrue(board.getCastlingRightsString().equals("QK"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
         board.executeMove("h8f8");
-        assertTrue(board.getCastlingRights().equals("qQK"));
+        assertTrue(board.getCastlingRightsString().equals("qQK"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
         board.executeMove("a8b8");
-        assertTrue(board.getCastlingRights().equals("kQK"));
+        assertTrue(board.getCastlingRightsString().equals("kQK"));
         board.revertLastMove();
 
         //White
         board.executeMove("e1g1");
-        assertTrue("White castling kingside", board.getCastlingRights().equals("qk"));
+        assertTrue("White castling kingside", board.getCastlingRightsString().equals("qk"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
         board.executeMove("e1c1");
-        assertTrue("White castling queenside", board.getCastlingRights().equals("qk"));
+        assertTrue("White castling queenside", board.getCastlingRightsString().equals("qk"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
         board.executeMove("h1f1");
-        assertTrue("White queenside rook move", board.getCastlingRights().equals("qkQ"));
+        assertTrue("White queenside rook move", board.getCastlingRightsString().equals("qkQ"));
         board.revertLastMove();
-        assertTrue( board.getCastlingRights().equals("qkQK"));
+        assertTrue( board.getCastlingRightsString().equals("qkQK"));
         board.executeMove("a1b1");
-        assertTrue("White kingside rook moved", board.getCastlingRights().equals("qkK"));
+        assertTrue("White kingside rook moved", board.getCastlingRightsString().equals("qkK"));
         board.revertLastMove();
 
         //Special cases
         board.executeMove("h8h1");
-        assertTrue(board.getCastlingRights().equals("qQ"));
+        assertTrue(board.getCastlingRightsString().equals("qQ"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
 
         board.executeMove("a8a1");
-        assertTrue(board.getCastlingRights().equals("kK"));
+        assertTrue(board.getCastlingRightsString().equals("kK"));
         board.revertLastMove();
-        assertTrue(board.getCastlingRights().equals("qkQK"));
+        assertTrue(board.getCastlingRightsString().equals("qkQK"));
     }
 
     @Test
