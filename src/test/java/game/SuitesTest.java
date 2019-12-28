@@ -17,13 +17,16 @@ public class SuitesTest {
     private static int counter = 0;
 
     //175 passed, 1 sec limit
-    //343 passed, 20 sec limit
+    //390 passed, 20 sec limit
     @Ignore
     @Test
     public void ECM() throws IOException {
         Files.readAllLines(Path.of("src/test/resources/ECM.EPD")).stream().forEach(this::testPos);
 
         System.out.println("TESTS PASSED: " + counter);
+        System.out.println();
+        System.out.println("addMove() time: " + MoveGenerator.addMoveTime);
+        System.out.println("copySquares time: " + MoveGenerator.copySquaresTime);
     }
 
 

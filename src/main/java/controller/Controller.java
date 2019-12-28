@@ -57,7 +57,7 @@ public class Controller {
 	}
 	
 	public MoveList getAvailableMoves(Board board) {
-		return board.getAvailableMoves(false);
+		return board.getAvailableMoves();
 	}
 
 	public MoveList getMovesFromSquare(String square) {

@@ -322,7 +322,7 @@ public class Board {
         return desiredMoves;
     }
 
-    public MoveList getAvailableMoves(boolean includePseudoLegal) {
+    public MoveList getAvailableMoves() {
         return MoveGenerator.generateMoves(this, playerToMove);
     }
 
@@ -441,8 +441,17 @@ public class Board {
         }
     }
 
-    public boolean isInCheck() {
-        return MoveGenerator.isInCheck(squares, playerToMove, wKingIndex, bKingIndex);
+    public boolean isInCheck(Player player) {
+        int kingIndex;
+        if (player == Player.WHITE) {
+//            assert(squares[wKingIndex] == WHITE_KING);
+            kingIndex = wKingIndex;
+        } else {
+//            assert(squares[bKingIndex] == BLACK_KING);
+            kingIndex = bKingIndex;
+        }
+
+        return MoveGenerator.isSquareUnderAttack(squares, kingIndex, player);
     }
 
     public int boardValueAfterMove(Move move) {
@@ -509,7 +518,7 @@ public class Board {
         System.out.println("\nhash: [" + hash + "]");
         System.out.println("fen: [" + generateFen() + "]");
         System.out.println("value: [" + getValue() + "]");
-        System.out.println("InCheck: " + MoveGenerator.isInCheck(squares, playerToMove, wKingIndex, bKingIndex));
+        System.out.println("InCheck: " + isInCheck(playerToMove));
 
         System.out.println("--------------------------");
     }

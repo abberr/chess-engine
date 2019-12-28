@@ -535,6 +535,11 @@ Svetozar Gligoric vs Miroslav Radojcic, Ljubljana, 1947
 1. Qxh5+ gxh5 2. Rxh5+ Qh6 3. Rxh6#
 
 
+Mark Taimanov vs Grigory Goldberg, Leningrad, 1947
+1r1b1n2/1pk3p1/4P2p/3pP3/3N4/1p2B3/6PP/R5K1 w - - 1 0
+1. Nb5+ Kc6 2. Na7+ Kc7 3. Rc1# 
+
+
 Hakan Marcus vs Gottlieb Machate, Bad Pyrmont, 1949
 2r1r1k1/p2n1p1p/5pp1/qQ1P1b2/N7/5N2/PP3RPP/3K1B1R b - - 0 1
 1... Rc1+ 2. Kxc1 Re1+ 3. Nxe1 Qxe1#
@@ -1190,6 +1195,11 @@ r1b1r3/qp1n1pk1/2pp2p1/p3n3/N1PNP1P1/1P3P2/P6Q/1K1R1B1R w - - 1 0
 1. Nf5+ gxf5 2. Qh6+ Kg8 3. Qh8# 
 
 
+Michael Adams vs Jeroen Piket, Wijk aan Zee, 1993
+8/2k2r2/pp6/2p1R1Np/6pn/8/Pr4B1/3R3K w - - 1 0
+1.Ne6+ Kb8 2.Rd8+ Ka7 3.Ra8#
+
+
 Michael Adams vs Sherhard, London, 1993
 2bq1k1r/r5pp/p2b1Pn1/1p1Q4/3P4/1B6/PP3PPP/2R1R1K1 w - - 1 0
 1.Qxd6+ Qxd6 2.Rxc8+ Qd8 3.Rxd8#
@@ -1273,6 +1283,11 @@ r3r3/ppp4p/2bq2Nk/8/1PP5/P1B3Q1/6PP/4R1K1 w - - 1 0
 Alexander Lastin vs Vladimir Burmakin, Moscow, 1994
 3r3k/1p3Rpp/p2nn3/3N4/8/1PB1PQ1P/q4PP1/6K1 w - - 1 0
 1. Bxg7+ Nxg7 2. Rf8+ Rxf8 3. Qxf8# 
+
+
+"Mirage" vs "Francesca", London, 1994
+6kr/p1Q3pp/3Bbbq1/8/5R2/5P2/PP3P1P/4KB1R w - - 1 0
+1. Qd8+ Kf7 2. Qe7+ Kg8 3. Qf8# 
 
 
 Greg Small vs Ilan Kreitner, Las Vegas, 1994
@@ -1463,6 +1478,11 @@ r3Rnkr/1b5p/p3NpB1/3p4/1p6/8/PPP3P1/2K2R2 w - - 1 0
 Vladislav Nevednichy vs Alin Ardeleanu, Brasov, 1998
 4B3/6R1/1p5k/p2r3N/Pn1p2P1/7P/1P3P2/6K1 w - - 1 0
 1. Rg6+ Kh7 2. Nf6+ Kh8 3. Rg8# 
+
+
+Joerg Ott vs G Straub, Finkenstein, 1998
+r1bqrnk1/ppp3pp/2nbpp2/3pN2Q/3P1P2/2PBP1B1/PP4PP/RN2K2R w KQ - 1 0
+1. Bxh7+ Nxh7 2. Qf7+ Kh8 3. Ng6# 
 
 
 Michael Roiz vs Viktor Aronov, Beer-Sheva, 1998
@@ -2078,6 +2098,11 @@ r2k1r2/3b2pp/p5p1/2Q1R3/1pB1Pq2/1P6/PKP4P/7R w - - 1 0
 Evgeny Alekseev vs Sergey Karjakin, Moscow, 2008
 5rk1/4Rp1p/1q1pBQp1/5r2/1p6/1P4P1/2n2P2/3R2K1 w - - 1 0
 1. Bxf7+ Rxf7 2. Re8+ Rf8 3. Rxf8# 
+
+
+Julio Becerra Rivero vs Yuri Shulman, Tulsa, 2008
+7r/1k3p2/1q1B4/p2pPp2/p1n2P2/2RQ2K1/2P1B1P1/7r b - - 0 1
+1... R1h3+ 2. gxh3 Qg1+ 3. Kf3 Rxh3# 
 
 
 Rainer Buhmann vs Boonsueb Saeheng, Dresden, 2008 

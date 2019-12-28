@@ -29,7 +29,7 @@ public class MoveListTest {
     public void moveOrderingTestWhite() {
         Board board = new Board("k6K/4P3/8/8/8/1p1q4/2Q1P3/8 w - - ");
 
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         moves.prepare(board);
 
         String [] expectedMoves = {"e7e8q" , "e7e8r", "e7e8b", "e7e8n", "e2xd3", "c2xd3", "c2xb3"};
@@ -41,7 +41,7 @@ public class MoveListTest {
     public void moveOrderingTestBlack() {
         Board board = new Board("8/1p1q4/2Q1P3/8/8/8/4p3/k6K b - - ");
         board.printBoard();
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         moves.prepare(board);
 
         String [] expectedMoves = {"e2e1q" , "e2e1r", "e2e1b", "e2e1n", "b7xc6", "d7xc6", "d7xe6"};
@@ -55,7 +55,7 @@ public class MoveListTest {
         board.printBoard();
 
         MoveGenerator.setSearchModeQuiescence();
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         MoveGenerator.setSearchModeNormal();
         moves.prepare(board);
 

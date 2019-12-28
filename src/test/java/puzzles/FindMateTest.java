@@ -26,7 +26,6 @@ public class FindMateTest {
         processFile(PATH_MATE_IN_TWO);
     }
 
-    @Ignore
     @Test
     public void mateInThree() throws IOException {
         processFile(PATH_MATE_IN_THREE);

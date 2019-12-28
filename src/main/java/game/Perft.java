@@ -20,9 +20,13 @@ public class Perft {
     private static long perftRecursive(Board board, int depth) {
         if (depth == 0) return 1;
         long nodes = 0;
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         for (Move move : moves) {
             board.executeMove(move);
+            if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
+                board.executeInvertedMove(move);
+                continue;
+            }
             nodes += perftRecursive(board, depth - 1);
             board.executeInvertedMove(move);
         }
@@ -57,10 +61,14 @@ public class Perft {
 
     private static void perftDetailedRecursive(Board board, int depth) {
         if (depth == 0) return;
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         for (Move move : moves) {
 
             board.executeMove(move);
+            if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
+                board.executeInvertedMove(move);
+                continue;
+            }
 
             if (depth == 1) {
                 nodesCounter++;
@@ -73,7 +81,7 @@ public class Perft {
                 if (move.isEnPassant()) {
                     epCounter++;
                 }
-                if (board.isInCheck()) {
+                if (board.isInCheck(board.getPlayerToMove())) {
                     checkCounter++;
                 }
                 if (move.isKingSideCastle() || move.isQueenSideCastle()) {

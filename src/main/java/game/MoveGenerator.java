@@ -12,7 +12,6 @@ import static game.Pieces.*;
 
 public class MoveGenerator {
 
-    public static long isInCheckTime = 0;
     public static long addMoveTime = 0;
     public static long copySquaresTime = 0;
 
@@ -86,27 +85,7 @@ public class MoveGenerator {
         }
     }
 
-
-    //TODO make private
-    public static boolean isInCheck(byte[] squares, Player player, int wKingIndex, int bKingIndex) {
-        long time = System.currentTimeMillis();
-
-        int kingIndex = -1;
-
-        if (player == Player.WHITE) {
-//            assert(squares[wKingIndex] == WHITE_KING);
-            kingIndex = wKingIndex;
-        } else {
-//            assert(squares[bKingIndex] == BLACK_KING);
-            kingIndex = bKingIndex;
-        }
-
-        boolean b = isSquareUnderAttack(squares, kingIndex, player);
-        isInCheckTime += System.currentTimeMillis() - time;
-        return b;
-    }
-
-    private static boolean isSquareUnderAttack(byte[] squares, int squareIndex, Player player) {
+    public static boolean isSquareUnderAttack(byte[] squares, int squareIndex, Player player) {
         //Check for pawn checks
         if ((player == Player.WHITE && !isOutOfBounds(squareIndex + NORTH_WEST) && squares[squareIndex + NORTH_WEST] == BLACK_PAWN) ||
                 (player == Player.WHITE && !isOutOfBounds(squareIndex + NORTH_EAST) && squares[squareIndex + NORTH_EAST] == BLACK_PAWN)) {
@@ -347,7 +326,9 @@ public class MoveGenerator {
             if ((castlingRights & 0b0001) == 1 &&
                     squares[0x07] == WHITE_ROOK &&
                     squares[0x06] == EMPTY_SQUARE &&
-                    squares[0x05] == EMPTY_SQUARE) {
+                    squares[0x05] == EMPTY_SQUARE &&
+                    !isSquareUnderAttack(squares, 0x04, Player.WHITE) &&
+                    !isSquareUnderAttack(squares, 0x05, Player.WHITE)) {
                 Move move = new Move(piece, index, 0x06);
                 move.setKingSideCastle(true);
                 addMove(move, squares, QUIET);
@@ -357,7 +338,10 @@ public class MoveGenerator {
                     squares[0x00] == WHITE_ROOK &&
                     squares[0x03] == EMPTY_SQUARE &&
                     squares[0x02] == EMPTY_SQUARE &&
-                    squares[0x01] == EMPTY_SQUARE) {
+                    squares[0x01] == EMPTY_SQUARE &&
+                    !isSquareUnderAttack(squares, 0x03, Player.WHITE) &&
+                    !isSquareUnderAttack(squares, 0x04, Player.WHITE)
+            ) {
                 Move move = new Move(piece, index, 0x02);
                 move.setQueenSideCastle(true);
                 addMove(move, squares, QUIET);
@@ -367,7 +351,9 @@ public class MoveGenerator {
             if ((castlingRights & 0b0100) == 0b0100 &&
                     squares[0x77] == BLACK_ROOK &&
                     squares[0x76] == EMPTY_SQUARE &&
-                    squares[0x75] == EMPTY_SQUARE) {
+                    squares[0x75] == EMPTY_SQUARE &&
+                    !isSquareUnderAttack(squares, 0x74, Player.BLACK) &&
+                    !isSquareUnderAttack(squares, 0x75, Player.BLACK)) {
                 Move move = new Move(piece, index, 0x76);
                 move.setKingSideCastle(true);
                 addMove(move, squares, QUIET);
@@ -377,7 +363,9 @@ public class MoveGenerator {
                     squares[0x70] == BLACK_ROOK &&
                     squares[0x73] == EMPTY_SQUARE &&
                     squares[0x72] == EMPTY_SQUARE &&
-                    squares[0x71] == EMPTY_SQUARE) {
+                    squares[0x71] == EMPTY_SQUARE &&
+                    !isSquareUnderAttack(squares, 0x73, Player.BLACK) &&
+                    !isSquareUnderAttack(squares, 0x74, Player.BLACK)) {
                 Move move = new Move(piece, index, 0x72);
                 move.setQueenSideCastle(true);
                 addMove(move, squares, QUIET);
@@ -431,47 +419,32 @@ public class MoveGenerator {
     private static void addMove(Move move, byte[] squares, MoveType moveType) {
         long time = System.currentTimeMillis();
         //Remove moves that causes check on self
-        Player player = isWhitePiece(move.getPiece()) ? Player.WHITE : Player.BLACK;
-
-        long time2 = System.currentTimeMillis();
-        byte[] copySquares = Util.copySquares(squares);
-        copySquaresTime += System.currentTimeMillis() - time;
-        copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
-        copySquares[move.getMoveTo()] = move.getPiece();
-
-        if (move.isEnPassant()) {
-            if (move.getPiece() == WHITE_PAWN) {
-                copySquares[move.getMoveTo() + SOUTH] = EMPTY_SQUARE;
-            } else {
-                copySquares[move.getMoveTo() + NORTH] = EMPTY_SQUARE;
-            }
-        }
-
-        int newWKingIndex = wKingIndex;
-        int newBKingIndex = bKingIndex;
-        if (move.getPiece() == WHITE_KING) {
-            newWKingIndex = move.getMoveTo();
-        } else if (move.getPiece() == BLACK_KING) {
-            newBKingIndex = move.getMoveTo();
-        }
-
-        if (isInCheck(copySquares, player, newWKingIndex, newBKingIndex)) {
-            addMoveTime += System.currentTimeMillis() - time;
-            return;
-        }
-
-        //If castling move
-        else if (move.isKingSideCastle()) {
-            if (isSquareUnderAttack(squares, move.getMoveFrom() + 1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
-                addMoveTime += System.currentTimeMillis() - time;
-                return;
-            }
-        } else if (move.isQueenSideCastle()) {
-            if (isSquareUnderAttack(squares, move.getMoveFrom() - 1, player) || isSquareUnderAttack(squares, move.getMoveFrom(), player)) {
-                addMoveTime += System.currentTimeMillis() - time;
-                return;
-            }
-        }
+//        Player player = isWhitePiece(move.getPiece()) ? Player.WHITE : Player.BLACK;
+//
+//        byte[] copySquares = Util.copySquares(squares);
+//        copySquares[move.getMoveFrom()] = EMPTY_SQUARE;
+//        copySquares[move.getMoveTo()] = move.getPiece();
+//
+//        if (move.isEnPassant()) {
+//            if (move.getPiece() == WHITE_PAWN) {
+//                copySquares[move.getMoveTo() + SOUTH] = EMPTY_SQUARE;
+//            } else {
+//                copySquares[move.getMoveTo() + NORTH] = EMPTY_SQUARE;
+//            }
+//        }
+//
+//        int newWKingIndex = wKingIndex;
+//        int newBKingIndex = bKingIndex;
+//        if (move.getPiece() == WHITE_KING) {
+//            newWKingIndex = move.getMoveTo();
+//        } else if (move.getPiece() == BLACK_KING) {
+//            newBKingIndex = move.getMoveTo();
+//        }
+//
+//        if (isInCheck(copySquares, player, newWKingIndex, newBKingIndex)) {
+//            addMoveTime += System.currentTimeMillis() - time;
+//            return;
+//        }
 
         moves.add(move, moveType);
         addMoveTime += System.currentTimeMillis() - time;

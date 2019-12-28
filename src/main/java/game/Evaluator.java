@@ -67,8 +67,6 @@ public class Evaluator {
             if (System.currentTimeMillis() > endTime)
                 break;
 
-            pvMove = transpositionTable.lookup(board.getHash()).bestMove;
-
 //            System.out.println("info currmove " + pvMove);
             StringBuilder sb = new StringBuilder();
             sb.append("info depth " + depth);
@@ -94,7 +92,7 @@ public class Evaluator {
             depth++;
         }
 
-        return pvMove;
+        return getPvMoves(board, depth).getFirst();
     }
 
     private static int minMax(int alpha, int beta, int depth, int ply, Board board, boolean makeNullMove) {
@@ -125,7 +123,7 @@ public class Evaluator {
 
         //Null move
         //TODO dont do null moves in endgame
-        if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove(), board.getWKingIndex(), board.getBKingIndex())) {
+        if (makeNullMove && depth >= NULL_MOVE_DEPTH_REDUCE && !board.isInCheck(board.getPlayerToMove())) {
             board.executeNullMove();
             int value = -minMax(-beta, -beta + 1, depth - NULL_MOVE_DEPTH_REDUCE, ply + 1, board,false);
             board.executeInvertedNullMove();
@@ -138,17 +136,8 @@ public class Evaluator {
 
         //Move generation
         long time = System.currentTimeMillis();
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         moveGenTime += System.currentTimeMillis() - time;
-
-        //Mate or stalemate if no moves
-        if (moves.isEmpty()) {
-            //Min value if in check (check mate)
-            int value = MoveGenerator.isInCheck(board.getSquares(), board.getPlayerToMove(), board.getWKingIndex(), board.getBKingIndex()) ? -(MATE_SCORE - ply) : 0;
-            //set depth to MAX_PLY since it's a terminal node anyways
-            transpositionTable.saveState(board.getHash(), MAX_PLY, value, null, NodeType.EXACT);
-            return value;
-        }
 
         NodeType nodeType = NodeType.ALPHA;
         Move bestMove = null;
@@ -157,13 +146,20 @@ public class Evaluator {
         moves.prepare(board, transpositionTable, killerMoves, historyMoves);
 
         //Find best move
+        int nodesSearched = 0;
         while (!moves.isEmpty()) {
+
             time = System.currentTimeMillis();
             Move move = moves.getNextMove();
             sortingTime += System.currentTimeMillis() - time;
 
-
             board.executeMove(move);
+            if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
+                board.executeInvertedMove(move);
+                continue;
+            }
+            nodesSearched++;
+
             if (board.isRepetition()) {
                 bestValue = DRAW_SCORE;
             } else {
@@ -189,6 +185,15 @@ public class Evaluator {
                     return beta;
                 }
             }
+        }
+
+        //Mate or stalemate if no moves
+        if (nodesSearched == 0 ) {
+            //Min value if in check (check mate)
+            int value = board.isInCheck(board.getPlayerToMove()) ? -(MATE_SCORE - ply) : 0;
+            //set depth to MAX_PLY since it's a terminal node anyways
+            transpositionTable.saveState(board.getHash(), MAX_PLY, value, null, NodeType.EXACT);
+            return value;
         }
 
         transpositionTable.saveState(board.getHash(), depth, bestValue, bestMove, nodeType);
@@ -240,12 +245,17 @@ public class Evaluator {
         }
 
         time = System.currentTimeMillis();
-        MoveList moves = board.getAvailableMoves(false);
+        MoveList moves = board.getAvailableMoves();
         moveGenTime += System.currentTimeMillis() - time;
 
         moves.prepare(board);
         for (Move m : moves) {
             board.executeMove(m);
+            if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
+                board.executeInvertedMove(m);
+                continue;
+            }
+
             int score = -quisence(-beta, -alpha, board);
             board.executeInvertedMove(m);
 
