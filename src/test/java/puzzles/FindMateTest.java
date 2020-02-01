@@ -26,6 +26,7 @@ public class FindMateTest {
         processFile(PATH_MATE_IN_TWO);
     }
 
+    //51s
     @Test
     public void mateInThree() throws IOException {
         processFile(PATH_MATE_IN_THREE);
@@ -37,6 +38,17 @@ public class FindMateTest {
         processFile(PATH_MATE_IN_FOUR);
     }
 
+    //TODO this should work with better tt replacement strategy
+    @Ignore
+    @Test
+    public void laskerReichhelmPosition() {
+        Board board = new Board("8/k7/3p4/p2P1p2/P2P1P2/8/8/K7 w - -");
+        board.printBoard();
+        Move bestMove = Evaluator.findBestMove(board, 60);
+
+        assertTrue(bestMove.toString().equals("a1b1"));
+    }
+
     private void processFile(String filePath) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(filePath));
 
@@ -46,6 +58,7 @@ public class FindMateTest {
     }
 
     private void testPuzzle(String fen, String solution) {
+        Evaluator.reset();
         System.out.println(fen);
         System.out.println("Solution:" + solution);
         Board board = new Board(fen);

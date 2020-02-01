@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
-//All 10 puzzles: 6.8s
+//All 10 puzzles: 4.8s
 public class EvaluatorTest {
 
     private Board board;
@@ -145,8 +145,29 @@ public class EvaluatorTest {
 
     @Ignore
     @Test
+    public void testWholeGame2() {
+        String [] moves = "d2d4 g8f6 c2c4 e7e6 b1c3 f8b4 a2a3 b4c3 b2c3 c7c5 e2e3 b8c6 f1d3 c5d4 e3d4 d8a5 c1d2 b7b6 g1f3 c8a6 d1b3 e8g8 e1g1 d7d5 f1e1 a8c8 a1d1 a6c4 d3c4 d5c4 b3c4 a5a3".split(" ");
+        board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w qkQK -");
+
+        for (int i = 0; i < moves.length; i++) {
+            System.out.println("Executing move " + moves[i]);
+            board.executeMove(moves[i]);
+            if (i%2 == 0) {
+                Move bestMove = Evaluator.findBestMove(board, 8);
+                assertTrue(bestMove != null);
+            }
+        }
+
+        Move bestMove = Evaluator.findBestMove(board, SEARCH_DEPTH);
+        board.printBoard();
+
+        assertTrue("Move is not null", bestMove != null);
+    }
+
+    @Ignore
+    @Test
     public void bugTest() {
-        board = new Board("2k1r3/pp4pp/1n5b/B1p2P2/2P1p3/PP1r1BP1/4K2P/1R5R w - - 2 22");
+        board = new Board("2r2rk1/p4ppp/bpn1pn2/q2p4/2PP4/PQPB1N2/3B1PPP/R3R1K1 w - - 2 0");
         board.executeMove("a5b6");
 
         Move bestMove = Evaluator.findBestMove(board, 15);

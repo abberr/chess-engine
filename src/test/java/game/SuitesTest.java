@@ -25,8 +25,6 @@ public class SuitesTest {
 
         System.out.println("TESTS PASSED: " + counter);
         System.out.println();
-        System.out.println("addMove() time: " + MoveGenerator.addMoveTime);
-        System.out.println("copySquares time: " + MoveGenerator.copySquaresTime);
     }
 
 

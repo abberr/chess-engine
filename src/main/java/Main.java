@@ -19,11 +19,16 @@ public class Main {
 //		frame.setLocationRelativeTo(null);
 //		frame.setVisible(true);
 
-//        ConsoleView view = new ConsoleView(contr);
-//        view.startGame();
 
-		UciView uciView = new UciView(contr);
-		new Thread(uciView).start();
+		if (args.length == 1) {
+			if (args[0].equals("1")) {
+				ConsoleView view = new ConsoleView(contr);
+				view.startGame();
+			}
+		} else {
+			UciView uciView = new UciView(contr);
+			new Thread(uciView).start();
+		}
 
 	}
 }

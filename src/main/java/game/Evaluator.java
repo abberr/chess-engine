@@ -55,13 +55,11 @@ public class Evaluator {
 
         int depth = 1;
         int value = 0;
-        Move pvMove = null;
 
         while (System.currentTimeMillis() < endTime && depth <= searchDepth) {
             resetCounters();
             long time = System.currentTimeMillis();
-            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);
-//            value *= board.getPlayerToMove().getValue();
+            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);   //TODO makeNullMove should be true?
             long searchTime = System.currentTimeMillis() - time;
 
             if (System.currentTimeMillis() > endTime)
@@ -80,7 +78,6 @@ public class Evaluator {
             sb.append(" pv ");
             getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
             sb.append(" score cp " + value);
-
 
             //Stop searching if check mate found
             if (value >= MATE_SCORE - MAX_PLY) {

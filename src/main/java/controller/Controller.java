@@ -44,12 +44,16 @@ public class Controller {
 	}
 
 	public void computerMove() {
-        Move move = Evaluator.findBestMove(board, 1000000l);
+        Move move = Evaluator.findBestMove(board, 3000L);
         board.executeMove(move);
     }
 
     public Move findBestMove(long searchTime) {
 		return Evaluator.findBestMove(board, searchTime);
+	}
+
+	public Move findBestMove(int depth) {
+		return Evaluator.findBestMove(board, depth);
 	}
 
 	public void revertLastMove() {

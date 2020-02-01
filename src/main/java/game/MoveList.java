@@ -102,13 +102,15 @@ public class MoveList implements Iterable<Move> {
 
         if (promotingMoves.size() != 0) {
             if (!promotingMovesSorted) {
+                //TODO: remove rook and bishop promotion
                 promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()] + PIECE_VALUES[m.getCapturedPiece()], Comparator.reverseOrder()));
-//                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN);
+//                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN || m.getPromotingPiece() == WHITE_KNIGHT || m.getPromotingPiece() == BLACK_KNIGHT);
                 promotingMovesSorted = true;
             }
             return promotingMoves.pop();
         } else if (capturingMoves.size() != 0) {
             if (!capturingMovesSorted) {
+                //TODO: sort losing captures under quiet moves? Tested and made it worse
                 capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
                 capturingMovesSorted = true;
             }

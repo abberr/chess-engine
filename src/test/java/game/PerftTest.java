@@ -35,19 +35,17 @@ public class PerftTest {
         assertTrue(calculations == 197281);
     }
 
-    //Should take about 1.5seconds
+    //Should take about 1 second
     @Test
     public void perft5Test() {
         long calculations = Perft.perftDetailed(board, 5);
         assertTrue(calculations == 4865609);
     }
 
-    //Should take about 24s
+    //Should take about 17s
     @Test
     public void perft6Test() {
         long calculations = Perft.perft(board, 6);
-        System.out.println("addMove() time: " + MoveGenerator.addMoveTime);
-        System.out.println("copySquares time: " + MoveGenerator.copySquaresTime);
         assertTrue(calculations == 119060324);
     }
 

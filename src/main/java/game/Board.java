@@ -116,11 +116,22 @@ public class Board {
     public boolean executeMove(String move){
         String moveFrom = move.substring(0,2);
         int moveToIndex = Util.algebraicNotationToIndex(move.substring(2,4));
+        char promoPiece = 0;
+        if (move.length() == 5) {
+            promoPiece = move.charAt(4);
+        }
 
         for(Move m : getMovesOfPiece(moveFrom, false)) {
             if (moveToIndex == m.getMoveTo()) {
-                executeMove(m);
-                return true;
+                if (m.getPromotingPiece() != 0) {
+                    if (Character.toLowerCase(PIECE_CHAR[m.getPromotingPiece()]) == promoPiece) {
+                        executeMove(m);
+                        return true;
+                    }
+                } else {
+                    executeMove(m);
+                    return true;
+                }
             }
         }
         return false;
@@ -356,6 +367,7 @@ public class Board {
 
             hash ^= zobristTable[rookMoveFromindex][rook - 1];           //Remove rook from corner
             hash ^= zobristTable[rookMoveToIndex][rook - 1];             //Add rook to new location
+            hash ^= zobristTable[moveToindex][move.getPiece() - 1];      //Add king to new pos
         }
         //If regular move
         else {
@@ -384,7 +396,9 @@ public class Board {
         }
 
         //Update castlingRights hash
-        hash ^= zobristCastlingRights[newCastlingRights ^ oldCastlingRights];
+//        hash ^= zobristCastlingRights[newCastlingRights ^ oldCastlingRights];
+        hash ^= zobristCastlingRights[oldCastlingRights];
+        hash ^= zobristCastlingRights[newCastlingRights];
 
         //Update en passant hash
         if (oldAvailableEnPassant != NO_EN_PASSANT_AVAILABLE) hash ^= zobristEnPassant[oldAvailableEnPassant];
@@ -438,6 +452,10 @@ public class Board {
         int enPassantSquare = enPassantHistory[moveNumber];
         if (enPassantSquare != NO_EN_PASSANT_AVAILABLE) {
             hash ^= zobristEnPassant[enPassantSquare];
+        }
+
+        if (playerToMove == Player.BLACK) {
+            hash ^= zobristTurn;
         }
     }
 
@@ -538,7 +556,7 @@ public class Board {
         return castlingRights;
     }
 
-    private String generateFen() {
+    public String generateFen() {
         String fen = "";
         for (int i = 0; i < 8; i++) {
             int emptySpaces = 0;

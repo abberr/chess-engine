@@ -53,7 +53,7 @@ public class UciView implements Runnable{
             }
 
             //go wtime 299990 btime 295521 winc 0 binc 0 movestogo 49
-            if (input.startsWith("go")) {
+            if (input.startsWith("go wtime")) {
 
                 long wtime = Long.parseLong(getParameterFromString(input, "wtime"));
                 long btime = Long.parseLong(getParameterFromString(input, "btime"));
@@ -74,13 +74,18 @@ public class UciView implements Runnable{
                 }
 
                 System.out.println(String.format("searching for %s ms", searchTime));
-
                 Move bestMove = contr.findBestMove(searchTime);
                 if (bestMove == null) {
                     System.out.println("bestmove 0000");
                 } else {
                     System.out.println("bestmove " + bestMove);
                 }
+            }
+            else if (input.contains("go depth")) {
+                int depth = Integer.parseInt(getParameterFromString(input, "depth"));
+                System.out.println(String.format("searching at  depth %s", depth));
+                Move bestMove = contr.findBestMove(depth);
+                System.out.println("bestmove " + bestMove);
             }
         }
     }
