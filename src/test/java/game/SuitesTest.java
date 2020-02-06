@@ -12,12 +12,13 @@ import static junit.framework.TestCase.assertTrue;
 
 public class SuitesTest {
 
-    private static final long MAX_TIME = 20000;
+//    private static final long MAX_TIME = 20000;
+    private static final long MAX_TIME = 1000;
 
     private static int counter = 0;
 
-    //175 passed, 1 sec limit
-    //390 passed, 20 sec limit
+    //251 passed, 1 sec limit
+    //390(old) passed, 20 sec limit
     @Ignore
     @Test
     public void ECM() throws IOException {

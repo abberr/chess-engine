@@ -121,7 +121,7 @@ public class EvaluatorTest {
         assertTrue(bestMove.toString().equals("c6e5"));
     }
 
-    //1m depth 8
+    //37s
     @Ignore
     @Test
     public void testWholeGame() {
