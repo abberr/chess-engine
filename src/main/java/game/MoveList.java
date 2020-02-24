@@ -3,8 +3,6 @@ package game;
 import java.util.*;
 import java.util.function.Consumer;
 
-import static game.Pieces.*;
-
 public class MoveList implements Iterable<Move> {
 
 
@@ -27,101 +25,97 @@ public class MoveList implements Iterable<Move> {
     };
 
 
-    private LinkedList<Move> promotingMoves = new LinkedList<>();
     private LinkedList<Move> capturingMoves = new LinkedList<>();
     private LinkedList<Move> quietMoves = new LinkedList<>();
     private Move[][] killerMoves;
     private int[][][] historyMoves;
     private Move cacheMove;
+    private boolean cacheMoveAvailable;
 
     private Board board;
 
-    boolean promotingMovesSorted = true, capturingMovesSorted = true, quietMovesSorted = true;
+    boolean capturingMovesGenerated, quietMovesGenerated;
 
-    public MoveList() {
-    }
+    public MoveList(Board board, TranspositionTable transpositionTable, Move[][] killerMoves, int[][][] historyMoves) {
+        this.board = board;
 
-    public void prepare(Board board, TranspositionTable transpositionTable, Move[][] killerMoves, int[][][] historyMoves) {
         State cachedState = transpositionTable.lookup(board.getHash());
-        if (cachedState != null) {
+        if (cachedState != null && cachedState.bestMove != null) {
             this.cacheMove = cachedState.bestMove;
-            promotingMoves.remove(cacheMove);
-            capturingMoves.remove(cacheMove);
-            quietMoves.remove(cacheMove);
+            this.cacheMoveAvailable = true;
         }
+
         this.killerMoves = killerMoves;
         this.historyMoves = historyMoves;
-        prepare(board);
     }
 
-    public void prepare(Board board) {
+    public MoveList(Board board) {
         this.board = board;
-        this.promotingMovesSorted = false;
-        this.capturingMovesSorted = false;
-        this.quietMovesSorted = false;
+        this.cacheMoveAvailable = false;
     }
 
-    public void add(Move move, MoveType moveType) {
-        if (moveType == MoveType.QUIET) {
-            quietMoves.add(move);
-        } else if (moveType == MoveType.CAPTURING) {
-            capturingMoves.add(move);
-        } else if (moveType == MoveType.PROMOTING) {
-            promotingMoves.add(move);
-        }
-    }
-
-    public void addPromoMove(Move move) {
-        promotingMoves.add(move);
-    }
-
-    public void addCapturingMove(Move move) {
-        capturingMoves.add(move);
-    }
-
-    public void addQuietMove(Move move) {
-        quietMoves.add(move);
-    }
-
+    //TODO fix or dont use
     public int size() {
-        int size = promotingMoves.size() + capturingMoves.size() + quietMoves.size();
+        int size = capturingMoves.size() + quietMoves.size();
         size = size + (cacheMove == null ? 0 : 1);
         return size;
     }
 
     public boolean isEmpty() {
-        return this.size() == 0;
+        return false;
     }
 
     public Move getNextMove() {
-        if (cacheMove != null) {
-            Move cacheMoveTemp = cacheMove;
-            cacheMove = null;
-            return cacheMoveTemp;
+        if (cacheMoveAvailable) {
+            cacheMoveAvailable = false;
+            return cacheMove;
         }
 
-        if (promotingMoves.size() != 0) {
-            if (!promotingMovesSorted) {
-                //TODO: remove rook and bishop promotion
-                promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()] + PIECE_VALUES[m.getCapturedPiece()], Comparator.reverseOrder()));
-//                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN || m.getPromotingPiece() == WHITE_KNIGHT || m.getPromotingPiece() == BLACK_KNIGHT);
-                promotingMovesSorted = true;
+//        if (promotingMoves.size() != 0) {
+//            if (!promotingMovesSorted) {
+//                //TODO: remove rook and bishop promotion
+//                promotingMoves.sort(Comparator.comparing(m -> PIECE_VALUES[m.getPromotingPiece()] + PIECE_VALUES[m.getCapturedPiece()], Comparator.reverseOrder()));
+////                promotingMoves.stream().filter(m -> m.getPromotingPiece() == WHITE_QUEEN || m.getPromotingPiece() == BLACK_QUEEN || m.getPromotingPiece() == WHITE_KNIGHT || m.getPromotingPiece() == BLACK_KNIGHT);
+//                promotingMovesSorted = true;
+//            }
+//            return promotingMoves.pop();
+//        }
+
+        if (!capturingMovesGenerated) {
+            this.capturingMoves = MoveGenerator.generateMoves(board, MoveType.CAPTURING);
+            if (cacheMove != null) {
+                capturingMoves.remove(cacheMove);
             }
-            return promotingMoves.pop();
-        } else if (capturingMoves.size() != 0) {
-            if (!capturingMovesSorted) {
-                //TODO: sort losing captures under quiet moves? Tested and made it worse
-                capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
-                capturingMovesSorted = true;
-            }
-            return capturingMoves.pop();
-        } else {
-            if (!quietMovesSorted) {
-                sortQuietMoves();
-                quietMovesSorted = true;
-            }
-            return quietMoves.pop();
+            capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
+            capturingMovesGenerated = true;
         }
+        if (!capturingMoves.isEmpty()) {
+            return capturingMoves.pop();
+        }
+
+        if (!quietMovesGenerated) {
+            this.quietMoves = MoveGenerator.generateMoves(board, MoveType.QUIET);
+            if (cacheMove != null) {
+                quietMoves.remove(cacheMove);
+            }
+            sortQuietMoves();
+            quietMovesGenerated = true;
+        }
+        if (quietMoves.isEmpty()) return null;
+        return quietMoves.pop();
+    }
+
+    public Move getNextCapturingMove() {
+        if (!capturingMovesGenerated) {
+            this.capturingMoves = MoveGenerator.generateMoves(board, MoveType.CAPTURING);
+            if (cacheMove != null) {
+                capturingMoves.remove(cacheMove);
+            }
+            capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
+            capturingMovesGenerated = true;
+        }
+        if (capturingMoves.isEmpty()) return null;
+        return capturingMoves.pop();
     }
 
     private void sortQuietMoves() {
@@ -144,13 +138,14 @@ public class MoveList implements Iterable<Move> {
         return false;
     }
 
+    //TODO dont want to look if empty
     @Override
     public Iterator<Move> iterator() {
         return new Iterator<Move>() {
 
             @Override
             public boolean hasNext() {
-                return size() > 0;
+                return !isEmpty();
             }
 
             @Override
@@ -193,18 +188,6 @@ public class MoveList implements Iterable<Move> {
         byte captured = move.getCapturedPiece();
 
         return MVV_LVA_SCORES[captured][attacker];
-    }
-
-    public void addAll(MoveList moves) {
-        for (Move move : moves.quietMoves) {
-            this.quietMoves.add(move);
-        }
-        for (Move move : moves.capturingMoves) {
-            this.capturingMoves.add(move);
-        }
-        for (Move move : moves.promotingMoves) {
-            this.promotingMoves.add(move);
-        }
     }
 }
 

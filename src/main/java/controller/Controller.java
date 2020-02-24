@@ -2,6 +2,8 @@ package controller;
 
 import game.*;
 
+import java.util.List;
+
 public class Controller {
 
 	private Board board;
@@ -64,8 +66,8 @@ public class Controller {
 		return board.getAvailableMoves();
 	}
 
-	public MoveList getMovesFromSquare(String square) {
-		return board.getMovesOfPiece(square, false);
+	public List<Move> getMovesFromSquare(String square) {
+		return board.getMovesOfPiece(square);
 	}
 
 	public Player getPlayerToMove() {

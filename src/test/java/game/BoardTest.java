@@ -21,4 +21,11 @@ public class BoardTest {
         assertTrue(board.generateFen().contains("1QR5/2P1k3/1P4pp/8/8/1K4b1/8/4n3 b - -"));
 //        assertTrue(board.generateFen().equals("1QR5/2P1k3/1P4pp/8/8/1K4b1/8/4n3 b - - 1 54"));
     }
+
+    @Test
+    public void makeMoveTest() {
+        Board board = new Board();
+
+        board.executeMove("e2e4");
+    }
 }

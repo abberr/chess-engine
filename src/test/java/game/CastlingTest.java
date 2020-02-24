@@ -27,6 +27,7 @@ public class CastlingTest {
         assertTrue(board.getCastlingRightsString().equals("kQK"));
         board.revertLastMove();
 
+        board = new Board("r1b1k2r/8/8/8/8/8/8/R3K2R w qkQK - 0 0");
         //White
         board.executeMove("e1g1");
         assertTrue("White castling kingside", board.getCastlingRightsString().equals("qk"));
@@ -44,6 +45,7 @@ public class CastlingTest {
         assertTrue("White kingside rook moved", board.getCastlingRightsString().equals("qkK"));
         board.revertLastMove();
 
+        board = new Board("r1b1k2r/8/8/8/8/8/8/R3K2R b qkQK - 0 0");
         //Special cases
         board.executeMove("h8h1");
         assertTrue(board.getCastlingRightsString().equals("qQ"));

@@ -2,6 +2,8 @@ package game;
 
 import util.Util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static game.Pieces.*;
@@ -121,7 +123,7 @@ public class Board {
             promoPiece = move.charAt(4);
         }
 
-        for(Move m : getMovesOfPiece(moveFrom, false)) {
+        for(Move m : getMovesOfPiece(moveFrom)) {
             if (moveToIndex == m.getMoveTo()) {
                 if (m.getPromotingPiece() != 0) {
                     if (Character.toLowerCase(PIECE_CHAR[m.getPromotingPiece()]) == promoPiece) {
@@ -307,7 +309,7 @@ public class Board {
     
     
 
-    public MoveList getMovesOfPiece(String position, boolean includePseudoLegal) {
+    public List<Move> getMovesOfPiece(String position) {
         int index = Util.algebraicNotationToIndex(position);
 
         if (squares[index] == EMPTY_SQUARE) {
@@ -315,17 +317,14 @@ public class Board {
         }
 
         //Generate all moves and pick the right ones
-        //TODO cleaner solution
-        MoveList allMoves = MoveGenerator.generateMoves(this, playerToMove);
-        allMoves.addAll(MoveGenerator.generateMoves(this, playerToMove.getOpponent()));
+        MoveList moves = new MoveList(this);
 
-        MoveList desiredMoves = new MoveList();
-        desiredMoves.prepare(this);
+        List<Move> desiredMoves = new ArrayList<>();
 
-
-        for (Move move : allMoves) {
+        for (Move move : moves) {
+            if (move == null) break;
             if (move.toString().startsWith(position)) {
-                desiredMoves.add(move, MoveType.QUIET);
+                desiredMoves.add(move);
             }
         }
 
@@ -334,7 +333,7 @@ public class Board {
     }
 
     public MoveList getAvailableMoves() {
-        return MoveGenerator.generateMoves(this, playerToMove);
+        return new MoveList(this);
     }
 
     public int getValue() {

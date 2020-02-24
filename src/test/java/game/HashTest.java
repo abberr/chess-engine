@@ -45,12 +45,16 @@ public class HashTest {
 
     @Test
     public void hashShouldTakeTurnIntoAccount() {
-        board = new Board("5k1K/8/8/8/8/8/8/rR6 w - -");
+        board = new Board("5k1K/8/8/8/8/8/8/rR6 b - -");
+        board.printBoard();
         long hash = board.getHash();
         //Do moves that result i same position but different turns
         board.executeMove("a1a2");
+        board.printBoard();
         board.executeMove("b1b2");
+        board.printBoard();
         board.executeMove("a2a3");
+        board.printBoard();
         board.executeMove("b2b1");
         board.executeMove("a3a1");
         long hash2 = board.getHash();

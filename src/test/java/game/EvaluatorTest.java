@@ -97,7 +97,7 @@ public class EvaluatorTest {
     //PV: c3xe4, d5xe4, b2xe2
     @Test
     public void test8() {
-        board = new Board("r3k2r/ppq2pp1/2pbp3/3pNb1p/2PPnP2/1QN1n2P/PP2B1P1/2R1BRN1 w - -");
+        board = new Board("r3k2r/ppq2pp1/2pbp3/3pNb1p/2PPnP2/1QN1n2P/PP2B1P1/2R1BRK1 w - -");
         Move bestMove = Evaluator.findBestMove(board, SEARCH_DEPTH);
 
         assertTrue(bestMove.toString().equals("c3xe4"));
