@@ -27,7 +27,7 @@ public class Board {
 
     private int moveNumber = 0;
 
-    //Store all theses 3 in one array instead (less than 32 bits needed)
+    //TODO: Store all theses 3 in one array instead (less than 32 bits needed)
     private int[] castlingRightsHistory = new int[MAXIMUM_NUMBER_OF_MOVES];     //MASK: qkQK
     private int[] enPassantHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
     private int[] fiftyMoveHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
@@ -321,13 +321,12 @@ public class Board {
 
         List<Move> desiredMoves = new ArrayList<>();
 
-        for (Move move : moves) {
-            if (move == null) break;
+        Move move;
+        while ((move = moves.getNextCapturingMove()) != null) {
             if (move.toString().startsWith(position)) {
                 desiredMoves.add(move);
             }
         }
-
 
         return desiredMoves;
     }

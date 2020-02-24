@@ -140,13 +140,8 @@ public class Evaluator {
 
         //Find best move
         int nodesSearched = 0;
-
-        for (Move move : moves) {
-            if (move == null) break;
-
-            time = System.currentTimeMillis();
-            sortingTime += System.currentTimeMillis() - time;
-
+        Move move;
+        while ((move = moves.getNextMove()) != null) {
             board.executeMove(move);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
                 board.executeInvertedMove(move);
@@ -238,16 +233,13 @@ public class Evaluator {
             alpha = boardValue;
         }
 
-        time = System.currentTimeMillis();
         MoveList moves = new MoveList(board);
-        moveGenTime += System.currentTimeMillis() - time;
 
-        Move m = moves.getNextCapturingMove();
-        while (m != null){
+        Move m;
+        while ((m = moves.getNextCapturingMove()) != null) {
             board.executeMove(m);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
                 board.executeInvertedMove(m);
-                m = moves.getNextCapturingMove();
                 continue;
             }
 
@@ -258,7 +250,6 @@ public class Evaluator {
                 return beta;
             if (score > alpha)
                 alpha = score;
-            m = moves.getNextCapturingMove();
         }
 
         return alpha;

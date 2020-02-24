@@ -3,7 +3,7 @@ package game;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class MoveList implements Iterable<Move> {
+public class MoveList {
 
 
     private static int MVV_LVA_SCORES[][] = {
@@ -61,10 +61,6 @@ public class MoveList implements Iterable<Move> {
         return size;
     }
 
-    public boolean isEmpty() {
-        return false;
-    }
-
     public Move getNextMove() {
         if (cacheMoveAvailable) {
             cacheMoveAvailable = false;
@@ -81,16 +77,9 @@ public class MoveList implements Iterable<Move> {
 //            return promotingMoves.pop();
 //        }
 
-        if (!capturingMovesGenerated) {
-            this.capturingMoves = MoveGenerator.generateMoves(board, MoveType.CAPTURING);
-            if (cacheMove != null) {
-                capturingMoves.remove(cacheMove);
-            }
-            capturingMoves.sort(Comparator.comparing(m -> mvvLva(m), Comparator.reverseOrder()));
-            capturingMovesGenerated = true;
-        }
-        if (!capturingMoves.isEmpty()) {
-            return capturingMoves.pop();
+        Move capturingMove = getNextCapturingMove();
+        if (capturingMove != null) {
+            return capturingMove;
         }
 
         if (!quietMovesGenerated) {
@@ -136,50 +125,6 @@ public class MoveList implements Iterable<Move> {
             }
         }
         return false;
-    }
-
-    //TODO dont want to look if empty
-    @Override
-    public Iterator<Move> iterator() {
-        return new Iterator<Move>() {
-
-            @Override
-            public boolean hasNext() {
-                return !isEmpty();
-            }
-
-            @Override
-            public Move next() {
-                return getNextMove();
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-
-    @Override
-    public void forEach(Consumer<? super Move> action) {
-        Objects.requireNonNull(action);
-        for (Move move : this) {
-            action.accept(move);
-        }
-    }
-
-    @Override
-    public Spliterator<Move> spliterator() {
-        return null;
-    }
-
-    //TODO use a lightweight executeMove instead (no need to update hash etc.)
-    private int boardValueAfterMove(Move move) {
-        board.executeMove(move);
-        int value = board.getValue();
-        board.executeInvertedMove(move);
-
-        return value;
     }
 
     private int mvvLva(Move move) {

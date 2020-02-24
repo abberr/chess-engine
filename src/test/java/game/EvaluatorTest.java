@@ -23,7 +23,7 @@ public class EvaluatorTest {
     public void startingPos() {
         board = new Board();
 
-        Evaluator.findBestMove(board, 10);
+        Evaluator.findBestMove(board, 11);
     }
 
     //Pv: a1b1, b2ax2, d1xd4

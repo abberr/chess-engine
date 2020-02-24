@@ -24,7 +24,6 @@ public class MoveGenerator {
             SOUTH + SOUTH_EAST, SOUTH + SOUTH_WEST,
             WEST + SOUTH_WEST, WEST + NORTH_WEST};
 
-//    private static MoveList moves;
     private static LinkedList<Move> moves;
 
     public static LinkedList<Move> generateMoves(Board board, MoveType moveType) {
@@ -47,7 +46,6 @@ public class MoveGenerator {
         return moves;
     }
 
-    //Maybe set initial size to
     private static void generateMovesOfPiece(byte[] squares, int index, int castlingRights, int enPassantIndex, MoveType moveType) {
 
         byte piece = squares[index];
