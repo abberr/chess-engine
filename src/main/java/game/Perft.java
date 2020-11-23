@@ -21,7 +21,8 @@ public class Perft {
         if (depth == 0) return 1;
         long nodes = 0;
         MoveList moves = board.getAvailableMoves();
-        for (Move move : moves) {
+        Move move;
+        while ((move = moves.getNextCapturingMove()) != null) {
             board.executeMove(move);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
                 board.executeInvertedMove(move);
@@ -62,7 +63,8 @@ public class Perft {
     private static void perftDetailedRecursive(Board board, int depth) {
         if (depth == 0) return;
         MoveList moves = board.getAvailableMoves();
-        for (Move move : moves) {
+        Move move;
+        while ((move = moves.getNextCapturingMove()) != null) {
 
             board.executeMove(move);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {

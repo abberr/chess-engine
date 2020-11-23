@@ -1,19 +1,19 @@
 package view;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import controller.Controller;
 import game.Board;
+import game.Move;
 import game.MoveList;
 import game.Pieces;
 import util.Util;
@@ -66,7 +66,7 @@ public class BoardView extends JPanel {
                     selectedSquare = null;
 				}
 				else if (selectedSquare == null) {
-					MoveList moves = contr.getMovesFromSquare(clickedSquare);
+					List<Move> moves = contr.getMovesFromSquare(clickedSquare);
 					if (moves != null) {
 						selectedSquare = clickedSquare;
 					}

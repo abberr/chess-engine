@@ -26,7 +26,6 @@ public class Evaluator {
     private static int searchDepth = SEARCH_DEPTH_DEFAULT;
     private static long endTime;
 
-    private static boolean useHash;
     private static long moveCounter;
     private static long cacheHitCounter;
 
@@ -51,16 +50,15 @@ public class Evaluator {
 
 //        transpositionTable.clear();
 
-        useHash = true;
-
         int depth = 1;
         int value = 0;
 
         while (System.currentTimeMillis() < endTime && depth <= searchDepth) {
             resetCounters();
             long time = System.currentTimeMillis();
-            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);   //TODO makeNullMove should be true?
+            value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);
             long searchTime = System.currentTimeMillis() - time;
+            searchTime = searchTime == 0 ? 1 : searchTime;
 
             if (System.currentTimeMillis() > endTime)
                 break;
@@ -70,14 +68,11 @@ public class Evaluator {
             sb.append("info depth " + depth);
             sb.append(" time " + searchTime);
             sb.append(" nodes " + moveCounter);
-            sb.append(" cacheHit " + cacheHitCounter);
-            sb.append(" quiscenceTime " + quiscenceTime);
-            sb.append(" movegenTime " + moveGenTime);
-            sb.append(" sortingTime " + sortingTime);
+            sb.append(" nps " + (moveCounter/searchTime*1000));
             sb.append(" evalTime " + evalTime);
             sb.append(" pv ");
             getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
-            sb.append(" score cp " + value);
+            sb.append("score cp " + value);
 
             //Stop searching if check mate found
             if (value >= MATE_SCORE - MAX_PLY) {
@@ -85,6 +80,15 @@ public class Evaluator {
                 System.out.println(sb);
                 break;
             }
+
+            //Additional info
+            sb.append(" string [");
+            sb.append(" cacheHit " + cacheHitCounter);
+            sb.append(" quiscenceTime " + quiscenceTime);
+//            sb.append(" movegenTime " + moveGenTime);
+//            sb.append(" sortingTime " + sortingTime);
+            sb.append(" evalTime " + evalTime);
+            sb.append(" string ]");
             System.out.println(sb);
             depth++;
         }
@@ -105,13 +109,10 @@ public class Evaluator {
         // Quiscence search when reaching a leaf node
         if (depth <= 0) {
 
-            MoveGenerator.setSearchModeQuiescence();
             long time = System.currentTimeMillis();
-//            int value = board.getValue() * player.getValue();
+//            int value = board.getValue() * board.getPlayerToMove().getValue();
             int value = quisence(alpha, beta, board);
             quiscenceTime += System.currentTimeMillis() - time;
-
-            MoveGenerator.setSearchModeNormal();
 
             //Dont need to save state since we wont lookup at depth 0 anyways
 //            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
@@ -133,23 +134,17 @@ public class Evaluator {
 
         //Move generation
         long time = System.currentTimeMillis();
-        MoveList moves = board.getAvailableMoves();
+        MoveList moves = new MoveList(board, transpositionTable, killerMoves, historyMoves);
         moveGenTime += System.currentTimeMillis() - time;
 
         NodeType nodeType = NodeType.ALPHA;
         Move bestMove = null;
         int bestValue = Integer.MIN_VALUE;
 
-        moves.prepare(board, transpositionTable, killerMoves, historyMoves);
-
         //Find best move
         int nodesSearched = 0;
-        while (!moves.isEmpty()) {
-
-            time = System.currentTimeMillis();
-            Move move = moves.getNextMove();
-            sortingTime += System.currentTimeMillis() - time;
-
+        Move move;
+        while ((move = moves.getNextMove()) != null) {
             board.executeMove(move);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
                 board.executeInvertedMove(move);
@@ -241,12 +236,10 @@ public class Evaluator {
             alpha = boardValue;
         }
 
-        time = System.currentTimeMillis();
-        MoveList moves = board.getAvailableMoves();
-        moveGenTime += System.currentTimeMillis() - time;
+        MoveList moves = new MoveList(board);
 
-        moves.prepare(board);
-        for (Move m : moves) {
+        Move m;
+        while ((m = moves.getNextCapturingMove()) != null) {
             board.executeMove(m);
             if (board.isInCheck(board.getPlayerToMove().getOpponent())) {
                 board.executeInvertedMove(m);

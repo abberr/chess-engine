@@ -2,6 +2,8 @@ package game;
 
 import util.Util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static game.Pieces.*;
@@ -25,12 +27,14 @@ public class Board {
 
     private int moveNumber = 0;
 
-    //Store all theses 3 in one array instead (less than 32 bits needed)
+    //TODO: Store all theses 3 in one array instead (less than 32 bits needed)
     private int[] castlingRightsHistory = new int[MAXIMUM_NUMBER_OF_MOVES];     //MASK: qkQK
     private int[] enPassantHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
     private int[] fiftyMoveHistory = new int[MAXIMUM_NUMBER_OF_MOVES];
 
     private long[] hashHistory = new long[MAXIMUM_NUMBER_OF_MOVES];
+
+    private EvalCache evalCache = new EvalCache();
 
     private int wKingIndex, bKingIndex;
 
@@ -121,7 +125,7 @@ public class Board {
             promoPiece = move.charAt(4);
         }
 
-        for(Move m : getMovesOfPiece(moveFrom, false)) {
+        for(Move m : getMovesOfPiece(moveFrom)) {
             if (moveToIndex == m.getMoveTo()) {
                 if (m.getPromotingPiece() != 0) {
                     if (Character.toLowerCase(PIECE_CHAR[m.getPromotingPiece()]) == promoPiece) {
@@ -307,7 +311,7 @@ public class Board {
     
     
 
-    public MoveList getMovesOfPiece(String position, boolean includePseudoLegal) {
+    public List<Move> getMovesOfPiece(String position) {
         int index = Util.algebraicNotationToIndex(position);
 
         if (squares[index] == EMPTY_SQUARE) {
@@ -315,29 +319,33 @@ public class Board {
         }
 
         //Generate all moves and pick the right ones
-        //TODO cleaner solution
-        MoveList allMoves = MoveGenerator.generateMoves(this, playerToMove);
-        allMoves.addAll(MoveGenerator.generateMoves(this, playerToMove.getOpponent()));
+        MoveList moves = new MoveList(this);
 
-        MoveList desiredMoves = new MoveList();
-        desiredMoves.prepare(this);
+        List<Move> desiredMoves = new ArrayList<>();
 
-
-        for (Move move : allMoves) {
+        Move move;
+        while ((move = moves.getNextMove()) != null) {
             if (move.toString().startsWith(position)) {
-                desiredMoves.add(move, MoveType.QUIET);
+                desiredMoves.add(move);
             }
         }
-
 
         return desiredMoves;
     }
 
     public MoveList getAvailableMoves() {
-        return MoveGenerator.generateMoves(this, playerToMove);
+        return new MoveList(this);
     }
 
     public int getValue() {
+//        Integer value = evalCache.lookup(getHash());
+//        if (value == null) {
+//            value = StaticEvaluator.getValue(squares);
+//            evalCache.saveState(hash, value);
+//        }
+//
+//        return value;
+
         return StaticEvaluator.getValue(squares);
     }
 
