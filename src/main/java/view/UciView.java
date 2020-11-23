@@ -49,7 +49,6 @@ public class UciView implements Runnable{
             if (input.startsWith("position startpos moves")) {
                 contr.restart();
                 Arrays.stream(input.split(" ")).skip(3).forEach(contr::executeMove);
-                contr.getBoard().printBoard();
             }
 
             //go wtime 299990 btime 295521 winc 0 binc 0 movestogo 49
@@ -80,6 +79,13 @@ public class UciView implements Runnable{
                 } else {
                     System.out.println("bestmove " + bestMove);
                 }
+            }
+            else if (input.startsWith("go movetime")) {
+                //TODO refactor
+                long time = Long.parseLong(input.split(" ")[2]);
+                System.out.println(String.format("searching for %s ms", time));
+                Move bestMove = contr.findBestMove(time);
+                System.out.println("bestmove " + bestMove);
             }
             else if (input.contains("go depth")) {
                 int depth = Integer.parseInt(getParameterFromString(input, "depth"));

@@ -1,5 +1,6 @@
 package game;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,4 +20,15 @@ public class EndGameTest {
 
         assertTrue(bestMove.toString().equals("a2a4"));
     }
+
+    //TODO Requires null-moves to be disabled in endgame
+    @Ignore
+    @Test
+    public void findRookPromoToMate() {
+        Board board = new Board("8/k1P5/2K5/8/8/8/8/8 w - -");
+        Move bestMove = Evaluator.findBestMove(board, 4);
+
+        Assert.assertTrue(bestMove.toString().equals("c7c8r"));
+    }
+
 }

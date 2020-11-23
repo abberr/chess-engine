@@ -34,6 +34,8 @@ public class Board {
 
     private long[] hashHistory = new long[MAXIMUM_NUMBER_OF_MOVES];
 
+    private EvalCache evalCache = new EvalCache();
+
     private int wKingIndex, bKingIndex;
 
     Move lastMove;
@@ -322,7 +324,7 @@ public class Board {
         List<Move> desiredMoves = new ArrayList<>();
 
         Move move;
-        while ((move = moves.getNextCapturingMove()) != null) {
+        while ((move = moves.getNextMove()) != null) {
             if (move.toString().startsWith(position)) {
                 desiredMoves.add(move);
             }
@@ -336,6 +338,14 @@ public class Board {
     }
 
     public int getValue() {
+//        Integer value = evalCache.lookup(getHash());
+//        if (value == null) {
+//            value = StaticEvaluator.getValue(squares);
+//            evalCache.saveState(hash, value);
+//        }
+//
+//        return value;
+
         return StaticEvaluator.getValue(squares);
     }
 

@@ -26,7 +26,6 @@ public class Evaluator {
     private static int searchDepth = SEARCH_DEPTH_DEFAULT;
     private static long endTime;
 
-    private static boolean useHash;
     private static long moveCounter;
     private static long cacheHitCounter;
 
@@ -51,8 +50,6 @@ public class Evaluator {
 
 //        transpositionTable.clear();
 
-        useHash = true;
-
         int depth = 1;
         int value = 0;
 
@@ -61,6 +58,7 @@ public class Evaluator {
             long time = System.currentTimeMillis();
             value = minMax(Integer.MIN_VALUE + 1, Integer.MAX_VALUE - 1, depth, 1, board, false);
             long searchTime = System.currentTimeMillis() - time;
+            searchTime = searchTime == 0 ? 1 : searchTime;
 
             if (System.currentTimeMillis() > endTime)
                 break;
@@ -70,14 +68,11 @@ public class Evaluator {
             sb.append("info depth " + depth);
             sb.append(" time " + searchTime);
             sb.append(" nodes " + moveCounter);
-            sb.append(" cacheHit " + cacheHitCounter);
-            sb.append(" quiscenceTime " + quiscenceTime);
-//            sb.append(" movegenTime " + moveGenTime);
-//            sb.append(" sortingTime " + sortingTime);
+            sb.append(" nps " + (moveCounter/searchTime*1000));
             sb.append(" evalTime " + evalTime);
             sb.append(" pv ");
             getPvMoves(board, depth).forEach(m -> sb.append(m + " "));
-            sb.append(" score cp " + value);
+            sb.append("score cp " + value);
 
             //Stop searching if check mate found
             if (value >= MATE_SCORE - MAX_PLY) {
@@ -85,6 +80,15 @@ public class Evaluator {
                 System.out.println(sb);
                 break;
             }
+
+            //Additional info
+            sb.append(" string [");
+            sb.append(" cacheHit " + cacheHitCounter);
+            sb.append(" quiscenceTime " + quiscenceTime);
+//            sb.append(" movegenTime " + moveGenTime);
+//            sb.append(" sortingTime " + sortingTime);
+            sb.append(" evalTime " + evalTime);
+            sb.append(" string ]");
             System.out.println(sb);
             depth++;
         }
@@ -109,7 +113,6 @@ public class Evaluator {
 //            int value = board.getValue() * board.getPlayerToMove().getValue();
             int value = quisence(alpha, beta, board);
             quiscenceTime += System.currentTimeMillis() - time;
-
 
             //Dont need to save state since we wont lookup at depth 0 anyways
 //            transpositionTable.saveState(board.getHash(), depth, value, null, NodeType.EXACT);
